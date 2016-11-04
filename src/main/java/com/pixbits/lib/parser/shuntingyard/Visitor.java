@@ -1,4 +1,4 @@
-package com.pixbits.parser.shuntingyard;
+package com.pixbits.lib.parser.shuntingyard;
 
 public interface Visitor<T>
 {

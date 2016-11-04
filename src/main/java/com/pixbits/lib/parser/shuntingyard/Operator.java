@@ -1,4 +1,4 @@
-package com.pixbits.parser.shuntingyard;
+package com.pixbits.lib.parser.shuntingyard;
 
 public class Operator implements Comparable<Operator>
 {

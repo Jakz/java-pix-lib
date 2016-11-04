@@ -1,4 +1,4 @@
-package com.pixbits.parser.shuntingyard;
+package com.pixbits.lib.parser.shuntingyard;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Consumer;
 
-import com.pixbits.parser.ParseException;
+import com.pixbits.lib.parser.ParseException;
 
 
 public class ShuntingYardParser

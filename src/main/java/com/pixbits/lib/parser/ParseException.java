@@ -1,4 +1,4 @@
-package com.pixbits.parser;
+package com.pixbits.lib.parser;
 
 public class ParseException extends Exception
 {

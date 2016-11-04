@@ -1,4 +1,4 @@
-package com.pixbits.parser;
+package com.pixbits.lib.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
