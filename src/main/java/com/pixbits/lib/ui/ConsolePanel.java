@@ -5,15 +5,23 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+@SuppressWarnings("serial")
 public class ConsolePanel extends JPanel implements KeyListener
 {
   private final JTextArea console;
   private int startCommandPosition;
+  
+  private Supplier<String> prompt = () -> "> ";
+  private Consumer<String> parser = s -> {};
 
   public ConsolePanel(int rows, int cols)
   {
@@ -22,33 +30,34 @@ public class ConsolePanel extends JPanel implements KeyListener
     pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
     
-    console.setFont(new Font("SF Mono", Font.BOLD, 12));
+    console.setFont(new Font("Monaco", Font.BOLD, 12));
     console.setBackground(Color.BLACK);
     console.setForeground(new Color(177,242,27));
+    console.getCaret().setVisible(true);
+    
+    ActionMap actionMap = console.getActionMap();
+    actionMap.get("caret-down").setEnabled(false);
+    actionMap.get("caret-up").setEnabled(false);
     
     this.setLayout(new BorderLayout());
     this.add(pane, BorderLayout.CENTER);
 
     console.addKeyListener(this);
-    
-    appendPrompt();
   }
+  
+  public void setPrompt(Supplier<String> prompt) { this.prompt = prompt; }
+  public void setParser(Consumer<String> parser) { this.parser = parser; };
   
   public void appendPrompt()
   {
     /*if (console.getText().length() != 0 && console.getText().charAt(console.getText().length()-1) != '\n');
       console.append("\n");*/
     
-    console.append("> ");
+    console.append(prompt.get());
     console.setCaretPosition(console.getText().length());
     startCommandPosition = console.getText().length();
   }
-  
-  public void syntaxError(String message)
-  {
-    console.append("\nSyntax error: "+message.replaceAll("\n", " ")+"\n");
-  }
-  
+
   public void keyPressed(KeyEvent k)
   {
 
@@ -60,8 +69,8 @@ public class ConsolePanel extends JPanel implements KeyListener
     {
       try
       {
-        String command = console.getText(startCommandPosition, console.getText().length() - startCommandPosition);
-        System.out.println("Executing \'"+command+"\'");
+        String command = console.getText(startCommandPosition, console.getText().length() - 1 - startCommandPosition);
+        parser.accept(command);
       }
       /*catch (ParserException e)
       {
@@ -78,6 +87,10 @@ public class ConsolePanel extends JPanel implements KeyListener
         appendPrompt();
       }
     }
+    else if (k.getKeyChar() == KeyEvent.VK_UP)
+    {
+      
+    }
   }
   
   public void keyTyped(KeyEvent k)
@@ -85,8 +98,13 @@ public class ConsolePanel extends JPanel implements KeyListener
     
   }
   
-  public void append(String text)
+  public void append(String string, Object... args)
   {
-    console.append(text+"\n");
+    console.append(String.format(string, args));
+  }
+  
+  public void appendln(String string, Object... args)
+  {
+    console.append(String.format(string+"\n", args));
   }
 }
