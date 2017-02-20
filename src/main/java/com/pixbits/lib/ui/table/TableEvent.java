@@ -5,7 +5,8 @@ public class TableEvent
    public static enum Type
    {
      COLUMN_HIDDEN,
-     COLUMN_SHOWN
+     COLUMN_SHOWN,
+     COLUMN_ADDED,
    };
    
    public final Type type;

@@ -1,5 +1,6 @@
 package com.pixbits.lib.functional;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -10,6 +11,9 @@ public final class StreamException
 
   @FunctionalInterface
   public interface Consumer_WithExceptions<T> { void accept(T t) throws Exception; }
+  
+  @FunctionalInterface
+  public interface BiConsumer_WithExceptions<T, V> { void accept(T t, V v) throws Exception; }
 
   @FunctionalInterface
   public interface Function_WithExceptions<T, R>
@@ -42,6 +46,20 @@ public final class StreamException
       {
         consumer.accept(t);
       } catch (Exception exception)
+      {
+        throwAsUnchecked(exception);
+      }
+    };
+  }
+  
+  public static <T, V> BiConsumer<T,V> rethrowBiConsumer(BiConsumer_WithExceptions<T,V> consumer)
+  {
+    return (t,v) -> {
+      try
+      {
+        consumer.accept(t, v);
+      }
+      catch (Exception exception)
       {
         throwAsUnchecked(exception);
       }
