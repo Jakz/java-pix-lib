@@ -1,6 +1,6 @@
 package com.pixbits.lib.ui.table;
 
-public interface TableDataSource<T>
+public interface DataSource<T>
 {
   T get(int index);
   int size();

@@ -1,12 +1,15 @@
 package com.pixbits.lib.ui.table;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JViewport;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -20,11 +23,12 @@ public class TableModel<T> extends AbstractTableModel
   
   private List<ColumnSpec<T,?>> allColumns;
   private List<ColumnSpec<T,?>> columns;
-  private TableDataSource<T> data;
+  private DataSource<T> data;
   
   final JTable table;
+  final JScrollPane scrollPane;
   
-  public TableModel(JTable table, TableDataSource<T> data)
+  public TableModel(JTable table, JScrollPane scrollPane, DataSource<T> data)
   {
     this.data = data;
     this.allColumns = new ArrayList<>();
@@ -34,6 +38,7 @@ public class TableModel<T> extends AbstractTableModel
     this.defaultEditors = new HashMap<>();
     
     this.table = table;
+    this.scrollPane = scrollPane;
     table.setModel(this);
   }
   
@@ -105,6 +110,13 @@ public class TableModel<T> extends AbstractTableModel
   @Override
   public Object getValueAt(int row, int col)
   {
+    /*JViewport viewport = scrollPane.getViewport();
+    Rectangle bounds = table.getCellRect(row, col, true);
+    Rectangle position = viewport.getViewRect();
+
+    if (!position.intersects(bounds))
+      return null;*/
+    
     Object value = columns.get(col).getter.apply(data.get(row));
     return value;
   }
