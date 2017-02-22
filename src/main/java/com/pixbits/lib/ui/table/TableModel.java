@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import javax.swing.JScrollPane;
@@ -23,14 +24,19 @@ public class TableModel<T> extends AbstractTableModel
   
   private List<ColumnSpec<T,?>> allColumns;
   private List<ColumnSpec<T,?>> columns;
-  private DataSource<T> data;
+  private Optional<DataSource<T>> data;
   
   final JTable table;
   final JScrollPane scrollPane;
   
+  public TableModel(JTable table, JScrollPane scrollPane)
+  {
+    this(table, scrollPane, null);
+  }
+  
   public TableModel(JTable table, JScrollPane scrollPane, DataSource<T> data)
   {
-    this.data = data;
+    this.data = Optional.ofNullable(data);
     this.allColumns = new ArrayList<>();
     this.columns = new ArrayList<>();
     
@@ -98,13 +104,24 @@ public class TableModel<T> extends AbstractTableModel
         this.fireTableStructureChanged();
         break;
       }
+      case DATA_SOURCE_CHANGED:
+      {
+        this.fireTableDataChanged();
+        break;
+      }
     }
+  }
+  
+  public void setData(DataSource<T> data)
+  {
+    this.data = Optional.of(data);
+    notifyEventIfNeeded(new TableEvent(TableEvent.Type.DATA_SOURCE_CHANGED));
   }
   
   @Override public String getColumnName(int col) { return columns.get(col).name; }
   @Override public Class<?> getColumnClass(int col) { return columns.get(col).type; }
   
-  @Override public int getRowCount() { return data.size(); }
+  @Override public int getRowCount() { return data.isPresent() ? data.get().size() : 0; }
   @Override public int getColumnCount() { return columns.size(); }
 
   @Override
@@ -117,7 +134,7 @@ public class TableModel<T> extends AbstractTableModel
     if (!position.intersects(bounds))
       return null;*/
     
-    Object value = columns.get(col).getter.apply(data.get(row));
+    Object value = columns.get(col).getter.apply(row, data.get().get(row));
     return value;
   }
   
@@ -125,6 +142,6 @@ public class TableModel<T> extends AbstractTableModel
   @Override
   public void setValueAt(Object value, int row, int col)
   {
-    ((BiConsumer<T,Object>)columns.get(col).setter.get()).accept(data.get(row), value);
+    ((BiConsumer<T,Object>)columns.get(col).setter.get()).accept(data.get().get(row), value);
   }
 }

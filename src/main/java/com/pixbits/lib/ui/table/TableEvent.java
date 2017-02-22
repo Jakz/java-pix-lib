@@ -7,6 +7,7 @@ public class TableEvent
      COLUMN_HIDDEN,
      COLUMN_SHOWN,
      COLUMN_ADDED,
+     DATA_SOURCE_CHANGED,
    };
    
    public final Type type;
