@@ -35,6 +35,12 @@ public abstract class XMLHandler<T> extends DefaultHandler
     return time;
   }
   
+  protected void assertTrue(boolean condition) throws SAXException
+  {
+    if (!condition)
+      throw new SAXException();
+  }
+  
   protected int asInt()
   {
     String value = asString(); 
@@ -45,6 +51,18 @@ public abstract class XMLHandler<T> extends DefaultHandler
   {
     String value = asString();
     return !value.isEmpty() ? Long.parseLong(asString()) : 0;
+  }
+  
+  protected float asFloat()
+  {
+    String value = asString();
+    return !value.isEmpty() ? Float.parseFloat(asString()) : 0.0f;
+  }
+  
+  protected double asDouble()
+  {
+    String value = asString();
+    return !value.isEmpty() ? Double.parseDouble(asString()) : 0.0;
   }
   
   protected long asHexLong()
@@ -58,13 +76,13 @@ public abstract class XMLHandler<T> extends DefaultHandler
     buffer.write(ch,start,length);
   }
   
-  @Override public final void endElement(String namespaceURI, String name, String qName) throws SAXException
+  @Override public void endElement(String namespaceURI, String name, String qName) throws SAXException
   {
     end(name);
     stack.pop();
   }
   
-  @Override public final void startElement(String namespaceURI, String name, String qName, Attributes attr) throws SAXException
+  @Override public void startElement(String namespaceURI, String name, String qName, Attributes attr) throws SAXException
   {
     currentAttributes = attr;
     clearBuffer();
@@ -143,8 +161,8 @@ public abstract class XMLHandler<T> extends DefaultHandler
   protected final void clearBuffer() { buffer.reset(); }
   
   protected abstract void init();
-  protected abstract void start(String name, Attributes attr);
-  protected abstract void end(String name);
+  protected abstract void start(String name, Attributes attr) throws SAXException;
+  protected abstract void end(String name) throws SAXException;
   
   abstract public T get();
 }

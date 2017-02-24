@@ -64,7 +64,5 @@ public class XMLParser<T> implements ErrorHandler
   {
     String message = "Fatal Error: " + getParseExceptionInfo(exception);
     throw new SAXException(message);
-  }
-  
-  
+  }  
 }
