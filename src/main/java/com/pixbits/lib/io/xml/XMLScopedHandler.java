@@ -26,7 +26,7 @@ public abstract class XMLScopedHandler<T> extends XMLHandler<T>
   @Override public final void endElement(String namespaceURI, String name, String qName) throws SAXException
   {
     scopes.pop();
-    System.out.println("scopes.pop: "+Arrays.toString(scopes.toArray()));
+    //System.out.println("scopes.pop: "+Arrays.toString(scopes.toArray()));
     super.endElement(namespaceURI, name, qName);
   }
   
@@ -34,13 +34,18 @@ public abstract class XMLScopedHandler<T> extends XMLHandler<T>
   {
     super.startElement(namespaceURI, name, qName, attr);
     scopes.push(name);
-    System.out.println("scopes.push: "+Arrays.toString(scopes.toArray()));
+    //System.out.println("scopes.push: "+Arrays.toString(scopes.toArray()));
   }
   
   protected void assertCurrentScope(String name) throws SAXException
   {
     if (!isCurrentScope(name))
       throw new SAXException("Expected current scope "+name+" but found "+scopes.peek());
+  }
+  
+  protected String currentScope()
+  { 
+    return scopes.isEmpty() ? "" : scopes.peek();
   }
     
   protected boolean isCurrentScope(String name)

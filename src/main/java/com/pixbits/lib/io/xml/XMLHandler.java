@@ -78,7 +78,7 @@ public abstract class XMLHandler<T> extends DefaultHandler
   
   @Override public void endElement(String namespaceURI, String name, String qName) throws SAXException
   {
-    end(name);
+    end(namespaceURI, name);
     stack.pop();
   }
   
@@ -87,10 +87,18 @@ public abstract class XMLHandler<T> extends DefaultHandler
     currentAttributes = attr;
     clearBuffer();
     stack.push(new HashMap<>());
-    start(name, attr);
+    start(namespaceURI, name, attr);
   }
   
-  protected String attrString(String key) { return currentAttributes.getValue(key); }
+  protected String attrString(String key) throws SAXException
+  { 
+    String value = currentAttributes.getValue(key);
+    
+    if (value == null)
+      throw new SAXException(String.format("Attribute '%s' is missing.", key));
+      
+    return currentAttributes.getValue(key);
+  }
   
   protected long longAttributeOrDefault(String key, long value)
   {
@@ -153,7 +161,7 @@ public abstract class XMLHandler<T> extends DefaultHandler
     catch (NullPointerException | NumberFormatException e)
     {
       throw new IllegalArgumentException(
-        String.format("Attribute %s is missing, or not parseable as double or not satifsfying preidcate", key)
+        String.format("Attribute %s is missing, or not parseable as double or not satifsfying predicate", key)
       );
     }
   }
@@ -161,8 +169,8 @@ public abstract class XMLHandler<T> extends DefaultHandler
   protected final void clearBuffer() { buffer.reset(); }
   
   protected abstract void init();
-  protected abstract void start(String name, Attributes attr) throws SAXException;
-  protected abstract void end(String name) throws SAXException;
+  protected abstract void start(String ns, String name, Attributes attr) throws SAXException;
+  protected abstract void end(String ns, String name) throws SAXException;
   
   abstract public T get();
 }
