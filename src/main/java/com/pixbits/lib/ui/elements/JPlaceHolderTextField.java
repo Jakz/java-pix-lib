@@ -1,4 +1,4 @@
-package com.pixbits.lib.ui;
+package com.pixbits.lib.ui.elements;
 
 import java.awt.Color;
 import java.awt.FontMetrics;

@@ -16,6 +16,8 @@ public class SimpleParser
   private final Map<Character, TokenSpec> map;
   private final TokenSpec defaultToken;
   
+  private int column, line;
+  
   public SimpleParser()
   {
     this(null, null);
@@ -92,11 +94,25 @@ public class SimpleParser
     return token;
   }
   
+  public int getLine() { return line; }
+  public int getColumn() { return column; }
+  
   public void parse() throws IOException
   {
+    column = 0;
+    line = 0;
+    
     int c = -1;
     while ((c = is.read()) != -1)
     {
+      if (c == '\n')
+      {
+        ++line;
+        column = 0;
+      }
+      else
+        ++column;
+      
       TokenSpec token = token((char)c);
       
       if (token.type == TokenSpec.Type.WHITESPACE && !quote)

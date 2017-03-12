@@ -15,7 +15,7 @@ import javax.swing.JTextField;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableCellEditor;
 
-import com.pixbits.lib.ui.ComponentBorder;
+import com.pixbits.lib.ui.elements.ComponentBorder;
 
 public class PathArgumentEditor implements TableCellEditor
 {
