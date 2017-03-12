@@ -9,12 +9,24 @@ import java.nio.file.PathMatcher;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.pixbits.lib.functional.StreamException;
+
 public class FolderScanner
 {
   final Set<Path> files;
   final Set<Path> excluded;
   final PathMatcher filter;
   final boolean recursive;
+  
+  public FolderScanner(boolean recursive)
+  {
+    this(FileSystems.getDefault().getPathMatcher("glob:*.*"), null, recursive);
+  }
+  
+  public FolderScanner(PathMatcher filter, boolean recursive)
+  {
+    this(filter, null, recursive);
+  }
   
   public FolderScanner(String filter, Set<Path> excluded, boolean recursive)
   {
@@ -29,7 +41,7 @@ public class FolderScanner
     this.recursive = recursive;
   }
   
-  public Set<Path> scan(Path root)
+  public Set<Path> scan(Path root) throws IOException
   {
     if (Files.isDirectory(root))
       innerScan(root);
@@ -37,11 +49,11 @@ public class FolderScanner
     return files;
   }
   
-  private void innerScan(Path folder)
+  private void innerScan(Path folder) throws IOException
   {
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder))
     {
-      stream.forEach( e ->
+      stream.forEach(StreamException.rethrowConsumer(e ->
       {                        
         if (excluded == null || !excluded.stream().anyMatch(path -> e.startsWith(path)))
         {
@@ -50,12 +62,7 @@ public class FolderScanner
           else if (filter.matches(e.getFileName()))
             files.add(e);
         }
-      });
-    }
-    catch (IOException e)
-    {
-      e.printStackTrace();
-      //TODO: log
+      }));
     }
   }
 }
