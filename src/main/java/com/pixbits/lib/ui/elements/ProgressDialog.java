@@ -25,7 +25,7 @@ public class ProgressDialog extends JDialog
 	JProgressBar progress;
 	Runnable callback;
 	
-	public ProgressDialog(Frame parent, String title, Runnable cb)
+	private ProgressDialog(Frame parent, String title, Runnable cb)
 	{
 		super(parent, title);
 		this.callback = cb;
@@ -59,7 +59,7 @@ public class ProgressDialog extends JDialog
 		{
 		  JButton cancelButton = new JButton("Cancel");
 		  panel.add(cancelButton, BorderLayout.SOUTH);
-		  cancelButton.addActionListener( e -> { callback.run(); finished(); });
+		  cancelButton.addActionListener(e -> cb.run());
 		}
 		
 		panel.setPreferredSize(new Dimension(400,100));
@@ -76,36 +76,51 @@ public class ProgressDialog extends JDialog
 		this(null, "", null);
 	}
 
-	private static ProgressDialog dialog;
-	
-	public static void init(Frame parent, String title, Runnable callback)
+	public static class Manager
 	{
-	  if (dialog != null)
-	    throw new ConcurrentModificationException("Progress dialog reinit while it was already displayed");
+	  private static Manager manager = null;
+	  private ProgressDialog dialog = null;
 	  
-	  dialog = new ProgressDialog(parent, title, callback);
-	  dialog.progress.setMaximum(100);
-	  dialog.progress.setValue(0);
-	  dialog.setVisible(true);
-	}
-	
-	public static void update(SwingWorker<?,?> worker, String desc)
-	{
-	  dialog.progress.setValue(worker.getProgress());
-	  dialog.desc.setText(desc);
-	}
-	
-	public static void update(float value, String desc)
-	{
-	  int ivalue = (int)(value*100);
-	  dialog.progress.setValue(ivalue);
-	  dialog.progress.setString(String.format("%2.1f%%", value*100));
-	  dialog.desc.setText(desc);
-	}
-	
-	public static void finished()
-	{
-	  dialog.dispose();
-	  dialog = null;
+	  public Manager()
+	  {
+	    if (manager != null)
+	      throw new IllegalStateException("ProgressDialog.Manager has been instantiated more than once");
+	    Manager.manager = this;
+	  }
+	  
+	  public void show(Frame parent, String title, final Runnable callback)
+	  {
+	    if (dialog != null)
+	      throw new ConcurrentModificationException("Progress dialog reinit while it was already displayed");
+	    
+	    if (callback != null)
+	      dialog = new ProgressDialog(parent, title, () -> { callback.run(); finished(); });
+	    else
+	      dialog = new ProgressDialog(parent, title, null);
+	    
+	    dialog.progress.setMaximum(100);
+	    dialog.progress.setValue(0);
+	    dialog.setVisible(true);
+	  }
+	  
+	  public void update(SwingWorker<?,?> worker, String desc)
+	  {
+	    dialog.progress.setValue(worker.getProgress());
+	    dialog.desc.setText(desc);
+	  }
+	  
+	  public void update(float value, String desc)
+	  {
+	    int ivalue = (int)(value*100);
+	    dialog.progress.setValue(ivalue);
+	    dialog.progress.setString(String.format("%2.1f%%", value*100));
+	    dialog.desc.setText(desc);
+	  }
+	  
+	  public void finished()
+	  {
+	    dialog.dispose();
+	    dialog = null;
+	  }
 	}
 }

@@ -252,7 +252,6 @@ public class PipedInputStream extends InputStream {
           throw new IOException("Pipe closed");
       }
 
-      int trials = 2;
       while (in < 0) {
           if (closedByWriter) {
               /* closed by writer, return EOF */

@@ -14,7 +14,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-@SuppressWarnings("serial")
 public class ConsolePanel extends JPanel implements KeyListener
 {
   private final JTextArea console;
