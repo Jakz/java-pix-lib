@@ -47,5 +47,5 @@ public abstract class Logger
   public final void i1(LogAttribute attr, String message, Object... args) { log(Log.INFO1, attr, message, args); }
   public final void i2(LogAttribute attr, String message, Object... args) { log(Log.INFO2, attr, message, args); }
   public final void i3(LogAttribute attr, String message, Object... args) { log(Log.INFO3, attr, message, args); }
-  public final void i(LogAttribute attr, String message, Object... args) { i1(message, args); }
+  public final void i(LogAttribute attr, String message, Object... args) { i1(attr, message, args); }
 }
