@@ -3,8 +3,6 @@ package com.pixbits.lib.log;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.jakz.nit.Options;
-
 public enum Log
 {
   ERROR,
