@@ -1,4 +1,4 @@
-package com.pixbits.lib.functional.searcher;
+package com.pixbits.lib.searcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,21 +10,19 @@ import java.util.function.Predicate;
 
 import com.pixbits.lib.parser.SimpleParser;
 
-import jack.rm.data.rom.Rom;
-
-public class BasicSearcher<T> extends SearchParser<T>
+public class BasicSearchParser<T> extends SearchParser<T>
 {
   final private SimpleParser parser;
   private SearchPredicate<T> fallbackPredicate;
   
-  BasicSearcher()
+  public BasicSearchParser()
   {
     parser = new SimpleParser();
     parser.addWhiteSpace(' ');
     parser.addQuote('\"');
   }
   
-  public BasicSearcher(SearchPredicate<T> fallbackPredicate)
+  public BasicSearchParser(SearchPredicate<T> fallbackPredicate)
   {
     this();
     this.fallbackPredicate = fallbackPredicate;

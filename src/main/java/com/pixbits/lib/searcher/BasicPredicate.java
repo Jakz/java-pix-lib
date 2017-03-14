@@ -1,8 +1,6 @@
-package com.pixbits.lib.functional.searcher;
+package com.pixbits.lib.searcher;
 
 import java.util.function.Predicate;
-
-import jack.rm.data.rom.Rom;
 
 public abstract class BasicPredicate<T> extends SearchPredicate<T>
 {
@@ -15,6 +13,13 @@ public abstract class BasicPredicate<T> extends SearchPredicate<T>
     this.name = name; 
     this.description = desc;
     this.example = example;
+  }
+  
+  public BasicPredicate()
+  {
+    this.name = null;
+    this.description = null;
+    this.example = null;
   }
   
   @Override public abstract Predicate<T> buildPredicate(String token);

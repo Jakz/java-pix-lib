@@ -1,4 +1,4 @@
-package com.pixbits.lib.functional.searcher;
+package com.pixbits.lib.searcher;
 
 import java.util.Arrays;
 import java.util.function.Predicate;
