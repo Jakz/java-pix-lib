@@ -28,12 +28,12 @@ public class Digester
     this.buffer = new byte[options.bufferSize];
   }
   
-  public DigestInfo digestOnlyCRC(DigestedCRC handle)
+  public DigestInfo digestOnlyCRC(DigestableCRC handle)
   {
-    return new DigestInfo(handle.getCRC32(), null, null);
+    return new DigestInfo(handle.crc(), null, null);
   }
   
-  public DigestInfo digest(DigestedCRC digestable, InputStream is) throws IOException, NoSuchAlgorithmException
+  public DigestInfo digest(DigestableCRC digestable, InputStream is) throws IOException, NoSuchAlgorithmException
   {
     final byte[] buffer = options.multiThreaded ? new byte[8192] : this.buffer;
     
@@ -75,7 +75,7 @@ public class Digester
     //TODO: maybe there are multple roms with same CRC32
 
     return new DigestInfo(
-       digestable == null ? crc.getChecksum().getValue() : digestable.getCRC32(),
+       digestable == null ? crc.getChecksum().getValue() : digestable.crc(),
        options.computeMD5 ? md5.digest() : null,
        options.computeSHA1 ? sha1.digest() : null
     );

@@ -6,7 +6,8 @@ package com.pixbits.lib.io.digest;
  * instead that computing it.
  * @author Jack
  */
-public interface DigestedCRC
+public interface DigestableCRC
 {
-  long getCRC32();
+  long crc();
+  long size();
 }

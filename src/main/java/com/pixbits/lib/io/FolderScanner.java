@@ -6,9 +6,15 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.pixbits.lib.exceptions.FileNotFoundException;
 import com.pixbits.lib.functional.StreamException;
 
 public class FolderScanner
@@ -17,6 +23,8 @@ public class FolderScanner
   final Set<Path> excluded;
   final PathMatcher filter;
   final boolean recursive;
+  final boolean multithreaded = true;
+  final boolean includeFilesPassedIfMatching = true;
   
   public FolderScanner(boolean recursive)
   {
@@ -41,14 +49,37 @@ public class FolderScanner
     this.recursive = recursive;
   }
   
-  public Set<Path> scan(Path root) throws IOException
+  public Set<Path> scan(Collection<Path> roots) throws IOException
   {
-    if (Files.isDirectory(root))
-      innerScan(root);
+    files.clear();
+    
+    // TODO: implement parallelism
+    for (Path root : roots)
+    {      
+      if (!Files.exists(root))
+        throw new FileNotFoundException(root);     
+      else if (Files.isDirectory(root))
+        innerScan(root);
+      else if (filter.matches(root.getFileName()))
+        files.add(root);
+    }
     
     return files;
   }
   
+  public Set<Path> scan(Path root) throws IOException
+  {
+    files.clear();
+    if (!Files.exists(root))
+      throw new FileNotFoundException(root);    
+    else if (Files.isDirectory(root))
+      innerScan(root);
+    else if (filter.matches(root))
+      files.add(root);
+      
+    return files;
+  }
+   
   private void innerScan(Path folder) throws IOException
   {
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder))
