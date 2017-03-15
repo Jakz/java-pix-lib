@@ -41,9 +41,6 @@ public class Compressor<H extends Compressible>
     this.beforeAddingEntryToArchiveCallback = callback;
   }
   
-  
-  
-  
   private static interface ItemDecorator<H extends Compressible, T>
   {
     public void decorate(T item, H handle);
