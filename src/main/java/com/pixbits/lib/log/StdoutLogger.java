@@ -1,6 +1,6 @@
 package com.pixbits.lib.log;
 
-class StdoutLogger extends Logger
+class StdoutLogger extends Logger implements ProgressLogger
 {
   private int lastProgress;
   boolean showProgress = true;

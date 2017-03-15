@@ -14,25 +14,4 @@ public class BufferLogger extends Logger
   {
     buffer.addEntry(level, scope, message, attribute);
   }
-
-  @Override
-  public void startProgress(Log type, String message)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void updateProgress(float percent, String message)
-  {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void endProgress()
-  {
-    // TODO Auto-generated method stub
-    
-  }
 }

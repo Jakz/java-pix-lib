@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 
 import com.pixbits.lib.log.Log;
 import com.pixbits.lib.log.Logger;
+import com.pixbits.lib.log.ProgressLogger;
 
 import net.sf.sevenzipjbinding.IOutCreateArchive7z;
 import net.sf.sevenzipjbinding.IOutCreateArchiveZip;
@@ -26,7 +27,7 @@ import net.sf.sevenzipjbinding.impl.RandomAccessFileOutStream;
 
 public class Compressor<H extends Compressible>
 { 
-  private static final Logger logger = Log.getLogger(Compressor.class);
+  private static final ProgressLogger progressLogger = Log.getProgressLogger(Compressor.class);
   
   private final CompressorOptions options;
   private Consumer<H> beforeAddingEntryToArchiveCallback = h -> {};
@@ -85,7 +86,7 @@ public class Compressor<H extends Compressible>
 
     @Override public void setCompleted(long complete) throws SevenZipException
     {
-      logger.updateProgress(complete/(float)totalSize, "");
+      progressLogger.updateProgress(complete/(float)totalSize, "");
     }
 
     @Override
@@ -190,6 +191,6 @@ public class Compressor<H extends Compressible>
       }
     }
     
-    logger.endProgress();
+    progressLogger.endProgress();
   }
 }

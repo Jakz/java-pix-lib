@@ -17,9 +17,6 @@ public abstract class Logger
   }
   
   abstract protected <T extends LogAttribute> void doLog(Log type, String message, T attribute);
-  abstract public void startProgress(Log type, String message);
-  abstract public void updateProgress(float percent, String message);
-  abstract public void endProgress();
   
   public final void setLevel(Log level) { this.logLevel = level; }
   

@@ -18,6 +18,7 @@ public enum Log
   
   
   private static final Map<LogScope, Logger> loggers;
+  private static ProgressLogger progressLogger;
   
   private static LoggerFactory factory;
   private static Log level = Log.DEBUG;
@@ -28,6 +29,7 @@ public enum Log
   {
     loggers = new HashMap<>();
     factory = LoggerFactory.DEFAULT;
+    progressLogger = ProgressLogger.NULL_LOGGER;
   }
   
   private static Logger build(LogScope scope)
@@ -50,6 +52,10 @@ public enum Log
     return loggers.computeIfAbsent(scope, s -> build(s));
   }
   
+  public static ProgressLogger getProgressLogger(Class<?> scope) { return progressLogger; }
+  public static ProgressLogger getProgressLogger(String scope) { return progressLogger; }
+  
+  public static void setProgressLogger(ProgressLogger logger) { Log.progressLogger = logger; }
   public static void setFactory(LoggerFactory factory) { setFactory(factory, true); }
   public static void setFactory(LoggerFactory factory, boolean replaceExisting)
   {
