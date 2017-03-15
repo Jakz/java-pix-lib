@@ -46,9 +46,10 @@ public class PluginManager<T extends Plugin, B extends PluginBuilder<T>>
     });
   }
   
-  public Set<B> getBuildersByType(PluginType<?> type)
+  @SuppressWarnings("unchecked")
+  public <P extends B> Set<P> getBuildersByType(PluginType<?> type)
   {
-    return plugins.stream().filter( b -> b.type == type).collect(Collectors.toSet());
+    return (Set<P>)plugins.stream().filter( b -> b.type == type).collect(Collectors.toSet());
   }
   
   public boolean register(Class<? extends T> clazz)
@@ -98,11 +99,11 @@ public class PluginManager<T extends Plugin, B extends PluginBuilder<T>>
   
   public Stream<B> stream() { return plugins.stream(); }
   
-  public T build(Class<? extends T> clazz)
+  public <P extends T> P build(Class<? extends P> clazz)
   {
     try
     {   
-      T plugin = clazz.newInstance();
+      P plugin = clazz.newInstance();
       plugin.setManager(this);
       return plugin;
     }

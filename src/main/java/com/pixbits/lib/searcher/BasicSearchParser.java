@@ -40,7 +40,8 @@ public class BasicSearchParser<T> extends SearchParser<T>
       parser.setCallback(callback);
       parser.reset(new java.io.ByteArrayInputStream(text.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
       
-      try {
+      try
+      {
         parser.parse();
       }
       catch (Exception e)

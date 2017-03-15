@@ -1,5 +1,7 @@
 package com.pixbits.lib.searcher;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -11,7 +13,7 @@ public class Searcher<T>
   protected Searcher()
   {
     parser = null;
-    predicates = null;
+    predicates = Collections.singletonList(new LambdaPredicate<T>(s -> t -> true));
   }
   
   public Searcher(SearchParser<T> parser, List<SearchPredicate<T>> predicates)
