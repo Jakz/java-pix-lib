@@ -4,7 +4,7 @@ import javax.swing.SwingUtilities;
 
 import com.pixbits.lib.ui.elements.ProgressDialog;
 
-class StdoutProgressLogger implements ProgressLogger
+class ProgressDialogLogger implements ProgressLogger
 {
   final static private ProgressDialog.Manager manager = new ProgressDialog.Manager();
   

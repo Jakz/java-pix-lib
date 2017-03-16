@@ -3,9 +3,11 @@ package com.pixbits.lib.io.archive;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.pixbits.lib.io.archive.handles.ArchiveHandle;
 import com.pixbits.lib.io.archive.handles.BinaryHandle;
+import com.pixbits.lib.io.archive.handles.Handle;
 import com.pixbits.lib.io.archive.handles.NestedArchiveHandle;
 
 public class HandleSet
@@ -29,4 +31,15 @@ public class HandleSet
   public long binaryCount() { return binaries.size(); }
   public long archivedCount() { return archives.size(); }
   public long nestedCount() { return nestedArchives.stream().flatMap(List::stream).count(); }
+  
+  public Stream<Handle> stream()
+  {
+    return Stream.concat(
+        binaries.stream(), 
+        Stream.concat(
+            archives.stream(), 
+            nestedArchives.stream().flatMap(List::stream)
+        )
+    );
+  }
 }

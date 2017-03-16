@@ -33,14 +33,14 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
 
   @Override
   public JsonElement serialize(Handle o, java.lang.reflect.Type type, JsonSerializationContext context)
-  {
+  {    
     JsonObject j = new JsonObject();
     
     Type handleType = typeForClass(o.getClass());
     
     j.add("type", context.serialize(handleType));
     j.add("path", context.serialize(o.file()));
-    j.addProperty("crc", o.crc());
+    j.addProperty("crc", String.format("%08X", o.crc()));
 
     switch (handleType)
     {
@@ -85,7 +85,7 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
     Type handleType = context.deserialize(o.get("type"), Type.class);
     
     Path path = context.deserialize(o.get("path"), Path.class);
-    long crc = o.get("crc").getAsLong();
+    long crc = Long.parseUnsignedLong(o.get("crc").getAsString(), 16);
     
     switch (handleType)
     {

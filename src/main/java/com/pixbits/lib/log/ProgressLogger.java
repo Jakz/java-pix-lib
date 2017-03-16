@@ -13,5 +13,5 @@ public interface ProgressLogger
     @Override public void endProgress() { }
   };
   
-  public static final ProgressLogger STDOUT_PROGRESS = new StdoutProgressLogger();     
+  public static final ProgressLogger STDOUT_PROGRESS = new ProgressDialogLogger();     
 }
