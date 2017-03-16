@@ -1,4 +1,4 @@
-package com.pixbits.lib.io.archive.handles;
+package com.pixbits.lib.io.archive.support;
 
 import java.nio.file.Path;
 import java.util.HashMap;

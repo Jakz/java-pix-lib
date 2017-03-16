@@ -7,6 +7,8 @@ import java.nio.file.Path;
 
 import com.pixbits.lib.io.archive.ArchiveFormat;
 import com.pixbits.lib.io.archive.ExtractionCanceledException;
+import com.pixbits.lib.io.archive.support.ArchiveExtractCallback;
+import com.pixbits.lib.io.archive.support.ArchiveExtractPipedStream;
 
 import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.SevenZip;

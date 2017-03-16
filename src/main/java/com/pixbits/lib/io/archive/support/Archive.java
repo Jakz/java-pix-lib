@@ -1,4 +1,4 @@
-package com.pixbits.lib.io.archive.handles;
+package com.pixbits.lib.io.archive.support;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import com.pixbits.lib.io.archive.ArchiveFormat;
 import com.pixbits.lib.io.archive.FormatUnrecognizedException;
+import com.pixbits.lib.io.archive.handles.ArchiveHandle;
 
 import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.PropID;
