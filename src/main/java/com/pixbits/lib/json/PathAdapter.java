@@ -1,4 +1,4 @@
-package com.pixbits.lib.io.json;
+package com.pixbits.lib.json;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;

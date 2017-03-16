@@ -14,8 +14,13 @@ public class BinaryHandle extends Handle
 
   public BinaryHandle(Path file)
   {
+    this(file, -1);
+  }
+  
+  public BinaryHandle(Path file, long crc)
+  {
     this.file = file.normalize();
-    this.crc = -1;
+    this.crc = crc;
   }
   
   @Override public Path file() { return file; }
