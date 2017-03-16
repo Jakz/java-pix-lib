@@ -2,7 +2,6 @@ package com.pixbits.lib.io.xml;
 
 import java.io.CharArrayWriter;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;

@@ -107,7 +107,10 @@ public class ArchiveHandle extends Handle
       }
       catch (IOException e)
       {
-         e.printStackTrace();
+        System.err.println(String.format("Exception while extracting file %s from archive %s (index: %d)", 
+            internalName, file.getFileName().toString(), indexInArchive)); 
+        
+        e.printStackTrace();
       }
       //System.out.println("Extract Thread Stopped");
     };

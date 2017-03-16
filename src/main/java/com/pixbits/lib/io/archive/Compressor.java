@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.pixbits.lib.log.Log;
-import com.pixbits.lib.log.Logger;
 import com.pixbits.lib.log.ProgressLogger;
 
 import net.sf.sevenzipjbinding.IOutCreateArchive7z;

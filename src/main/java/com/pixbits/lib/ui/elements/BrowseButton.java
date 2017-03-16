@@ -17,8 +17,6 @@ import javax.swing.JTextField;
 import javax.swing.UIDefaults;
 import javax.swing.filechooser.*;
 
-import com.pixbits.lib.io.PathFileFilter;
-
 public class BrowseButton extends JTextField
 {
   private class PathFileFilter extends FileFilter
