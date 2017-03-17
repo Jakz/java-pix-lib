@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -93,7 +94,6 @@ public class Compressor<H extends Compressible>
     {
       try
       { 
-        //System.out.println("closing extract stream: "+success);
         currentStream.close();
       }
       catch (IOException e)
@@ -119,20 +119,21 @@ public class Compressor<H extends Compressible>
       MyISequentialInStream(InputStream is)
       {
         super(is);
+        System.out.println("MySequentialInStream::init");
       }
       
       @Override public int read(byte[] data) throws SevenZipException
       {
         int i = super.read(data);
         
-        //System.out.println("MySequentialInStream::read "+i+" "+Thread.currentThread().getName());
+        System.out.println("MySequentialInStream::read "+i+" "+Thread.currentThread().getName());
         
         return i;
       }
       
       @Override public void close() throws IOException
       {
-        //System.out.println("MyISequentialInStream::close");
+        System.out.println("MyISequentialInStream::close");
         super.close();
       }
     }
@@ -143,6 +144,8 @@ public class Compressor<H extends Compressible>
       try
       {
         currentStream = handles.get(index).getInputStream();
+        System.out.println("CreateCallback::getStream");
+
         return new MyISequentialInStream(currentStream);
       }
       catch (IOException e)
@@ -173,6 +176,8 @@ public class Compressor<H extends Compressible>
         }
         
         CreateCallback<IOutItem7z> callback = new CreateCallback<IOutItem7z>(handles, new ItemDecorator7z<H>());
+        archive.setTrace(true);
+
         archive.createArchive(new RandomAccessFileOutStream(raf), handles.size(), callback);
         
         break;
@@ -184,6 +189,8 @@ public class Compressor<H extends Compressible>
         archive.setLevel(options.compressionLevel);
         
         CreateCallback<IOutItemZip> callback = new CreateCallback<IOutItemZip>(handles, new ItemDecoratorZip<H>());
+        
+        archive.setTrace(true);
         archive.createArchive(new RandomAccessFileOutStream(raf), handles.size(), callback);
         
         break;

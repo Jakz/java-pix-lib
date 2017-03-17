@@ -11,6 +11,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jdk.version>1.8</jdk.version>
 		<gson.version>2.8.0</gson.version>
+    <zip7.version>9.20-2.00beta</zip7.version>	
     <junit.version>4.11</junit.version>
   </properties>
   
@@ -40,6 +41,17 @@
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>${gson.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>net.sf.sevenzipjbinding</groupId>
+		    <artifactId>sevenzipjbinding</artifactId>
+		    <version>${zip7.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>net.sf.sevenzipjbinding</groupId>
+		    <artifactId>sevenzipjbinding-all-platforms</artifactId>
+		    <version>${zip7.version}</version>
+        <scope>test</scope>
 		</dependency>
   </dependencies>
 </project>
