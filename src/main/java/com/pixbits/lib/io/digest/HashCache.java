@@ -7,7 +7,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class HashCache<T extends DigestableCRC>
+import com.pixbits.lib.io.archive.Verifiable;
+
+public class HashCache<T extends Verifiable>
 {
   private final Map<Long, T> cache;
   private final Set<Long> sizes;
@@ -46,5 +48,5 @@ public class HashCache<T extends DigestableCRC>
   }
   
   public boolean isValidSize(long size) { return sizes.contains(size); }
-  public T romForCrc(long crc) { return cache.get(crc); }
+  public T elementForCrc(long crc) { return cache.get(crc); }
 }

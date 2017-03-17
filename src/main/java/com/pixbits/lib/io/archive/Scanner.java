@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 import com.pixbits.lib.io.FolderScanner;
 import com.pixbits.lib.io.archive.handles.ArchiveHandle;
 import com.pixbits.lib.io.archive.handles.BinaryHandle;
+import com.pixbits.lib.io.archive.handles.NestedArchiveBatch;
 import com.pixbits.lib.io.archive.handles.NestedArchiveHandle;
 import com.pixbits.lib.io.archive.support.MemoryArchive;
 import com.pixbits.lib.lang.Pair;
@@ -96,9 +97,9 @@ public class Scanner
     }
   }
   
-  private List<List<NestedArchiveHandle>> scanNestedArchives(ScannerEnvironment env) throws IOException
+  private List<NestedArchiveBatch> scanNestedArchives(ScannerEnvironment env) throws IOException
   {
-    List<List<NestedArchiveHandle>> handles = new ArrayList<>();
+    List<NestedArchiveBatch> handles = new ArrayList<>();
     
     env.nestedArchives.entrySet().stream().forEach(StreamException.rethrowConsumer(entry -> {
       Path archivePath = entry.getKey();
@@ -144,7 +145,7 @@ public class Scanner
         marchive.close();
         
         if (!handlesForArchive.isEmpty())
-          handles.add(handlesForArchive);
+          handles.add(new NestedArchiveBatch(handlesForArchive));
       }
       
       archive.close();
@@ -269,7 +270,7 @@ public class Scanner
     
     progressLogger.endProgress();
     
-    List<List<NestedArchiveHandle>> nestedHandles = scanNestedArchives(env);
+    List<NestedArchiveBatch> nestedHandles = scanNestedArchives(env);
 
     return new HandleSet(env.binaryHandles, env.archiveHandles, nestedHandles, env.faulty, env.skipped);
   }

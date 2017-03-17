@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 public class StringUtils
 {
-  private final HexBinaryAdapter hexConverter = new HexBinaryAdapter();
+  private static final HexBinaryAdapter hexConverter = new HexBinaryAdapter();
 
   
   public static String humanReadableByteCount(long bytes)
@@ -24,18 +24,18 @@ public class StringUtils
       return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
   }
   
-  public String toHexString(byte[] bytes)
+  public static String toHexString(byte[] bytes)
   {
     return hexConverter.marshal(bytes);
   }
   
-  public String toHexString(int value)
+  public static String toHexString(int value)
   {
     byte[] buffer = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(value).array();
     return hexConverter.marshal(buffer);
   }
   
-  public byte[] fromHexString(String value)
+  public static byte[] fromHexString(String value)
   {
     return hexConverter.unmarshal(value);
   }

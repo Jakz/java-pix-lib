@@ -18,7 +18,7 @@ import java.util.zip.CheckedInputStream;
  * @author Jack
  */
 public class Digester
-{
+{  
   private final DigestOptions options;
   private final byte[] buffer;
 

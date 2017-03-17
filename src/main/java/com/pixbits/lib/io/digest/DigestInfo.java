@@ -1,5 +1,7 @@
 package com.pixbits.lib.io.digest;
 
+import com.pixbits.lib.lang.StringUtils;
+
 public class DigestInfo
 {
   public final long crc;
@@ -11,5 +13,13 @@ public class DigestInfo
     this.crc = crc;
     this.md5 = md5;
     this.sha1 = sha1;
+  }
+  
+  @Override public String toString() 
+  { 
+    return String.format("DigestInfo(crc: %08X, md5: %s, sha1: %s)", 
+        crc, 
+        StringUtils.toHexString(md5), 
+        StringUtils.toHexString(sha1)); 
   }
 }
