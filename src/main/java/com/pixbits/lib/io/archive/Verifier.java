@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import com.pixbits.lib.io.archive.handles.Handle;
@@ -21,14 +22,11 @@ import net.sf.sevenzipjbinding.IInArchive;
 
 public class Verifier<T extends Verifiable>
 {
-  private static final ProgressLogger progressLogger = Log.getProgressLogger(Verifier.class);
-
   private final VerifierOptions voptions;
   private final HashCache<T> cache;
   
-  private float total;
-  private AtomicInteger current = new AtomicInteger();
-  
+  private BiConsumer<T, Handle> callback = (t,h) -> {};
+
   private final Digester digester;
   
   private boolean hasCustomStreamWrapper;
@@ -43,6 +41,12 @@ public class Verifier<T extends Verifiable>
     this.hasCustomStreamWrapper = false;
   }
   
+  public void setCallback(BiConsumer<T, Handle> callback)
+  {
+    this.callback = callback;
+  }
+  
+  public BiConsumer<T, Handle> callback() { return callback; }
 
   
   private T verifyRawInputStream(Handle handle, InputStream is) throws IOException, NoSuchAlgorithmException
@@ -67,9 +71,8 @@ public class Verifier<T extends Verifiable>
     return voptions.verifyJustCRC() && !hasCustomStreamWrapper;
   }
   
-  public int verifyNestedArchive(NestedArchiveBatch batch) throws IOException, NoSuchAlgorithmException
+  public void verifyNestedArchive(NestedArchiveBatch batch) throws IOException, NoSuchAlgorithmException
   {
-    AtomicInteger count = new AtomicInteger();
     final boolean onlyCRC = canUseCachedCrcIfAvailable();
 
     MemoryArchive archive = null;
@@ -77,8 +80,6 @@ public class Verifier<T extends Verifiable>
     // TODO: can use multithread?
     for (NestedArchiveHandle handle : batch)
     {
-      progressLogger.updateProgress(current.getAndIncrement() / total, handle.nestedInternalName);
-
       if (!onlyCRC)
       {
         if (archive == null)
@@ -95,19 +96,11 @@ public class Verifier<T extends Verifiable>
         }
       }
       
-      T element = verify(handle);
-      
-      if (element != null)
-      {
-        element.setHandle(handle);
-        
-        count.incrementAndGet();
-      }
+      T element = verify(handle);    
+      callback.accept(element, handle);
     }
     
-    batch.stream().forEach(handle -> { handle.setMemoryArchive(null); handle.setMappedArchive(null); });
-    
-    return count.get();
+    batch.stream().forEach(handle -> { handle.setMemoryArchive(null); handle.setMappedArchive(null); });  
   }
   
   T verify(Handle handle) throws IOException, NoSuchAlgorithmException

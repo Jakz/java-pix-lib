@@ -1,16 +1,26 @@
 package com.pixbits.lib.log;
 
+import java.awt.Frame;
+
 import javax.swing.SwingUtilities;
 
 import com.pixbits.lib.ui.elements.ProgressDialog;
 
 class ProgressDialogLogger implements ProgressLogger
 {
-  final static private ProgressDialog.Manager manager = new ProgressDialog.Manager();
+  static private ProgressDialog.Manager manager;
   
-  float lastProgress;
-  String progressMessage;
-   
+  private Frame parent;
+  private float lastProgress;
+  private String progressMessage;
+  
+  ProgressDialogLogger(LogScope scope, Frame parent)
+  {
+    if (manager == null)
+      manager = new ProgressDialog.Manager();
+    this.parent = parent;
+  }
+  
   private boolean running = false;
   private Thread dialogThread = null;
   private Runnable dialogUpdater = () -> {
@@ -35,7 +45,7 @@ class ProgressDialogLogger implements ProgressLogger
     try
     {
       lastProgress = 0;
-      SwingUtilities.invokeAndWait(() -> manager.show(null, message, null));
+      SwingUtilities.invokeAndWait(() -> manager.show(parent, message, null));
       dialogThread = new Thread(dialogUpdater);
       running = true;
       dialogThread.start();

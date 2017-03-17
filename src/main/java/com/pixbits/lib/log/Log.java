@@ -18,9 +18,10 @@ public enum Log
   
   
   private static final Map<LogScope, Logger> loggers;
-  private static ProgressLogger progressLogger;
+  private static final Map<LogScope, ProgressLogger> progressLoggers;
   
   private static LoggerFactory factory;
+  private static ProgressLoggerFactory progressFactory;
   private static Log level = Log.DEBUG;
   
   
@@ -29,12 +30,20 @@ public enum Log
   {
     loggers = new HashMap<>();
     factory = LoggerFactory.DEFAULT;
-    progressLogger = ProgressLogger.NULL_LOGGER;
+    
+    progressLoggers = new HashMap<>();
+    progressFactory = ProgressLoggerFactory.NULL_FACTORY;
+  }
+  
+  private static ProgressLogger buildProgress(LogScope scope)
+  {
+    ProgressLogger logger = progressFactory.build(scope);
+    return logger;
   }
   
   private static Logger build(LogScope scope)
   {
-    Logger logger = factory.build( scope);
+    Logger logger = factory.build(scope);
     logger.setLevel(level);
     return logger;
   }
@@ -44,18 +53,32 @@ public enum Log
     return loggers.computeIfAbsent(null, s -> build(s));
   }
  
-  public static Logger getLogger(Class<?> scope) { return getLogger(new LogScope.ClassScope(scope)); }
-  public static Logger getLogger(String scope) { return getLogger(new LogScope.StringScope(scope)); }
-    
   public static Logger getLogger(LogScope scope) 
   { 
     return loggers.computeIfAbsent(scope, s -> build(s));
   }
+  public static Logger getLogger(Class<?> scope) { return getLogger(new LogScope.ClassScope(scope)); }
+  public static Logger getLogger(String scope) { return getLogger(new LogScope.StringScope(scope)); }
+    
+
   
-  public static ProgressLogger getProgressLogger(Class<?> scope) { return progressLogger; }
-  public static ProgressLogger getProgressLogger(String scope) { return progressLogger; }
+  public static ProgressLogger getProgressLogger(LogScope scope)
+  {
+    return progressLoggers.computeIfAbsent(scope, s -> buildProgress(s));
+  }
+  public static ProgressLogger getProgressLogger(Class<?> scope) { return getProgressLogger(new LogScope.ClassScope(scope)); }
+  public static ProgressLogger getProgressLogger(String scope) { return getProgressLogger(new LogScope.StringScope(scope)); }
   
-  public static void setProgressLogger(ProgressLogger logger) { Log.progressLogger = logger; }
+  public static void setFactory(ProgressLoggerFactory factory) { setFactory(factory, true); }
+  public static void setFactory(ProgressLoggerFactory factory, boolean replaceExisting)
+  {
+    Log.progressFactory = factory;
+    
+    if (replaceExisting)
+      progressLoggers.replaceAll((k, v) -> buildProgress(k));
+  }
+
+  
   public static void setFactory(LoggerFactory factory) { setFactory(factory, true); }
   public static void setFactory(LoggerFactory factory, boolean replaceExisting)
   {

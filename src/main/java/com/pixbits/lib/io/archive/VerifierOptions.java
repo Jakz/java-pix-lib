@@ -1,9 +1,5 @@
 package com.pixbits.lib.io.archive;
 
-import com.github.jakz.nit.Args;
-
-import net.sourceforge.argparse4j.inf.Namespace;
-
 public class VerifierOptions
 {
   public boolean matchSize;
@@ -12,20 +8,18 @@ public class VerifierOptions
   public boolean checkNestedArchives;
 
   
-  public VerifierOptions(Namespace args)
+  public VerifierOptions(boolean matchSize, boolean matchSHA1, boolean matchMD5, boolean checkNestedArchives)
   {
-    matchSize = !args.getBoolean(Args.NO_SIZE_CHECK);
-    matchSHA1 = !args.getBoolean(Args.NO_SHA1_CHECK);
-    matchMD5 = !args.getBoolean(Args.NO_MD5_CHECK);
-    checkNestedArchives = !args.getBoolean(Args.NO_NESTED_ARCHIVES);
+    this.matchSize = matchSize;
+    this.matchMD5 = matchMD5;
+    this.matchSHA1 = matchSHA1;
+    this.checkNestedArchives = checkNestedArchives;
+    
   }
   
   public VerifierOptions()
   {
-    matchSize = true;
-    matchSHA1 = true;
-    matchMD5 = true;
-    checkNestedArchives = true;
+    this(true, true, true, true);
   }
   
   public boolean verifyJustCRC() { return !(matchSHA1 || matchMD5); }

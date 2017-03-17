@@ -10,8 +10,4 @@ public interface Verifiable
   
   public byte[] md5();
   public byte[] sha1();
-  void setHandle(Handle handle);
-  boolean alreadyHasHandle();
-  
-  String name();
 }
