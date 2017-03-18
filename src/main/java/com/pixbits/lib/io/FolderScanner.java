@@ -36,6 +36,11 @@ public class FolderScanner
     this(FileSystems.getDefault().getPathMatcher(filter), excluded, recursive);
   }
   
+  public FolderScanner(Set<Path> excluded, boolean recursive)
+  {
+    this(FileSystems.getDefault().getPathMatcher("glob:*.*"), excluded, recursive);
+  }
+  
   public FolderScanner(PathMatcher filter, Set<Path> excluded, boolean recursive)
   {
     files = new HashSet<Path>();

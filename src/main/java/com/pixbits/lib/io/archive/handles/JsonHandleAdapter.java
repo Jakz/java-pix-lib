@@ -110,7 +110,7 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
         int index = o.get("index").getAsInt();
         ArchiveFormat nformat = context.deserialize(o.get("nformat"), ArchiveFormat.class);
         String nname = o.get("nname").getAsString();
-        int nindex = o.get("nindenx").getAsInt();
+        int nindex = o.get("nindex").getAsInt();
         long size = o.get("size").getAsLong();
         long csize = o.get("csize").getAsLong();
         

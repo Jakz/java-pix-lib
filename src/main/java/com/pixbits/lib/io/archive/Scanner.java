@@ -56,15 +56,9 @@ public class Scanner
   
   private Consumer<ScannerEntry> onEntryFound = e -> {};
   
-  private ProgressLogger progressLogger = Log.getProgressLogger(Scanner.class);
-  
   final public static PathMatcher archiveMatcher = ArchiveFormat.getReadableMatcher();
-  
-  //final private GameSet set;
   final private ScannerOptions options;
-  
-  public void setProgressLogger(ProgressLogger logger) { this.progressLogger = logger; }
-  
+    
   public void setOnEntryFound(Consumer<ScannerEntry> onEntryFound)
   {
     this.onEntryFound = onEntryFound;
@@ -207,18 +201,16 @@ public class Scanner
 
   public HandleSet computeHandles(List<Path> spaths) throws IOException
   {
-    FolderScanner folderScanner = new FolderScanner(options.scanSubfolders);
+    FolderScanner folderScanner = new FolderScanner(options.ignoredPaths, options.scanSubfolders);
     
     Set<Path> paths = folderScanner.scan(spaths);
     
-    progressLogger.startProgress(Log.INFO2, "Finding files...");
     final float count = paths.size();
     final AtomicInteger current = new AtomicInteger(0);
     
     final ScannerEnvironment env = new ScannerEnvironment();
     
     paths.stream().forEach(StreamException.rethrowConsumer(path -> {
-      progressLogger.updateProgress(current.getAndIncrement() / count, "");
       
       boolean shouldBeArchive = archiveMatcher.matches(path.getFileName());
             
@@ -252,7 +244,7 @@ public class Scanner
           env.faulty.add(path);
         }
       }
-      else
+      else if (options.scanBinaries)
       {
         long size = Files.size(path);
         ScannerEntry entry = new ScannerEntry.Binary(path.getFileName().toString(), size, -1);
@@ -267,9 +259,7 @@ public class Scanner
         }
       }    
     }));
-    
-    progressLogger.endProgress();
-    
+        
     List<NestedArchiveBatch> nestedHandles = scanNestedArchives(env);
 
     return new HandleSet(env.binaryHandles, env.archiveHandles, nestedHandles, env.faulty, env.skipped);

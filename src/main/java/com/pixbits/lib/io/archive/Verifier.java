@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -15,8 +14,7 @@ import com.pixbits.lib.io.archive.support.MemoryArchive;
 import com.pixbits.lib.io.digest.DigestInfo;
 import com.pixbits.lib.io.digest.Digester;
 import com.pixbits.lib.io.digest.HashCache;
-import com.pixbits.lib.log.Log;
-import com.pixbits.lib.log.ProgressLogger;
+
 
 import net.sf.sevenzipjbinding.IInArchive;
 
@@ -46,7 +44,7 @@ public class Verifier<T extends Verifiable>
     this.callback = callback;
   }
   
-  public BiConsumer<T, Handle> callback() { return callback; }
+  protected BiConsumer<T, Handle> callback() { return callback; }
 
   
   private T verifyRawInputStream(Handle handle, InputStream is) throws IOException, NoSuchAlgorithmException
@@ -71,7 +69,8 @@ public class Verifier<T extends Verifiable>
     return voptions.verifyJustCRC() && !hasCustomStreamWrapper;
   }
   
-  public void verifyNestedArchive(NestedArchiveBatch batch) throws IOException, NoSuchAlgorithmException
+  public void verifyNestedArchive(NestedArchiveBatch batch) throws IOException, NoSuchAlgorithmException { this.verifyNestedArchive(batch, null); }
+  public void verifyNestedArchive(NestedArchiveBatch batch, BiConsumer<T, Handle> callback) throws IOException, NoSuchAlgorithmException
   {
     final boolean onlyCRC = canUseCachedCrcIfAvailable();
 
@@ -97,13 +96,17 @@ public class Verifier<T extends Verifiable>
       }
       
       T element = verify(handle);    
-      callback.accept(element, handle);
+      
+      if (callback != null)
+        callback.accept(element, handle);
+      else
+        this.callback.accept(element, handle);
     }
     
     batch.stream().forEach(handle -> { handle.setMemoryArchive(null); handle.setMappedArchive(null); });  
   }
   
-  T verify(Handle handle) throws IOException, NoSuchAlgorithmException
+  public T verify(Handle handle) throws IOException, NoSuchAlgorithmException
   {       
     T element = null;
     
