@@ -15,6 +15,7 @@ public enum Log
 
   public boolean isError() { return this == ERROR; }
   public boolean isWarning() { return this == WARNING; }
+  public boolean isDebug () { return this == DEBUG; }
   
   
   private static final Map<LogScope, Logger> loggers;

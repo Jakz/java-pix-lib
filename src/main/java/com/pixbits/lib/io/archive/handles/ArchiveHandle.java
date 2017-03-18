@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import com.pixbits.lib.io.archive.ArchiveFormat;
 import com.pixbits.lib.io.archive.ExtractionCanceledException;
@@ -16,7 +17,7 @@ import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 
 public class ArchiveHandle extends Handle
 {
-  private Path file;
+  private Path path;
   public final int indexInArchive;
   public final String internalName;
   public final ArchiveFormat format;
@@ -26,9 +27,9 @@ public class ArchiveHandle extends Handle
   
   private IInArchive archive;
   
-  public ArchiveHandle(Path file, ArchiveFormat format, String internalName, Integer indexInArchive, long size, long compressedSize, long crc)
+  public ArchiveHandle(Path path, ArchiveFormat format, String internalName, Integer indexInArchive, long size, long compressedSize, long crc)
   {
-    this.file = file.normalize();
+    this.path = path.normalize();
     this.internalName = internalName;
     this.indexInArchive = indexInArchive;
     this.format = format;  
@@ -45,7 +46,7 @@ public class ArchiveHandle extends Handle
     
     try
     {      
-      RandomAccessFileInStream rfile = new RandomAccessFileInStream(new RandomAccessFile(file.toFile(), "r"));
+      RandomAccessFileInStream rfile = new RandomAccessFileInStream(new RandomAccessFile(path.toFile(), "r"));
       return SevenZip.openInArchive(null, rfile);
     }
     catch (IOException e)
@@ -56,13 +57,28 @@ public class ArchiveHandle extends Handle
     return null;
   }
   
+  @Override public boolean equals(Object object)
+  {
+    if (object instanceof ArchiveHandle)
+    {
+      ArchiveHandle handle = (ArchiveHandle) object;
+      return handle.path().equals(path()) && handle.indexInArchive == indexInArchive; 
+    }
+    else
+      return false;
+  }
+  
+  @Override public int hashCode() { return Objects.hash(path, indexInArchive); }
+
+  
   @Override public final boolean isArchive() { return true; }
   
-  @Override public Path path() { return file; }
+  @Override public Path path() { return path; }
+  @Override public String relativePath() { return path.getFileName().toString() + "/" + internalName; } 
   @Override public String fileName() { return internalName; }
   
-  @Override public String toString() { return file.getFileName().toString() + "/" + internalName; }
-  @Override public String plainName() { return file.getFileName().toString().substring(0, file.getFileName().toString().lastIndexOf('.')); }
+  @Override public String toString() { return path.getFileName().toString() + "/" + internalName; }
+  @Override public String plainName() { return path.getFileName().toString().substring(0, path.getFileName().toString().lastIndexOf('.')); }
   @Override public String plainInternalName() { return internalName.substring(0, internalName.toString().lastIndexOf('.')); }
   @Override public String getInternalExtension() { return internalName.substring(internalName.toString().lastIndexOf('.')+1); }
   
@@ -80,7 +96,7 @@ public class ArchiveHandle extends Handle
   @Override
   public void relocate(Path file)
   {
-    this.file = file;
+    this.path = file;
   }
   
   @Override
@@ -110,7 +126,7 @@ public class ArchiveHandle extends Handle
       catch (IOException e)
       {
         System.err.println(String.format("Exception while extracting file %s from archive %s (index: %d)", 
-            internalName, file.getFileName().toString(), indexInArchive)); 
+            internalName, path.getFileName().toString(), indexInArchive)); 
         
         e.printStackTrace();
       }
@@ -120,6 +136,12 @@ public class ArchiveHandle extends Handle
     new Thread(r).start();
  
     return stream.getInputStream();
+  }
+
+  @Override
+  public Handle getVerifierHandle()
+  {
+    return this;
   }
 
   

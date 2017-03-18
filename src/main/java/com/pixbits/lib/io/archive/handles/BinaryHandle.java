@@ -9,7 +9,7 @@ import com.pixbits.lib.io.FileUtils;
 
 public class BinaryHandle extends Handle
 {
-  private Path file;
+  private Path path;
   private long crc;
 
   public BinaryHandle(Path file)
@@ -19,24 +19,32 @@ public class BinaryHandle extends Handle
   
   public BinaryHandle(Path file, long crc)
   {
-    this.file = file.normalize();
+    this.path = file.normalize();
     this.crc = crc;
   }
+
+  @Override public boolean equals(Object object)
+  {
+    return (object instanceof BinaryHandle) && ((BinaryHandle)object).path.equals(this.path);
+  }
   
-  @Override public Path path() { return file; }
+  @Override public int hashCode() { return path.hashCode(); }
+  
+  @Override public Path path() { return path; }
+  @Override public String relativePath() { return path.getFileName().toString(); } 
   @Override public String fileName() { return path().toString(); }
   
   @Override
-  public String toString() { return file.getFileName().toString(); }
+  public String toString() { return path.getFileName().toString(); }
   @Override
-  public String plainName() { return file.getFileName().toString().substring(0, file.getFileName().toString().lastIndexOf('.')); }
+  public String plainName() { return path.getFileName().toString().substring(0, path.getFileName().toString().lastIndexOf('.')); }
   @Override
   public String plainInternalName() { return plainName(); }
   
   @Override public long size() {
     try
     {
-      return Files.size(file);
+      return Files.size(path);
     }
     catch (IOException e)
     {
@@ -71,7 +79,7 @@ public class BinaryHandle extends Handle
   @Override
   public void relocate(Path file)
   {
-    this.file = file;
+    this.path = file;
   }
   
   @Override
@@ -83,6 +91,8 @@ public class BinaryHandle extends Handle
   @Override
   public InputStream getInputStream() throws IOException
   {
-    return Files.newInputStream(file);
+    return Files.newInputStream(path);
   }
+
+  @Override public Handle getVerifierHandle() { return this; }
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import com.pixbits.lib.io.archive.ArchiveFormat;
 import com.pixbits.lib.io.archive.ExtractionCanceledException;
@@ -19,7 +20,7 @@ import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 
 public class NestedArchiveHandle extends Handle
 {  
-  private Path file;
+  private Path path;
   public final int indexInArchive;
   public final String internalName;
   public final ArchiveFormat format;
@@ -35,9 +36,9 @@ public class NestedArchiveHandle extends Handle
   private MemoryArchive innerArchive;
   private IInArchive mappedArchive;
   
-  public NestedArchiveHandle(Path file, ArchiveFormat format, String internalName, Integer indexInArchive, ArchiveFormat nestedFormat, String nestedInternalName, int nestedIndexInArchive, long size, long compressedSize, long crc)
+  public NestedArchiveHandle(Path path, ArchiveFormat format, String internalName, Integer indexInArchive, ArchiveFormat nestedFormat, String nestedInternalName, int nestedIndexInArchive, long size, long compressedSize, long crc)
   {
-    this.file = file.normalize();
+    this.path = path.normalize();
     
     this.internalName = internalName;
     this.indexInArchive = indexInArchive;
@@ -54,6 +55,19 @@ public class NestedArchiveHandle extends Handle
     this.crc = crc;
   }
   
+  @Override public boolean equals(Object object)
+  {
+    if (object instanceof NestedArchiveHandle)
+    {
+      NestedArchiveHandle handle = (NestedArchiveHandle) object;
+      return handle.path().equals(path()) && handle.indexInArchive == indexInArchive && handle.nestedIndexInArchive == nestedIndexInArchive; 
+    }
+    else
+      return false;
+  }
+  
+  @Override public int hashCode() { return Objects.hash(path, indexInArchive, nestedIndexInArchive); }
+  
   public MemoryArchive getMemoryArchive() { return innerArchive; }
   public void setMemoryArchive(MemoryArchive archive) { this.innerArchive = archive; } 
   
@@ -64,8 +78,8 @@ public class NestedArchiveHandle extends Handle
   {
     try
     {      
-      RandomAccessFileInStream rfile = new RandomAccessFileInStream(new RandomAccessFile(file.toFile(), "r"));
-      IInArchive archive = SevenZip.openInArchive(ArchiveFormat.guessFormat(file).nativeFormat, rfile);
+      RandomAccessFileInStream rfile = new RandomAccessFileInStream(new RandomAccessFile(path.toFile(), "r"));
+      IInArchive archive = SevenZip.openInArchive(ArchiveFormat.guessFormat(path).nativeFormat, rfile);
       int outerSize = (int)(long)archive.getProperty(indexInArchive, PropID.SIZE);
       innerArchive = MemoryArchive.load(archive, indexInArchive, outerSize);
       ArchiveFormat format = ArchiveFormat.guessFormat(internalName);
@@ -89,11 +103,13 @@ public class NestedArchiveHandle extends Handle
   
   @Override public final boolean isArchive() { return true; }
   
-  @Override public Path path() { return file; }
+  @Override public Path path() { return path; }
+  @Override public String relativePath() { return path.getFileName().toString() + "/" + internalName + "/" + nestedInternalName; } 
+
   @Override public String fileName() { return internalName; }
   
-  @Override public String toString() { return file.getFileName().toString() + "/" + internalName + "/" + nestedInternalName; }
-  @Override public String plainName() { return file.getFileName().toString().substring(0, file.getFileName().toString().lastIndexOf('.')); }
+  @Override public String toString() { return path.getFileName().toString() + "/" + internalName + "/" + nestedInternalName; }
+  @Override public String plainName() { return path.getFileName().toString().substring(0, path.getFileName().toString().lastIndexOf('.')); }
   @Override public String plainInternalName() { return internalName.substring(0, internalName.toString().lastIndexOf('.')); }
   @Override public String getInternalExtension() { return internalName.substring(internalName.toString().lastIndexOf('.')+1); }
   
@@ -111,7 +127,7 @@ public class NestedArchiveHandle extends Handle
   @Override
   public void relocate(Path file)
   {
-    this.file = file;
+    this.path = file;
   }
   
   @Override
@@ -141,7 +157,7 @@ public class NestedArchiveHandle extends Handle
       catch (IOException e)
       {
         System.err.println(String.format("Exception while extracting file %s from nested archive %s (index: %d) contained in %s (index: %d)", 
-            nestedInternalName, internalName, nestedIndexInArchive, file.getFileName().toString(), indexInArchive)); 
+            nestedInternalName, internalName, nestedIndexInArchive, path.getFileName().toString(), indexInArchive)); 
         
         e.printStackTrace();
       }
@@ -153,5 +169,6 @@ public class NestedArchiveHandle extends Handle
     return stream.getInputStream();
   }
 
-  
+  @Override public Handle getVerifierHandle() { return this; }
+
 }

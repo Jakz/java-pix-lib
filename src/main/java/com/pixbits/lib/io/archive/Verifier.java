@@ -3,8 +3,13 @@ package com.pixbits.lib.io.archive;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.pixbits.lib.io.archive.handles.Handle;
@@ -23,7 +28,7 @@ public class Verifier<T extends Verifiable>
   private final VerifierOptions voptions;
   private final HashCache<T> cache;
   
-  private BiConsumer<T, Handle> callback = (t,h) -> {};
+  private Optional<Consumer<List<VerifierResult<T>>>> callback;
 
   private final Digester digester;
   
@@ -37,14 +42,15 @@ public class Verifier<T extends Verifiable>
     this.digester = digester;
     this.streamWrapper = is -> is;
     this.hasCustomStreamWrapper = false;
+    this.callback = Optional.empty();
   }
   
-  public void setCallback(BiConsumer<T, Handle> callback)
+  public void setCallback(Consumer<List<VerifierResult<T>>> callback)
   {
-    this.callback = callback;
+    this.callback = Optional.of(callback);
   }
   
-  protected BiConsumer<T, Handle> callback() { return callback; }
+  protected Optional<Consumer<List<VerifierResult<T>>>> callback() { return callback; }
 
   
   private T verifyRawInputStream(Handle handle, InputStream is) throws IOException, NoSuchAlgorithmException
@@ -68,58 +74,59 @@ public class Verifier<T extends Verifiable>
   {
     return voptions.verifyJustCRC() && !hasCustomStreamWrapper;
   }
-  
-  public void verifyNestedArchive(NestedArchiveBatch batch) throws IOException, NoSuchAlgorithmException { this.verifyNestedArchive(batch, null); }
-  public void verifyNestedArchive(NestedArchiveBatch batch, BiConsumer<T, Handle> callback) throws IOException, NoSuchAlgorithmException
+
+  private List<VerifierResult<T>> verifyBatch(VerifierEntry batch) throws NoSuchAlgorithmException, IOException
   {
+    final int size = batch.verifierEntryCount();
     final boolean onlyCRC = canUseCachedCrcIfAvailable();
 
-    MemoryArchive archive = null;
-    IInArchive iarchive = null;
-    // TODO: can use multithread?
-    for (NestedArchiveHandle handle : batch)
+    
+    List<VerifierResult<T>> results = null;
+    
+    if (!callback.isPresent())
+      results = new ArrayList<>();
+    
+    for (int i = 0; i < size; ++i)
     {
-      if (!onlyCRC)
-      {
-        if (archive == null)
-        {
-          handle.loadArchiveInMemory();
-          archive = handle.getMemoryArchive();
-          iarchive = handle.getMappedArchive();
-        }
-        else
-        {
-          archive.close();
-          handle.setMemoryArchive(archive);
-          handle.setMappedArchive(iarchive);
-        }
-      }
+      batch.preloadForVerification(!onlyCRC, i);
       
-      T element = verify(handle);    
+      VerifierEntry entry = batch.getVerifierEntry(i);
       
-      if (callback != null)
-        callback.accept(element, handle);
-      else
-        this.callback.accept(element, handle);
+      List<VerifierResult<T>> elements = verify(entry);
+      
+      if (!callback.isPresent())
+        results.addAll(elements);
     }
     
-    batch.stream().forEach(handle -> { handle.setMemoryArchive(null); handle.setMappedArchive(null); });  
+    batch.unloadAfterVerification();
+    return results;
   }
   
-  public T verify(Handle handle) throws IOException, NoSuchAlgorithmException
+  public List<VerifierResult<T>> verify(VerifierEntry entry) throws IOException, NoSuchAlgorithmException
   {       
-    T element = null;
-    
-    if (canUseCachedCrcIfAvailable())
-      element = verifyJustCRC(handle);
+    if (entry.isSingleVerifierEntry())
+    {
+      T element = null;
+      Handle handle = entry.getVerifierHandle();
+      
+      if (canUseCachedCrcIfAvailable())
+        element = verifyJustCRC(handle);
+      else
+      {
+        try (InputStream is = streamWrapper.apply(handle.getInputStream()))
+        {
+          element = verifyRawInputStream(handle, is);
+        }
+      }
+      
+      List<VerifierResult<T>> result = Collections.singletonList(new VerifierResult<>(element, handle));
+      
+      callback.ifPresent(cb -> cb.accept(result));      
+      return !callback.isPresent() ? result : null;
+    }
     else
     {
-      try (InputStream is = streamWrapper.apply(handle.getInputStream()))
-      {
-        element = verifyRawInputStream(handle, is);
-      }
+      return verifyBatch(entry);
     }
-    
-    return element;
   }
 }

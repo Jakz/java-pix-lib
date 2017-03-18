@@ -1,19 +1,44 @@
 package com.pixbits.lib.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 public class UIUtils
 {
-  public static void resizeColumn(TableColumn column, int width)
+  public static void resizeTableColumn(TableColumn column, int width)
   {
     column.setMinWidth(width);
     column.setMaxWidth(width);
     column.setPreferredWidth(width);
+  }
+  
+  public static void packTableColumn(JTable table, TableColumn column, int spacing)
+  {
+    int width = 0;
+    for (int i = 0; i < table.getRowCount(); ++i)
+    {
+      TableCellRenderer renderer = table.getCellRenderer(i, column.getModelIndex());
+      Component component = table.prepareRenderer(renderer, i, column.getModelIndex());
+      width = Math.max(component.getPreferredSize().width, width);
+    }
+    
+    TableCellRenderer headerRenderer = column.getHeaderRenderer();
+    if (headerRenderer == null) table.getTableHeader().getDefaultRenderer();
+    
+    if (headerRenderer != null)
+    {
+      Component headerComponent = headerRenderer.getTableCellRendererComponent(table, column.getHeaderValue(), false, false, -1, column.getModelIndex());
+      width = Math.max(headerComponent.getPreferredSize().width, width);
+    }
+
+    resizeTableColumn(column, width+spacing);
   }
   
   public static <T extends JPanel> WrapperFrame<T> buildFrame(T panel, String title)

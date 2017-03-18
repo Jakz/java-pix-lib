@@ -1,6 +1,7 @@
 package com.pixbits.lib.io.archive;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -47,7 +48,7 @@ public class VerifierHelper<U extends Verifiable>
   private final Verifier<U> verifier;
   private final Digester digester;
     
-  public VerifierHelper(VerifierOptions options, boolean multiThreaded, HashCache<U> cache, BiConsumer<U, Handle> callback)
+  public VerifierHelper(VerifierOptions options, boolean multiThreaded, HashCache<U> cache, Consumer<List<VerifierResult<U>>> callback)
   {
     digester = new Digester(new DigestOptions(true, options.matchMD5, options.matchSHA1, multiThreaded)); 
     verifier = new Verifier<>(options, digester, cache);
@@ -61,39 +62,13 @@ public class VerifierHelper<U extends Verifiable>
     this.reporter.setDestination(reporter);
   }
   
-  public void verify(HandleSet handles) throws IOException
+  public void verify(HandleSet handles) throws IOException, NoSuchAlgorithmException
   {
     reporter.report(() -> new Report(Report.Type.START));
     
-
-    verify(handles.binaries);
-    verify(handles.archives);
-    verifyNested(handles.nestedArchives);
+    for (VerifierEntry entry : handles)
+      verifier.verify(entry);
       
     reporter.report(() -> new Report(Report.Type.END));
-  }
-  
-  private void verifyNested(List<NestedArchiveBatch> archives) throws IOException
-  {
-    Stream<NestedArchiveBatch> stream = archives.stream();
-    
-    if (multiThreaded)
-      stream = stream.parallel();
-    
-    stream.forEach(StreamException.rethrowConsumer(batch -> verifier.verifyNestedArchive(batch)));
-  }
-    
-  
-  private void verify(List<? extends Handle> handles) throws IOException
-  {
-    Stream<? extends Handle> stream = handles.stream();
-        
-    if (multiThreaded)
-      stream = stream.parallel();
-        
-    stream.forEach(StreamException.rethrowConsumer(handle -> {      
-      U element = verifier.verify(handle);
-      verifier.callback().accept(element, handle);
-    }));
   }
 }

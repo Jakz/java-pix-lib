@@ -2,6 +2,7 @@ package com.pixbits.lib.io.archive;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -10,9 +11,8 @@ import com.pixbits.lib.io.archive.handles.ArchiveHandle;
 import com.pixbits.lib.io.archive.handles.BinaryHandle;
 import com.pixbits.lib.io.archive.handles.Handle;
 import com.pixbits.lib.io.archive.handles.NestedArchiveBatch;
-import com.pixbits.lib.io.archive.handles.NestedArchiveHandle;
 
-public class HandleSet
+public class HandleSet implements Iterable<VerifierEntry>
 {
   public final List<BinaryHandle> binaries;
   public final List<ArchiveHandle> archives;
@@ -43,5 +43,46 @@ public class HandleSet
             nestedArchives.stream().flatMap(NestedArchiveBatch::stream)
         )
     );
+  }
+
+  @Override
+  public Iterator<VerifierEntry> iterator()
+  {
+    return new Iterator<VerifierEntry>()
+    {
+      Iterator<? extends VerifierEntry> inner = binaries.iterator();
+      Iterable<? extends VerifierEntry> current = binaries;
+      
+      @Override
+      public boolean hasNext()
+      {    
+        if (!inner.hasNext())
+        {
+          if (current == binaries)
+          {
+            current = archives;
+            inner = archives.iterator();
+          }
+        }
+        
+        if (!inner.hasNext())
+        {
+          if (current == archives)
+          {
+            current = nestedArchives;
+            inner = nestedArchives.iterator();
+          }
+        }
+        
+        return inner.hasNext();
+      }
+
+      @Override
+      public VerifierEntry next()
+      {
+        VerifierEntry element = inner.next();
+        return element;
+      }   
+    };
   }
 }

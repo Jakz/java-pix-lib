@@ -5,14 +5,16 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 import com.pixbits.lib.io.archive.Compressible;
+import com.pixbits.lib.io.archive.VerifierEntry;
 import com.pixbits.lib.io.digest.DigestableCRC;
 
-public abstract class Handle implements DigestableCRC, Compressible
+public abstract class Handle implements DigestableCRC, Compressible, VerifierEntry
 {
   @Override
   public abstract String toString();
   
   public abstract Path path();
+  public abstract String relativePath();
   public abstract String fileName();
   
   public abstract String plainName();
