@@ -23,8 +23,8 @@ public class BinaryHandle extends Handle
     this.crc = crc;
   }
   
-  @Override public Path file() { return file; }
-  @Override public String fileName() { return file().toString(); }
+  @Override public Path path() { return file; }
+  @Override public String fileName() { return path().toString(); }
   
   @Override
   public String toString() { return file.getFileName().toString(); }
@@ -54,7 +54,7 @@ public class BinaryHandle extends Handle
     else
       try
       { 
-        crc = FileUtils.calculateCRCFast(file()); 
+        crc = FileUtils.calculateCRCFast(path()); 
         return crc;
       } catch (IOException e) 
       { 

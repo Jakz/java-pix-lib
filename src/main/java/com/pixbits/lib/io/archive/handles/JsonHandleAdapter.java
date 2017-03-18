@@ -39,7 +39,7 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
     Type handleType = typeForClass(o.getClass());
     
     j.add("type", context.serialize(handleType));
-    j.add("path", context.serialize(o.file()));
+    j.add("path", context.serialize(o.path()));
     j.addProperty("crc", String.format("%08X", o.crc()));
 
     switch (handleType)

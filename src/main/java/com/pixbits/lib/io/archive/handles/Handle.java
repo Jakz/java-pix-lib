@@ -12,7 +12,7 @@ public abstract class Handle implements DigestableCRC, Compressible
   @Override
   public abstract String toString();
   
-  public abstract Path file();
+  public abstract Path path();
   public abstract String fileName();
   
   public abstract String plainName();
@@ -22,7 +22,7 @@ public abstract class Handle implements DigestableCRC, Compressible
   public abstract boolean isArchive();
   
   public String getExtension() {
-    String filename = file().getFileName().toString();
+    String filename = path().getFileName().toString();
     int lastdot = filename.lastIndexOf('.');
     return lastdot != -1 ? filename.substring(lastdot+1) : "";
   }

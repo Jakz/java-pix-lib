@@ -58,7 +58,7 @@ public class ArchiveHandle extends Handle
   
   @Override public final boolean isArchive() { return true; }
   
-  @Override public Path file() { return file; }
+  @Override public Path path() { return file; }
   @Override public String fileName() { return internalName; }
   
   @Override public String toString() { return file.getFileName().toString() + "/" + internalName; }
