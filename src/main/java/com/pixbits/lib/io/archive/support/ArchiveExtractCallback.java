@@ -1,6 +1,9 @@
 package com.pixbits.lib.io.archive.support;
 
 import java.io.IOException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import net.sf.sevenzipjbinding.ExtractAskMode;
 import net.sf.sevenzipjbinding.ExtractOperationResult;
@@ -34,7 +37,7 @@ public class ArchiveExtractCallback implements IArchiveExtractCallback
   
   public void setOperationResult(ExtractOperationResult result) throws SevenZipException
   {
-     //System.out.println("Extract Stream finished");
+     //System.out.println("Extract Stream finished: "+result);
   }
   
   public void setCompleted(long completeValue) throws SevenZipException
@@ -45,5 +48,43 @@ public class ArchiveExtractCallback implements IArchiveExtractCallback
   public void setTotal(long total) throws SevenZipException
   {
 
+  }
+  
+  public static class Blocking extends ArchiveExtractCallback
+  {
+    private final Object lock;
+    private boolean finished;
+    
+    public Blocking(ArchiveExtractStream stream)
+    {
+      super(stream);
+      lock = new Object();
+    }
+    
+    public void setOperationResult(ExtractOperationResult result) throws SevenZipException
+    {
+      super.setOperationResult(result);
+      synchronized (lock)
+      {
+        finished = true;
+        lock.notifyAll();
+      }
+    }
+    
+    public void await()
+    {
+      try
+      {
+        synchronized (lock)
+        {
+          while (!finished)
+           lock.wait();
+        }
+      } 
+      catch (InterruptedException e)
+      {
+        e.printStackTrace();
+      }
+    }
   }
 }

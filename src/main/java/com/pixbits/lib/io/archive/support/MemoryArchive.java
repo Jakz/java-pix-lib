@@ -39,9 +39,10 @@ public class MemoryArchive implements IInStream
   
   public int read(byte[] data)
   {
-    System.arraycopy(this.data, offset, data, 0, data.length);
-    offset += data.length;
-    return data.length;
+    int count = Math.min(data.length, size - offset);
+    System.arraycopy(this.data, offset, data, 0, count);
+    offset += count;
+    return count;
   }
   
   public long seek(long offset, int seekOrigin)
@@ -105,5 +106,4 @@ public class MemoryArchive implements IInStream
     memoryArchive.close();
     return memoryArchive;
   }
-
 }

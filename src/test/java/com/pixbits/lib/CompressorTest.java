@@ -18,16 +18,10 @@ import com.pixbits.lib.io.archive.Compressible;
 import com.pixbits.lib.io.archive.Compressor;
 import com.pixbits.lib.io.archive.CompressorOptions;
 
-import net.sf.sevenzipjbinding.IOutCreateArchiveZip;
-import net.sf.sevenzipjbinding.IOutCreateCallback;
-import net.sf.sevenzipjbinding.IOutItemZip;
-import net.sf.sevenzipjbinding.ISequentialInStream;
-import net.sf.sevenzipjbinding.SevenZip;
-import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
-import net.sf.sevenzipjbinding.impl.OutItemFactory;
-import net.sf.sevenzipjbinding.impl.RandomAccessFileOutStream;
-import net.sf.sevenzipjbinding.util.ByteArrayStream;
+
+import static com.pixbits.lib.Tests.getResourceBase;
+import static com.pixbits.lib.Tests.getPathForReadableResource;
 
 public class CompressorTest
 {
@@ -43,29 +37,8 @@ public class CompressorTest
       e.printStackTrace();
     }
   }
-  
-  String getResourceBase()
-  {
-    String basePackage = this.getClass().getPackage().getName().replaceAll("\\.", "/");
-    return basePackage + "/dummy/";
-  }
-  
-  Path getPathForReadableResource(String path)
-  {
-    URL url = this.getClass().getClassLoader().getResource(getResourceBase()+path);
-    Path file = null;
     
-    try
-    {
-      file = Paths.get(url.toURI());
-    } 
-    catch (URISyntaxException e)
-    {
-      file = Paths.get(url.getPath());
-    }
-    
-    return file;
-  }
+
   
   Path getPathForWritableResource(String path)
   {
@@ -100,7 +73,7 @@ public class CompressorTest
     } catch (FileNotFoundException e)
     {
       e.printStackTrace();
-    } catch (SevenZipException e)
+    } catch (IOException e)
     {
       e.printStackTrace();
     }

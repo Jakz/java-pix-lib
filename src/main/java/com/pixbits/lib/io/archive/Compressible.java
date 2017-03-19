@@ -9,8 +9,6 @@ import java.nio.file.Path;
 
 import com.pixbits.lib.exceptions.FileNotFoundException;
 
-import net.sf.sevenzipjbinding.util.ByteArrayStream;
-
 public interface Compressible
 {
   String fileName();

@@ -2,6 +2,7 @@ package com.pixbits.lib.lang;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
@@ -9,6 +10,12 @@ public class StringUtils
 {
   private static final HexBinaryAdapter hexConverter = new HexBinaryAdapter();
 
+  public static String paddedString(char c, int length)
+  {
+    char[] data = new char[length];
+    Arrays.fill(data, c);
+    return new String(data);
+  }
   
   public static String humanReadableByteCount(long bytes)
   {
