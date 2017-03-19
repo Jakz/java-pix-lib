@@ -156,45 +156,50 @@ public class Compressor<H extends Compressible>
     }
   }
   
-  public void createArchive(Path dest, List<H> handles) throws FileNotFoundException, SevenZipException
+  public void createArchive(Path dest, List<H> handles) throws IOException
   {
-    RandomAccessFile raf = new RandomAccessFile(dest.toFile(), "rw");
-        
-    switch (options.format)
-    {
-      case _7ZIP:
+    try (RandomAccessFile raf = new RandomAccessFile(dest.toFile(), "rw"))
+    {   
+      switch (options.format)
       {
-        IOutCreateArchive7z archive = SevenZip.openOutArchive7z();
-        archive.setThreadCount(0);
-        archive.setLevel(options.compressionLevel);
-        boolean solid = options.useSolidArchives;
-        archive.setSolid(solid);
-        if (solid)
+        case _7ZIP:
         {
-          archive.setSolidFiles(handles.size());
-          archive.setSolidSize(handles.stream().mapToLong(H::size).sum());
+          IOutCreateArchive7z archive = SevenZip.openOutArchive7z();
+          archive.setThreadCount(0);
+          archive.setLevel(options.compressionLevel);
+          boolean solid = options.useSolidArchives;
+          archive.setSolid(solid);
+          if (solid)
+          {
+            archive.setSolidFiles(handles.size());
+            archive.setSolidSize(handles.stream().mapToLong(H::size).sum());
+          }
+          
+          CreateCallback<IOutItem7z> callback = new CreateCallback<IOutItem7z>(handles, new ItemDecorator7z<H>());
+          archive.setTrace(true);
+  
+          archive.createArchive(new RandomAccessFileOutStream(raf), handles.size(), callback);        
+          break;
         }
-        
-        CreateCallback<IOutItem7z> callback = new CreateCallback<IOutItem7z>(handles, new ItemDecorator7z<H>());
-        archive.setTrace(true);
-
-        archive.createArchive(new RandomAccessFileOutStream(raf), handles.size(), callback);
-        
-        break;
+        case ZIP:
+        {
+          // TODO: test
+          IOutCreateArchiveZip archive = SevenZip.openOutArchiveZip();
+          archive.setLevel(options.compressionLevel);
+          
+          CreateCallback<IOutItemZip> callback = new CreateCallback<IOutItemZip>(handles, new ItemDecoratorZip<H>());
+          
+          archive.setTrace(true);
+          archive.createArchive(new RandomAccessFileOutStream(raf), handles.size(), callback);
+          
+          break;
+        }
+        case RAR:
+        {
+          throw new UnsupportedOperationException("RAR format is not supported to create archives");
+        }
       }
-      case ZIP:
-      {
-        // TODO: test
-        IOutCreateArchiveZip archive = SevenZip.openOutArchiveZip();
-        archive.setLevel(options.compressionLevel);
-        
-        CreateCallback<IOutItemZip> callback = new CreateCallback<IOutItemZip>(handles, new ItemDecoratorZip<H>());
-        
-        archive.setTrace(true);
-        archive.createArchive(new RandomAccessFileOutStream(raf), handles.size(), callback);
-        
-        break;
-      }
+    
     }
     
     progressLogger.endProgress();
