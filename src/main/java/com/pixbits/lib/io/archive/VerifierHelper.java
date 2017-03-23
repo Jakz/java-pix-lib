@@ -3,15 +3,7 @@ package com.pixbits.lib.io.archive;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import com.pixbits.lib.functional.StreamException;
-import com.pixbits.lib.io.archive.handles.Handle;
-import com.pixbits.lib.io.archive.handles.NestedArchiveBatch;
 import com.pixbits.lib.io.digest.DigestOptions;
 import com.pixbits.lib.io.digest.Digester;
 import com.pixbits.lib.io.digest.HashCache;

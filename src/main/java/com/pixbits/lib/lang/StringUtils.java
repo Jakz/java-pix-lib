@@ -46,4 +46,9 @@ public class StringUtils
   {
     return hexConverter.unmarshal(value);
   }
+  
+  public static boolean isEmpty(String string)
+  {
+    return string == null || string.isEmpty();
+  }
 }

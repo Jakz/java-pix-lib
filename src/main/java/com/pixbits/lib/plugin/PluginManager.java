@@ -5,13 +5,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PluginManager<T extends Plugin, B extends PluginBuilder<T>>
-{
+{ 
   private final Set<B> plugins;
   private final Class<B> builderClass;
   
@@ -35,13 +36,18 @@ public class PluginManager<T extends Plugin, B extends PluginBuilder<T>>
       if (k.isRequired())
       {
         Optional<B> nativePlugin = v.stream().filter(p -> p.isNative).findFirst();
-                
+         
+        // TODO: manage generically when it's not present to report error
+        if (nativePlugin.isPresent())
+        {
+          T plugin = this.build((Class<? extends T>)nativePlugin.get().getID().getType());
+          set.add(plugin);
+          set.enable(this, plugin.getID());
+        }
+        
         // TODO: if existing set check if not already enabled for type if mutually exclusive
         
-        T plugin = this.build((Class<? extends T>)nativePlugin.get().getID().getType()); 
-        
-        set.add(plugin);
-        set.enable(this, plugin.getID());
+
       }
     });
   }

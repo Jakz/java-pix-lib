@@ -23,8 +23,6 @@ import com.pixbits.lib.io.archive.handles.NestedArchiveBatch;
 import com.pixbits.lib.io.archive.handles.NestedArchiveHandle;
 import com.pixbits.lib.io.archive.support.MemoryArchive;
 import com.pixbits.lib.lang.Pair;
-import com.pixbits.lib.log.Log;
-import com.pixbits.lib.log.ProgressLogger;
 import com.pixbits.lib.functional.StreamException;
 
 import net.sf.sevenzipjbinding.IInArchive;

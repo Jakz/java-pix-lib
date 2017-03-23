@@ -1,7 +1,5 @@
 package com.pixbits.lib.io.archive.enumerator;
 
-import com.pixbits.lib.lang.StringUtils;
-
 public class BinaryNode extends Node
 {
   public BinaryNode(String name, long size, long csize, long crc)

@@ -1,11 +1,9 @@
 package com.pixbits.lib.io.archive;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 

@@ -3,7 +3,6 @@ package com.pixbits.lib.io.xml;
 import java.util.Stack;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 public abstract class XMLScopedHandler<T> extends XMLHandler<T>
 {

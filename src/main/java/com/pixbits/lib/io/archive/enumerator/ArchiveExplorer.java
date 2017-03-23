@@ -1,7 +1,6 @@
 package com.pixbits.lib.io.archive.enumerator;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
 
@@ -9,15 +8,10 @@ import com.pixbits.lib.functional.StreamException;
 import com.pixbits.lib.io.archive.ArchiveFormat;
 import com.pixbits.lib.io.archive.support.MemoryArchive;
 
-import net.sf.sevenzipjbinding.ExtractAskMode;
-import net.sf.sevenzipjbinding.ExtractOperationResult;
-import net.sf.sevenzipjbinding.IArchiveExtractCallback;
 import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.IInStream;
-import net.sf.sevenzipjbinding.ISequentialOutStream;
 import net.sf.sevenzipjbinding.PropID;
 import net.sf.sevenzipjbinding.SevenZip;
-import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 
 public class ArchiveExplorer

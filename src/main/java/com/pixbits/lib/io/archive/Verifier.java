@@ -8,20 +8,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.pixbits.lib.io.archive.handles.Handle;
-import com.pixbits.lib.io.archive.handles.NestedArchiveBatch;
-import com.pixbits.lib.io.archive.handles.NestedArchiveHandle;
-import com.pixbits.lib.io.archive.support.MemoryArchive;
 import com.pixbits.lib.io.digest.DigestInfo;
 import com.pixbits.lib.io.digest.Digester;
 import com.pixbits.lib.io.digest.HashCache;
-
-
-import net.sf.sevenzipjbinding.IInArchive;
 
 public class Verifier<T extends Verifiable>
 {
