@@ -62,7 +62,7 @@ public class ProgressDialog extends JDialog
 		  cancelButton.addActionListener(e -> cb.run());
 		}
 		
-		panel.setPreferredSize(new Dimension(400,100));
+		panel.setPreferredSize(new Dimension(400,200));
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
 		this.add(panel);

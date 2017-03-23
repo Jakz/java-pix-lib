@@ -144,6 +144,11 @@ public class BrowseButton extends JTextField
     chooser.setFileFilter(new PathFileFilter(matcher, description));
   }
   
+  public void setCallback(Consumer<Path> callback)
+  {
+    this.optionalCallback = callback;
+  }
+  
   private void dialogClosed(int result)
   {
     if (result == JFileChooser.APPROVE_OPTION)
