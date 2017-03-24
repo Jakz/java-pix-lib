@@ -202,10 +202,7 @@ public class Scanner
     FolderScanner folderScanner = new FolderScanner(options.ignoredPaths, options.scanSubfolders);
     
     Set<Path> paths = folderScanner.scan(spaths);
-    
-    final float count = paths.size();
-    final AtomicInteger current = new AtomicInteger(0);
-    
+        
     final ScannerEnvironment env = new ScannerEnvironment();
     
     paths.stream().forEach(StreamException.rethrowConsumer(path -> {

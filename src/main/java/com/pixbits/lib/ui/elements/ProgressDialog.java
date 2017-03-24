@@ -23,7 +23,7 @@ public class ProgressDialog extends JDialog
 	JLabel title;
 	JLabel desc;
 	JProgressBar progress;
-	Runnable callback;
+	private final Runnable callback;
 	
 	private ProgressDialog(Frame parent, String title, Runnable cb)
 	{
@@ -62,10 +62,11 @@ public class ProgressDialog extends JDialog
 		  cancelButton.addActionListener(e -> cb.run());
 		}
 		
-		panel.setPreferredSize(new Dimension(400,200));
+		panel.setPreferredSize(new Dimension(400, callback == null ? 100 : 120));
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-		this.add(panel);
+		setLayout(new BorderLayout());
+		add(panel, BorderLayout.CENTER);
 		
 		pack();
 		this.setLocationRelativeTo(parent);

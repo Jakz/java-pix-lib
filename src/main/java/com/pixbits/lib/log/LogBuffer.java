@@ -38,9 +38,12 @@ public class LogBuffer implements Iterable<LogBuffer.Entry>
   
   public <T extends LogAttribute> void addEntry(Log level, LogScope scope, String message, T attribute)
   {
-    entries.add(new Entry(level, scope, message, attribute));
-    if (callback != null)
-      callback.accept(this);
+    synchronized (entries)
+    {    
+      entries.add(new Entry(level, scope, message, attribute));
+      if (callback != null)
+        callback.accept(this);
+    }
   }
   
   public LogBuffer()
