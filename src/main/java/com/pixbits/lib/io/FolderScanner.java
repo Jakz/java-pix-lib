@@ -51,7 +51,7 @@ public class FolderScanner
   
   private boolean shouldExclude(Path path)
   {
-    return excluded != null && (excluded.contains(path) || !excluded.stream().anyMatch(p -> path.startsWith(p)));
+    return excluded != null && (excluded.contains(path) || excluded.stream().anyMatch(p -> path.startsWith(p)));
   }
   
   public Set<Path> scan(Collection<Path> roots) throws IOException
