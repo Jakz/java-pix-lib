@@ -26,6 +26,7 @@ public class AsyncGuiPoolWorker<T,V>
   private ThreadPoolExecutor executor;
   private Thread guiThread;
   
+  private boolean cancelled;
   private int threadCount;
   
   private long total;
@@ -36,11 +37,16 @@ public class AsyncGuiPoolWorker<T,V>
   
   private boolean running;
   
-  public AsyncGuiPoolWorker(Operation<T,V> operation, BiConsumer<Long,Float> guiOperation)
+  public AsyncGuiPoolWorker(Operation<T,V> operation, BiConsumer<Long,Float> guiOperation, int threadCount)
   {
     this.operation = operation;
     this.guiOperation = guiOperation;
-    this.threadCount = Runtime.getRuntime().availableProcessors();
+    this.threadCount = threadCount;
+  }
+  
+  public AsyncGuiPoolWorker(Operation<T,V> operation, BiConsumer<Long,Float> guiOperation)
+  {
+    this(operation, guiOperation, Runtime.getRuntime().availableProcessors());
   }
   
   public void compute(Collection<T> data, Consumer<V> onResult)
@@ -119,5 +125,6 @@ public class AsyncGuiPoolWorker<T,V>
   {
     Arrays.stream(results).forEach(c -> c.cancel(false));
     running = false;
+    cancelled = true;
   }
 }

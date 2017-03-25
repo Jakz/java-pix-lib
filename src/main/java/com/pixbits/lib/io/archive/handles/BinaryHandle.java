@@ -11,16 +11,23 @@ public class BinaryHandle extends Handle
 {
   private Path path;
   private long crc;
+  private long size;
 
   public BinaryHandle(Path file)
   {
-    this(file, -1);
+    this(file, -1, -1);
   }
   
   public BinaryHandle(Path file, long crc)
   {
+    this(file, crc, -1);
+  }
+  
+  public BinaryHandle(Path file, long crc, long size)
+  {
     this.path = file.normalize();
     this.crc = crc;
+    this.size = size;
   }
 
   @Override public boolean equals(Object object)
@@ -44,7 +51,9 @@ public class BinaryHandle extends Handle
   @Override public long size() {
     try
     {
-      return Files.size(path);
+      if (size == -1)
+        size = Files.size(path);
+      return size;
     }
     catch (IOException e)
     {

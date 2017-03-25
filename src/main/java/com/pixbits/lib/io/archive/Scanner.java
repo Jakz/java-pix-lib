@@ -2,71 +2,44 @@ package com.pixbits.lib.io.archive;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
-import com.pixbits.lib.io.FolderScanner;
 import com.pixbits.lib.io.archive.handles.ArchiveHandle;
 import com.pixbits.lib.io.archive.handles.BinaryHandle;
+import com.pixbits.lib.io.archive.handles.Handle;
 import com.pixbits.lib.io.archive.handles.NestedArchiveBatch;
 import com.pixbits.lib.io.archive.handles.NestedArchiveHandle;
 import com.pixbits.lib.io.archive.support.MemoryArchive;
-import com.pixbits.lib.lang.Pair;
-import com.pixbits.lib.functional.StreamException;
 
 import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.PropID;
 import net.sf.sevenzipjbinding.SevenZip;
+import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 
 public class Scanner
 {
-  private static final Comparator<Pair<Integer,String>> pairComparator = (o1, o2) -> o1.first.compareTo(o2.first); 
-  
-  private class ScannerEnvironment
-  {
-    final List<BinaryHandle> binaryHandles;
-    final List<ArchiveHandle> archiveHandles;
-    final Map<Path, Set<Pair<Integer,String>>> nestedArchives;
-    final Set<ScannerEntry> skipped;
-    final Set<Path> faulty;
-    
-    ScannerEnvironment()
-    {
-      this.binaryHandles = new ArrayList<>();
-      this.archiveHandles = new ArrayList<>();
-      this.nestedArchives = new HashMap<>();
-      this.skipped = new HashSet<>();
-      this.faulty = new HashSet<>();
-    }
-  }
-  
-  private Consumer<ScannerEntry> onEntryFound = e -> {};
-  
-  final public static PathMatcher archiveMatcher = ArchiveFormat.getReadableMatcher();
-  final private ScannerOptions options;
-    
-  public void setOnEntryFound(Consumer<ScannerEntry> onEntryFound)
-  {
-    this.onEntryFound = onEntryFound;
-  }
+  private final ScannerOptions options;
   
   public Scanner(ScannerOptions options)
   {
     this.options = options;
   }
-      
+  
+  private boolean skipAndReport(VerifierEntry string)
+  {
+    if (options.shouldSkip.test(string))
+    {
+      options.onSkip.accept(string);
+      return true;
+    }
+    return false;
+  }
+  
   private IInArchive openArchive(Path path, boolean keepOpen) throws FormatUnrecognizedException
   {
     try
@@ -89,67 +62,50 @@ public class Scanner
     }
   }
   
-  private List<NestedArchiveBatch> scanNestedArchives(ScannerEnvironment env) throws IOException
+  private VerifierEntry scanNestedArchive(IInArchive archive, int index, ArchiveHandle outer) throws IOException
   {
-    List<NestedArchiveBatch> handles = new ArrayList<>();
+    NestedArchiveBatch batch = null;
+
+    /* extract archive in memory */
+    int size = (int)(long)archive.getProperty(index, PropID.SIZE);
+    String fileName = (String)archive.getProperty(index, PropID.PATH);
+
+    MemoryArchive memoryArchive = MemoryArchive.load(archive, index, size);
+
+    ArchiveFormat format = ArchiveFormat.guessFormat(fileName);
+    IInArchive marchive = memoryArchive.open(format.nativeFormat);
     
-    env.nestedArchives.entrySet().stream().forEach(StreamException.rethrowConsumer(entry -> {
-      Path archivePath = entry.getKey();
-      Set<Pair<Integer,String>> indices = entry.getValue();
-      
-      IInArchive archive = openArchive(archivePath, true);
-      
-      for (Pair<Integer,String> pair : indices)
-      {
-        int index = pair.first;
-        String internalName = pair.second;
-        
-        /* extract archive in memory */
-        int size = (int)(long)archive.getProperty(index, PropID.SIZE);
-        String fileName = (String)archive.getProperty(index, PropID.PATH);
-
-        MemoryArchive memoryArchive = MemoryArchive.load(archive, index, size);
-
-        ArchiveFormat format = ArchiveFormat.guessFormat(fileName);
-        IInArchive marchive = memoryArchive.open(format.nativeFormat);
-        
-        int itemCount = marchive.getNumberOfItems();
-        
-        List<NestedArchiveHandle> handlesForArchive = new ArrayList<>();      
-  
-        for (int i = 0; i < itemCount; ++i)
+    int itemCount = marchive.getNumberOfItems();
+    
+    List<NestedArchiveHandle> handlesForArchive = new ArrayList<>();    
+    
+    /* for each item in nested archive use scanArchiveItem */
+    for (int i = 0; i < itemCount; ++i)
+    {
+      /* if we found a valid binary in the nested archive add it to the batch */
+      NestedArchiveHandle inner = (NestedArchiveHandle)scanArchiveItem(marchive, i, outer.path(), outer);
+      if (inner != null)
+      { 
+        if (skipAndReport(inner))
+          continue;
+        else
         {
-          ScannerEntry.Archived data = scanArchive(marchive, i, archivePath, fileName, env);
-          if (data != null)
-          { 
-            if (options.shouldSkip.test(data))
-              env.skipped.add(data);
-            else
-            {               
-              NestedArchiveHandle handle = new NestedArchiveHandle(archivePath, ArchiveFormat.formatForNative(archive.getArchiveFormat()), fileName, index, 
-                ArchiveFormat.formatForNative(marchive.getArchiveFormat()), data.fileName, i, data.size, data.compressedSize, data.crc);
-                        
-              handlesForArchive.add(handle);
-            }
-          }
+          handlesForArchive.add(inner);
         }
-        
-        marchive.close();
-        
-        if (!handlesForArchive.isEmpty())
-          handles.add(new NestedArchiveBatch(handlesForArchive));
       }
+    }
       
-      archive.close();
-      
-
-    }));
+    marchive.close();
+    archive.close();
     
-    return handles;
+    if (!handlesForArchive.isEmpty())
+      batch = new NestedArchiveBatch(handlesForArchive);
+    
+    return batch;
   }
   
-  public ScannerEntry.Archived scanArchive(IInArchive archive, int i, Path path, String nestedPath, ScannerEnvironment env) throws IOException
-  {
+  private VerifierEntry scanArchiveItem(IInArchive archive, int i, Path path, ArchiveHandle outer) throws IOException
+  {    
     long size = (long)archive.getProperty(i, PropID.SIZE);
     Long lcompressedSize = (Long)archive.getProperty(i, PropID.PACKED_SIZE);
     long compressedSize = lcompressedSize != null ? lcompressedSize : -1;
@@ -157,106 +113,92 @@ public class Scanner
     
     Boolean isFolder = (Boolean)archive.getProperty(i, PropID.IS_FOLDER);
     
+    ArchiveFormat format = ArchiveFormat.formatForNative(archive.getArchiveFormat());
+    
+    /* if it's a folder then just return */
     if (isFolder != null && isFolder)
       return null;
     
-    /* if file ends with archive extension */
-    if (nestedPath == null && ArchiveFormat.guessFormat(fileName) != null)
-    {                
-      // TODO: if archived file has archive extension but it's binary then it's skipped, maybe move check to outside condition
-      if (options.scanNestedArchives)
-      {    
-        env.nestedArchives.computeIfAbsent(path, p -> new TreeSet<>(pairComparator)).add(new Pair<>(i, fileName));
-      }
-      
-      /* don't return anything since it's a nested archive and it will be checked later */
-      return null;
-    }
-    else
+    ArchiveFormat internalFormat = ArchiveFormat.guessFormat(fileName);
+    
+    long crc = options.assumeCRCisCorrect ? Integer.toUnsignedLong((Integer)archive.getProperty(i, PropID.CRC)) : -1;
+    ArchiveHandle archiveHandle = new ArchiveHandle(path, format, fileName, i, size, compressedSize, crc);
+    
+    /* if internal file name is not a known filename for an archive then it's a binary */
+    if (internalFormat == null)
     {
-      /* if crc is considered valid then we can get it and check size to filter out elements */
-      long crc = options.assumeCRCisCorrect ? Integer.toUnsignedLong((Integer)archive.getProperty(i, PropID.CRC)) : -1;
-      ScannerEntry.Archived entry = null;
-      
-      if (nestedPath == null)
-        entry = new ScannerEntry.Archived(path.getFileName().toString(), fileName, size, compressedSize, crc);
-      else
-        entry = new ScannerEntry.Nested(path.getFileName().toString(), nestedPath, fileName, size, compressedSize, crc);
-   
-      /* if predicate tells that entry should be skipped */
-      if (options.shouldSkip.test(entry))
-        env.skipped.add(entry);
-      /* otherwise return the entry */
+      /* if outer is null then this is a binary inside an archive */
+      if (outer == null)
+      {
+        if (skipAndReport(archiveHandle))
+          ;
+        else
+          return archiveHandle;
+      }
+      /* else it's a binary inside a nested archive */
       else
       {
-        onEntryFound.accept(entry);
-        return entry;
+        NestedArchiveHandle handle = new NestedArchiveHandle(outer.path(), outer.format, outer.internalName, outer.indexInArchive, 
+            format, fileName, i, size, compressedSize, crc);
+        
+        if (skipAndReport(handle))
+          ;
+        else
+          return handle;
+      }    
+    }
+    /* else it's an archive nested inside another archive so we should inspect it */
+    else if (outer == null)
+    {
+      if (options.scanNestedArchives)
+      {
+        return scanNestedArchive(archive, i, archiveHandle);
       }
     }
     
     return null;
   }
 
-  public HandleSet computeHandles(List<Path> spaths) throws IOException
+  public List<VerifierEntry> scanSinglePath(Path path) throws IOException
   {
-    FolderScanner folderScanner = new FolderScanner(options.ignoredPaths, options.scanSubfolders);
+    List<VerifierEntry> results = new ArrayList<>();
     
-    Set<Path> paths = folderScanner.scan(spaths);
-        
-    final ScannerEnvironment env = new ScannerEnvironment();
+    ArchiveFormat format = ArchiveFormat.guessFormat(path);
     
-    paths.stream().forEach(StreamException.rethrowConsumer(path -> {
+    /* if format is null then it's not a known readable archive extension */
+    if (format == null)
+    {
+      BinaryHandle handle = new BinaryHandle(path);
       
-      boolean shouldBeArchive = archiveMatcher.matches(path.getFileName());
-            
-      if (options.scanArchives && shouldBeArchive)
-      {      
+      if (skipAndReport(handle))
+        ;
+      else if (options.scanBinaries)
+        results.add(handle);
+    }
+    /* file could be an archive, we should cache IInArchive and use the specific method to scan it */
+    else
+    {
+      if (options.scanArchives)
+      {
+        /* for each element in the archive, scan it, it could return an ArchiveHandle or a NestedArchiveHandle */
         try (IInArchive archive = openArchive(path, false))
         {
           int itemCount = archive.getNumberOfItems();
           
-          if (true)
-          {   
-            for (int i = 0; i < itemCount; ++i)
-            {
-              /* TODO: check extension of file? */
-              ScannerEntry.Archived entry = scanArchive(archive, i, path, null, env);
-              if (entry != null)
-              {
-                if (options.shouldSkip.test(entry))
-                  env.skipped.add(entry);
-                else
-                {
-                  onEntryFound.accept(entry);
-                  env.archiveHandles.add(new ArchiveHandle(path, ArchiveFormat.formatForNative(archive.getArchiveFormat()), entry.fileName, i, entry.size, entry.compressedSize, entry.crc));
-                }              
-              }
-            }
+          for (int i = 0; i < itemCount; ++i)
+          {
+            /* TODO: check extension of file? */
+            VerifierEntry entry = scanArchiveItem(archive, i, path, null);
+            results.add(entry);
           }
         }
         catch (FormatUnrecognizedException e)
         {
-          env.faulty.add(path);
+          options.onFaultyArchive.accept(path.toString());
         }
       }
-      else if (options.scanBinaries)
-      {
-        long size = Files.size(path);
-        ScannerEntry entry = new ScannerEntry.Binary(path.getFileName().toString(), size, -1);
-       
-        /* check if file should be skipped according to predicate */
-        if (options.shouldSkip.test(entry))
-          env.skipped.add(entry);    
-        else
-        {
-          onEntryFound.accept(entry);
-          env.binaryHandles.add(new BinaryHandle(path));
-        }
-      }    
-    }));
-        
-    List<NestedArchiveBatch> nestedHandles = scanNestedArchives(env);
-
-    return new HandleSet(env.binaryHandles, env.archiveHandles, nestedHandles, env.faulty, env.skipped);
+    }
+    
+    return results;
   }
 }

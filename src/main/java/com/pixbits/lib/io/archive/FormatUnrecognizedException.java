@@ -1,8 +1,9 @@
 package com.pixbits.lib.io.archive;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
-public class FormatUnrecognizedException extends Exception
+public class FormatUnrecognizedException extends IOException
 {
   public final Path path;
   

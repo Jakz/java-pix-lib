@@ -87,7 +87,7 @@ public class NestedArchiveHandle extends Handle
       archive.close();
       innerArchive.close();
     }
-    catch (IOException|FormatUnrecognizedException e)
+    catch (IOException e)
     {
       e.printStackTrace();
     }
