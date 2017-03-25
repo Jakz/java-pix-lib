@@ -49,6 +49,11 @@ public class FolderScanner
     this.recursive = recursive;
   }
   
+  private boolean shouldExclude(Path path)
+  {
+    return excluded != null && (excluded.contains(path) || !excluded.stream().anyMatch(p -> path.startsWith(p)));
+  }
+  
   public Set<Path> scan(Collection<Path> roots) throws IOException
   {
     files.clear();
@@ -74,7 +79,7 @@ public class FolderScanner
       throw new FileNotFoundException(root);    
     else if (Files.isDirectory(root))
       innerScan(root);
-    else if (filter.matches(root))
+    else if (filter.matches(root.getFileName()) && !shouldExclude(root))
       files.add(root);
       
     return files;
@@ -86,7 +91,7 @@ public class FolderScanner
     {
       stream.forEach(StreamException.rethrowConsumer(e ->
       {                        
-        if (excluded == null || !excluded.stream().anyMatch(path -> e.startsWith(path)))
+        if (!shouldExclude(e))
         {
           if (Files.isDirectory(e) && recursive)
             innerScan(e);

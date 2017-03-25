@@ -96,7 +96,6 @@ public class Scanner
     }
       
     marchive.close();
-    archive.close();
     
     if (!handlesForArchive.isEmpty())
       batch = new NestedArchiveBatch(handlesForArchive);
@@ -181,16 +180,21 @@ public class Scanner
       if (options.scanArchives)
       {
         /* for each element in the archive, scan it, it could return an ArchiveHandle or a NestedArchiveHandle */
-        try (IInArchive archive = openArchive(path, false))
+        try
         {
+          IInArchive archive = openArchive(path, true);
           int itemCount = archive.getNumberOfItems();
           
           for (int i = 0; i < itemCount; ++i)
           {
             /* TODO: check extension of file? */
             VerifierEntry entry = scanArchiveItem(archive, i, path, null);
-            results.add(entry);
+            
+            if (entry != null)
+              results.add(entry);
           }
+          
+          archive.close();
         }
         catch (FormatUnrecognizedException e)
         {
