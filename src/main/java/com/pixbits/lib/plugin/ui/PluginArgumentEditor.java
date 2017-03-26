@@ -40,6 +40,8 @@ public class PluginArgumentEditor implements TableCellEditor
     
       if (clazz.equals(Integer.class) || clazz.equals(Integer.TYPE))
         return Integer.valueOf((String)v);
+      else if (clazz.equals(Boolean.class) || clazz.equals(Boolean.TYPE))
+        return Boolean.valueOf((Boolean)v);
       else
         return v;
     }
