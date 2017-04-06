@@ -13,6 +13,7 @@ import javax.swing.table.TableCellRenderer;
 
 import com.pixbits.lib.plugin.Plugin;
 import com.pixbits.lib.plugin.PluginArgument;
+import com.pixbits.lib.ui.table.renderers.AlternateColorTableCellRenderer;
 
 public class PluginConfigTable extends JTable
 {
@@ -53,6 +54,8 @@ public class PluginConfigTable extends JTable
     super();
     editors = new ArrayList<>();
     renderers = new ArrayList<>();
+    
+    setDefaultRenderer(Boolean.class, new AlternateColorTableCellRenderer(getDefaultRenderer(Boolean.class)));
     
     model = new PluginArgumentTableModel();
     setModel(model);
@@ -107,6 +110,8 @@ public class PluginConfigTable extends JTable
         Class<?> t = a.getType();
         if (t.equals(Integer.class) || t.equals(Integer.TYPE))
           return new PluginArgumentEditor(t, this.getDefaultEditor(Integer.class));
+        else if (t.equals(Boolean.class) || t.equals(Boolean.TYPE))
+          return new PluginArgumentEditor(t, this.getDefaultEditor(Boolean.class));
         else if (t.equals(java.nio.file.Path.class))
         {
           int type = JFileChooser.FILES_AND_DIRECTORIES;
@@ -123,12 +128,14 @@ public class PluginConfigTable extends JTable
         else
           return this.getDefaultEditor(Object.class);
       }).forEach(editors::add);
-      
+            
       types.stream().map( t -> {
         if (t.equals(Integer.class) || t.equals(Integer.TYPE))
-          return this.getDefaultRenderer(Integer.class);
+          return getDefaultRenderer(Integer.class);
+        else if (t.equals(Boolean.class) || t.equals(Boolean.TYPE))
+          return getDefaultRenderer(Boolean.class);
         else
-          return this.getDefaultRenderer(Object.class);
+          return getDefaultRenderer(t);
       }).forEach(renderers::add);
       
       model.fireTableDataChanged();

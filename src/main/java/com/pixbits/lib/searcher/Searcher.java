@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class Searcher<T>
+public class Searcher<T> implements SearcherInterface<T>
 {
   private final SearchParser<T> parser;
   private final List<SearchPredicate<T>> predicates;
