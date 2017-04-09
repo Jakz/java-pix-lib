@@ -19,7 +19,7 @@ public class XMLParser<T> implements ErrorHandler
   {
     this(handler, null);
   }
-  
+    
   public XMLParser(XMLHandler<T> handler, EntityResolver resolver)
   {
     this.handler = handler;
