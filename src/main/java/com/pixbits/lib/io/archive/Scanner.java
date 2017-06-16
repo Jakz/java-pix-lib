@@ -7,7 +7,10 @@ import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.pixbits.lib.functional.StreamException;
 import com.pixbits.lib.io.archive.handles.ArchiveHandle;
 import com.pixbits.lib.io.archive.handles.BinaryHandle;
 import com.pixbits.lib.io.archive.handles.Handle;
@@ -156,6 +159,14 @@ public class Scanner
     }
     
     return null;
+  }
+  
+  public List<VerifierEntry> scanPaths(Stream<Path> paths) throws IOException
+  {
+    return paths
+      .map(StreamException.rethrowFunction(this::scanSinglePath))
+      .flatMap(l -> l.stream())
+      .collect(Collectors.toList());
   }
 
   public List<VerifierEntry> scanSinglePath(Path path) throws IOException
