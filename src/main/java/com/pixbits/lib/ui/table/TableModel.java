@@ -27,6 +27,11 @@ public class TableModel<T> extends AbstractTableModel
   final JTable table;
   final JScrollPane scrollPane;
   
+  public TableModel(JTable table, DataSource<T> data)
+  {
+    this(table, null, data);
+  }
+  
   public TableModel(JTable table, JScrollPane scrollPane)
   {
     this(table, scrollPane, null);

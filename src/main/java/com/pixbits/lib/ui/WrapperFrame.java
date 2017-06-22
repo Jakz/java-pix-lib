@@ -16,4 +16,9 @@ public class WrapperFrame<T extends JPanel> extends JFrame
   {
     return panel;
   }
+  
+  public void exitOnClose()
+  {
+    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  }
 }

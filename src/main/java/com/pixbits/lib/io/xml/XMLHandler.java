@@ -89,6 +89,16 @@ public abstract class XMLHandler<T> extends DefaultHandler
     start(namespaceURI, name, attr);
   }
   
+  protected boolean hasAttribute(String key)
+  {
+    return currentAttributes.getValue(key) != null;
+  }
+  
+  protected String attrStringOptional(String key)
+  {
+    return currentAttributes.getValue(key);
+  }
+  
   protected String attrString(String key) throws SAXException
   { 
     String value = currentAttributes.getValue(key);
@@ -97,6 +107,20 @@ public abstract class XMLHandler<T> extends DefaultHandler
       throw new SAXException(String.format("Attribute '%s' is missing.", key));
       
     return currentAttributes.getValue(key);
+  }
+  
+  protected ZonedDateTime dateAttribute(String key)
+  {
+    String o = currentAttributes.getValue(key);
+    
+    if (o == null)
+      return null;
+    else
+    {
+      GregorianCalendar calendar = (GregorianCalendar)DatatypeConverter.parseDateTime(o);
+      ZonedDateTime time = calendar.toZonedDateTime();
+      return time;
+    }     
   }
   
   protected long longAttributeOrDefault(String key, long value)
