@@ -4,8 +4,10 @@ import java.io.CharArrayWriter;
 import java.time.ZonedDateTime;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import javax.xml.bind.DatatypeConverter;
@@ -14,6 +16,8 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import com.pixbits.lib.lang.Pair;
 
 public abstract class XMLHandler<T> extends DefaultHandler
 {
@@ -94,9 +98,36 @@ public abstract class XMLHandler<T> extends DefaultHandler
     return currentAttributes.getValue(key) != null;
   }
   
+  protected void attrStringIfPresent(String key, Consumer<String> lambda)
+  {
+    String value = currentAttributes.getValue(key);
+    if (value != null)
+      lambda.accept(value);
+  }
+  
   protected String attrStringOptional(String key)
   {
     return currentAttributes.getValue(key);
+  }
+  
+  protected Iterator<Pair<String,String>> attrIterator()
+  {
+    return new Iterator<Pair<String,String>>() {
+      private final Attributes attributes = currentAttributes;
+      private int index = 0;
+      
+      @Override
+      public boolean hasNext() { return index < attributes.getLength() - 1; }
+
+      @Override
+      public Pair<String,String> next()
+      {
+        Pair<String,String> attr = new Pair<>(attributes.getLocalName(index), attributes.getValue(index));
+        ++index;
+        return attr;
+      }
+      
+    };
   }
   
   protected String attrString(String key) throws SAXException
