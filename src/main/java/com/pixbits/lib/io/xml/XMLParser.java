@@ -1,10 +1,12 @@
 package com.pixbits.lib.io.xml;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
@@ -26,7 +28,7 @@ public class XMLParser<T> implements ErrorHandler
     this.resolver = resolver;
   }
   
-  public T load(Path file) throws IOException, SAXException
+  protected T load(InputSource source) throws IOException, SAXException
   {
     XMLReader reader = XMLReaderFactory.createXMLReader();
     reader.setErrorHandler(this);
@@ -34,8 +36,18 @@ public class XMLParser<T> implements ErrorHandler
     if (resolver != null)
       reader.setEntityResolver(resolver);
     handler.init();
-    reader.parse(file.toString());
+    reader.parse(source);
     return handler.get();
+  }
+  
+  public T load(InputStream stream) throws IOException, SAXException
+  {
+    return load(new InputSource(stream));
+  }
+  
+  public T load(Path file) throws IOException, SAXException
+  {
+    return load(new InputSource(file.toString()));
   }
 
   private String getParseExceptionInfo(SAXParseException spe)
