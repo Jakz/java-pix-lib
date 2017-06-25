@@ -32,7 +32,6 @@ public class MonitoredInputStream extends FilterInputStream
 
   public void addChangeListener(ChangeListener l) { if (!listeners.contains(l)) listeners.add(l); }
   public void removeChangeListener(ChangeListener l) { listeners.remove(l); }
-  public long getProgress() { return location; }
 
   protected void triggerChanged(final long location)
   {
@@ -41,14 +40,17 @@ public class MonitoredInputStream extends FilterInputStream
 
     lastTriggeredLocation = location;
 
-    if (listeners.size() <= 0) return;
+    if (listeners.isEmpty())
+      return;
+    
     try
     {
       final ChangeEvent evt = new ChangeEvent(this);
       for (ChangeListener l : listeners)
         l.stateChanged(evt);
     } 
-    catch (ConcurrentModificationException e) {
+    catch (ConcurrentModificationException e)
+    {
       triggerChanged(location);
     }
   }
