@@ -10,8 +10,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  //CompressorTest.class,
-  ArchiveExplorerTest.class
+  FilterCollectionTests.class
 })
 public class Tests
 {

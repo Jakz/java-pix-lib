@@ -47,6 +47,7 @@ public class Rect implements JsonnableContext<Rect>
   }
   
   public Rect() { }
+  public Rect(java.awt.Rectangle r) { this(r.x, r.y, r.width, r.height); }
   public Rect(int x, int y, int width, int height)
   {
     this.x = x;
