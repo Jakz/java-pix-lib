@@ -11,33 +11,29 @@ import com.pixbits.lib.lang.Rect;
 public class Rectangle extends Entity
 {
   Rect rect;
-  Color color;
-  float strokeWidth;
-  Color strokeColor;
+  Brush brush;
   
-  public Rectangle(Rect rect, Color color) { this.rect = rect; this.color = color; }
+  public Rectangle(Rect rect, Brush brush) { this.rect = rect; this.brush = brush; }
+  public Rectangle(Rect rect, Color color) { this.rect = rect; this.brush = new Brush(color); }
   public Rectangle(java.awt.Rectangle rect, Color color) { this(new Rect(rect), color); }
   public Rectangle(int x, int y, int w, int h, Color color) { this(new Rect(x, y, w, h), color); }
-  
-  public Color color() { return color; }
-  public void color(Color color) { this.color = color; }
-  
-  public float strokeWidth() { return strokeWidth; }
-  public void strokeWidth(float width) { this.strokeWidth = width; }
-  
-  public Color strokeColor() { return strokeColor; }
-  public void strokeColor(Color color) { this.strokeColor = color; }
-  
+  public Rectangle(int x, int y, int w, int h, Brush brush) { this(new Rect(x, y, w, h), brush); }
+
+  public Brush brush() { return brush; }
+  public void brush(Brush brush) { this.brush = brush; }
+
   @Override
   void draw(GfxContext c)
   {
-    c.gfx.fillRect(rect.x, rect.y, rect.w, rect.h, color);
+    //System.out.println("Rectangle("+rect.x+", "+rect.y+", "+rect.w+", "+rect.h+", "+brush.color());
     
-    if (strokeWidth != 0.0f)
+    c.gfx.fillRect(rect.x, rect.y, rect.w, rect.h, brush.color());
+    
+    if (brush.hasStroke())
     {
-      Stroke stroke = new BasicStroke(strokeWidth);
+      Stroke stroke = new BasicStroke(brush.strokeWidth());
       Graphics2D g = c.gfx.g();
-      c.gfx.saveColor(strokeColor);
+      c.gfx.saveColor(brush.strokeColor());
       g.setStroke(stroke);
       
       g.draw(new Line2D.Float(rect.x, rect.y, rect.x+rect.w, rect.y));

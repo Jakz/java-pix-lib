@@ -1,5 +1,6 @@
 package com.pixbits.lib.ui.canvas;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -11,6 +12,8 @@ import javax.swing.JPanel;
 
 public class CanvasPanel extends JPanel implements EntityHolder
 {
+  private Gfx gfx;
+  
   private final List<Entity> entities;
   private boolean dirty = false;
   
@@ -37,19 +40,27 @@ public class CanvasPanel extends JPanel implements EntityHolder
     dirty = true;
   }
   
+  public void clear()
+  {
+    entities.clear();
+  }
+  
   @Override public void markDirty()
   {
+    boolean wasDirty = dirty;
     dirty = true;
+    if (wasDirty) repaint();
   }
   
   @Override public void paintComponent(Graphics gx)
   {
     Graphics2D g = (Graphics2D)gx;
+   
     GfxContext context = new GfxContext(new Gfx(g, true));
     
     if (dirty)
       sort();
-    
+        
     for (Entity entity : entities)
     {
       entity.draw(context);
