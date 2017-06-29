@@ -60,6 +60,25 @@ public class Rect implements JsonnableContext<Rect>
   {
     return new Rect(x*v, y*v, w*v, h*v);
   }
+  
+  public void add(Rect rect)
+  {
+    this.x += rect.x;
+    this.y += rect.y;
+    this.w += rect.w;
+    this.h += rect.h;
+  }
+  
+  public void translate(Point point)
+  {
+    translate(point.x, point.y);
+  }
+  
+  public void translate(float x, float y)
+  {
+    this.x += x;
+    this.y += y;
+  }
 
   @Override
   public JsonElement serialize(JsonSerializationContext context)

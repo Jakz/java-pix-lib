@@ -65,6 +65,7 @@ public class CanvasPanel extends JPanel implements EntityHolder
     {
       entity.draw(context);
     }
+    
   }
   
   

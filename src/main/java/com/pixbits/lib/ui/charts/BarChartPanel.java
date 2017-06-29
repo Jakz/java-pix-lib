@@ -16,6 +16,8 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
 import com.pixbits.lib.functional.MinMaxCollector;
+import com.pixbits.lib.lang.FloatRange;
+import com.pixbits.lib.lang.Pair;
 import com.pixbits.lib.lang.Rect;
 import com.pixbits.lib.ui.canvas.Brush;
 import com.pixbits.lib.ui.canvas.CanvasPanel;
@@ -31,7 +33,10 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
   private int barWidth;
   private int barMargin;
   
+  private Pair<NormalizeMode, NormalizeMode> axisNormalize;
+  
   private boolean autoRebuild;
+  
   private AncestorListener shownListener;
 
   public BarChartPanel(Dimension dimension)
@@ -40,7 +45,7 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     data = new ArrayList<>();
     
     brush = new Brush(Color.RED);
-    fillMode = FillMode.DONT_RESIZE;
+    fillMode = FillMode.FILL;
     anchor = Anchor.BOTTOM;
     barWidth = 1;
     barMargin = 0;
@@ -88,33 +93,33 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
   }
   
   /* generate a function which calculates bars */
-  protected BiFunction<Integer, Float, Rect> calculateBarBuilder(Rect bounds, int barDelta)
+  protected BiFunction<Integer, Float, Rect> calculateBarBuilder(Rect bounds, float barDelta, float barWidth)
   {
     switch (anchor)
     {
       case BOTTOM:
       {
         return (i, v) -> {
-          int x = i * barDelta;
+          float x = i * barDelta;
           int y = (int) ((1.0f - v) * bounds.h);
           
-          int w = barWidth;
+          float w = barWidth;
           int h = bounds.h - y;
           
-          return new Rect(bounds.x+x, bounds.y+y, w, h);
+          return new Rect((int)(bounds.x+x), bounds.y+y, (int)w, h);
         };
       }
       
       case TOP:
       {
         return (i, v) -> {
-          int x = i * barDelta;
+          float x = i * barDelta;
           int y = 0;
           
-          int w = barWidth;
+          float w = barWidth;
           int h = (int)(bounds.h * v);
           
-          return new Rect(bounds.x+x, bounds.y+y, w, h);
+          return new Rect((int)(bounds.x+x), bounds.y+y, (int)w, h);
         };
       }
       
@@ -122,12 +127,12 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
       {
         return (i, v) -> {
           int x = 0;
-          int y = i * barDelta;
+          float y = i * barDelta;
           
           int w = (int)(bounds.w * v);
-          int h = barWidth;
+          float h = barWidth;
           
-          return new Rect(bounds.x+x, bounds.y+y, w, h);
+          return new Rect(bounds.x+x, (int)(bounds.y+y), w, (int)h);
         };
       }
       
@@ -135,12 +140,12 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
       {
         return (i, v) -> {
           int x = (int) ((1.0f - v) * bounds.w);
-          int y = i * barDelta;
+          float y = i * barDelta;
           
           int w = bounds.w - x;
-          int h = barWidth;
+          float h = barWidth;
           
-          return new Rect(bounds.x+x, bounds.y+y, w, h);
+          return new Rect(bounds.x+x, (int)(bounds.y+y), w, (int)h);
         };
       }
     }
@@ -171,10 +176,10 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     /* required parameters */
     int firstIndex, lastIndex = 0;
     
-    final Rect bounds = new Rect(5, 5, getWidth()-10, getHeight()-10);
-    final int barWidth = this.barWidth;
+    Rect bounds = new Rect(5, 5, getWidth()-10, getHeight()-10);
+    float barWidth = this.barWidth;
     final int barMargin = this.barMargin;
-    final int barDelta = barWidth + barMargin;
+    float barDelta = barWidth + barMargin;
     
     float min, max;
 
@@ -183,8 +188,45 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     
     if (fillMode == FillMode.DONT_RESIZE)
     {
-      int maxShown = bounds.w / (barWidth+barMargin);
-      lastIndex = Math.min(maxShown, data.size());
+      int maxShown = (int)(bounds.w / (barWidth+barMargin));
+
+      lastIndex = Math.min(maxShown, data.size());     
+      barWidth = this.barWidth;
+      barDelta = this.barWidth + barMargin;
+    }
+    else if (fillMode == FillMode.FILL_FRACTIONAL)
+    {
+      float allowedPerRow = bounds.w / (float)data.size();
+      
+      lastIndex = data.size();
+      barWidth = allowedPerRow - barMargin;
+      barDelta = allowedPerRow;
+    }
+    else if (fillMode == FillMode.FILL)
+    {
+      int varyingBound = anchor.vertical ? bounds.w : bounds.h;
+      int allowedPerRow = (int) (varyingBound / (float)data.size());
+      int adjustedSize = allowedPerRow * data.size();
+      int deltaBoundMargin = varyingBound - adjustedSize;
+      
+      System.out.println("allowedPerRow: "+allowedPerRow+" ajustedSize: "+adjustedSize+" bounds: "+bounds);
+      
+      int firstMargin = deltaBoundMargin / 2;
+      
+      if (!anchor.vertical)
+      {
+        bounds.h = adjustedSize;
+        bounds.y = firstMargin;
+      }
+      else
+      {
+        bounds.w = adjustedSize;
+        bounds.x = firstMargin;
+      }
+      
+      lastIndex = data.size();
+      barWidth = allowedPerRow - barMargin;
+      barDelta = allowedPerRow;
     }
 
     MinMaxCollector<Measurable> minMax = data.subList(firstIndex, lastIndex).stream()
@@ -193,7 +235,7 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     min = minMax.min().chartValue();
     max = minMax.max().chartValue();
     
-    BiFunction<Integer, Float, Rect> rectBuilder = calculateBarBuilder(bounds, barDelta);
+    BiFunction<Integer, Float, Rect> rectBuilder = calculateBarBuilder(bounds, barDelta, barWidth);
     
     /* draw bars */
     final int count = lastIndex - firstIndex;
@@ -203,7 +245,7 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
       float value = (data.get(which).chartValue() - min) / (max - min);
       
       Rect rect = rectBuilder.apply(which, value);
-      System.out.println("Rect("+rect+")");
+      //System.out.println("Rect("+rect+")");
       add(new Rectangle(rect, brush));
     }
     
