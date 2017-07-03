@@ -10,24 +10,26 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import javax.swing.JPanel;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
 import com.pixbits.lib.functional.MinMaxCollector;
-import com.pixbits.lib.lang.FloatRange;
 import com.pixbits.lib.lang.Pair;
 import com.pixbits.lib.lang.Rect;
 import com.pixbits.lib.ui.canvas.Brush;
 import com.pixbits.lib.ui.canvas.CanvasPanel;
 import com.pixbits.lib.ui.canvas.Rectangle;
+import com.pixbits.lib.ui.color.MappableColorGenerator;
+import com.pixbits.lib.ui.color.PleasantColorGenerator;
 
 public class BarChartPanel<T extends Measurable> extends CanvasPanel
 {
   private final List<T> data;
   
-  private Brush brush;
+  private Function<T, Brush> brush;
   private FillMode fillMode;
   private Anchor anchor;
   private int barWidth;
@@ -44,8 +46,12 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     super(dimension);
     data = new ArrayList<>();
     
-    brush = new Brush(Color.RED);
-    fillMode = FillMode.FILL;
+    final Brush cbrush = new Brush(Color.RED);
+    //brush = m -> cbrush;
+    final MappableColorGenerator<T> scg = new MappableColorGenerator<>(new PleasantColorGenerator());
+    brush = m -> new Brush(scg.getColor(m), Color.BLACK);
+    
+    fillMode = FillMode.FILL_FRACTIONAL;
     anchor = Anchor.BOTTOM;
     barWidth = 1;
     barMargin = 0;
@@ -208,9 +214,7 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
       int allowedPerRow = (int) (varyingBound / (float)data.size());
       int adjustedSize = allowedPerRow * data.size();
       int deltaBoundMargin = varyingBound - adjustedSize;
-      
-      System.out.println("allowedPerRow: "+allowedPerRow+" ajustedSize: "+adjustedSize+" bounds: "+bounds);
-      
+            
       int firstMargin = deltaBoundMargin / 2;
       
       if (!anchor.vertical)
@@ -242,11 +246,13 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     for (int i = 0; i < count; ++i)
     {
       int which = i + firstIndex;
-      float value = (data.get(which).chartValue() - min) / (max - min);
+      T element = data.get(which);
+
+      float value = (element.chartValue() - min) / (max - min);
       
       Rect rect = rectBuilder.apply(which, value);
       //System.out.println("Rect("+rect+")");
-      add(new Rectangle(rect, brush));
+      add(new Rectangle(rect, brush.apply(element)));
     }
     
     repaint();

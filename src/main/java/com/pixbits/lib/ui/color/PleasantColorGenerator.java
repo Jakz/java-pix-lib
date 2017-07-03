@@ -22,15 +22,15 @@ public class PleasantColorGenerator implements ColorGenerator
   }
   
   final double conjugate = (1.0 + Math.sqrt(5.0)) / 2.0;
-  private double getNextHue()
+  private double getNextHue(int m)
   {
-    hue = (hue + conjugate) % 1.0f;
+    hue = (hue + conjugate*m) % 1.0f;
     return hue;
   }
 
   @Override
   public Color getColor()
   {
-    return Color.getHSBColor((float)getNextHue(), saturation, brightness);
+    return Color.getHSBColor((float)getNextHue(1), saturation, brightness);
   }
 }
