@@ -1,7 +1,5 @@
 package com.pixbits.lib.ui.color;
 
-import java.awt.Color;
-
 public class GradientColorGenerator
 {
   public float weights[];
@@ -15,18 +13,29 @@ public class GradientColorGenerator
     this.weights = weights;
   }
   
-  public GradientColorGenerator(Color[] colors)
+  public GradientColorGenerator(Color... colors)
   {
     this(colors, null);
   }
   
   public GradientColorGenerator(Color c1, Color c2)
   {
-    
+    this(new Color[] {c1, c2});
   }
   
   public Color getColor(float v)
   {
-    return null;
+    //TODO: clamp to 0.0 1.0?
+    
+    if (weights == null)
+    {
+      float rangePerSlot = 1.0f / (colors.length - 1);
+      int slot = (int)(v / rangePerSlot);
+      float mod = v - slot*rangePerSlot;
+      
+      return colors[slot].mix(colors[slot+1], mod);
+    }
+    else
+      return null;
   }
 }

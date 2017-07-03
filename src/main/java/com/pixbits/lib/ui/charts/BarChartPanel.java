@@ -18,10 +18,13 @@ import javax.swing.event.AncestorListener;
 
 import com.pixbits.lib.functional.MinMaxCollector;
 import com.pixbits.lib.lang.Pair;
+import com.pixbits.lib.lang.Point;
 import com.pixbits.lib.lang.Rect;
 import com.pixbits.lib.ui.canvas.Brush;
 import com.pixbits.lib.ui.canvas.CanvasPanel;
+import com.pixbits.lib.ui.canvas.Line;
 import com.pixbits.lib.ui.canvas.Rectangle;
+import com.pixbits.lib.ui.color.GradientColorGenerator;
 import com.pixbits.lib.ui.color.MappableColorGenerator;
 import com.pixbits.lib.ui.color.PleasantColorGenerator;
 
@@ -46,7 +49,6 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     super(dimension);
     data = new ArrayList<>();
     
-    final Brush cbrush = new Brush(Color.RED);
     //brush = m -> cbrush;
     final MappableColorGenerator<T> scg = new MappableColorGenerator<>(new PleasantColorGenerator());
     brush = m -> new Brush(scg.getColor(m), Color.BLACK);
@@ -161,6 +163,22 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
   
   protected void rebuild()
   {
+    GradientColorGenerator gcg = new GradientColorGenerator(
+        new com.pixbits.lib.ui.color.Color(Color.RED), 
+        //new com.pixbits.lib.ui.color.Color(Color.BLUE),
+        new com.pixbits.lib.ui.color.Color(Color.YELLOW.darker())
+    );
+    for (int i = 0; i < getWidth(); ++i)
+    {
+      float v = i / (float)getWidth();
+      com.pixbits.lib.ui.color.Color color = gcg.getColor(v);
+      this.add(new Line(new Point(i, 0), new Point(i, getHeight()), new Brush(color.toAWT(), 1.0f)));
+
+    }
+    
+    if (true)
+      return;
+    
     /* if panel is not visible we need to delay this when it is shown because we have
      * no correct size of the component */
     if (!isShowing())

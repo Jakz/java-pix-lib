@@ -8,23 +8,31 @@ public class Brush
   private Color strokeColor;
   private Color fillColor;
   
+  public Brush(Color fillColor, Color strokeColor, float width)
+  {
+    this.fillColor = fillColor;
+    this.strokeColor = strokeColor;
+    this.strokeWidth = width;
+  }
+  
   public Brush()
   {
-    strokeWidth = 0.0f;
-    strokeColor = Color.BLACK;
-    fillColor = Color.WHITE;
+    this(Color.WHITE, Color.BLACK, 0.0f);
   }
   
   public Brush(Color fillColor)
   {
-    this.fillColor = fillColor;
+    this(fillColor, null, 0.0f);
   }
   
   public Brush(Color fillColor, Color strokeColor)
   {
-    this.fillColor = fillColor;
-    this.strokeColor = strokeColor;
-    this.strokeWidth = 1.0f;
+    this(fillColor, strokeColor, 1.0f);
+  }
+  
+  public Brush(Color strokeColor, float width)
+  {
+    this(null, strokeColor, width);
   }
   
   public boolean hasStroke() { return strokeWidth != 0.0f; }
