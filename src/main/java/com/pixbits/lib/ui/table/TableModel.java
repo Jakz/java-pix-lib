@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -14,6 +13,9 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+
+import com.pixbits.lib.functional.TriConsumer;
+import com.pixbits.lib.ui.UIUtils;
 
 public class TableModel<T> extends AbstractTableModel
 {  
@@ -74,6 +76,9 @@ public class TableModel<T> extends AbstractTableModel
     {
       ColumnSpec<T,?> spec = columns.get(i);
       TableColumn column = model.getColumn(i);
+      if (spec.width != -1)
+        UIUtils.resizeTableColumn(column, spec.width);
+
       
       spec.renderer.ifPresent(r -> column.setCellRenderer(r));
       spec.editor.ifPresent(e -> column.setCellEditor(e));
@@ -102,6 +107,7 @@ public class TableModel<T> extends AbstractTableModel
       case COLUMN_HIDDEN:
       case COLUMN_SHOWN:
       case COLUMN_ADDED:
+      case RENDERER_CHANGED:
       {
         rebuildVisibleColumns();
         this.fireTableStructureChanged();
@@ -121,6 +127,25 @@ public class TableModel<T> extends AbstractTableModel
     notifyEventIfNeeded(new TableEvent(TableEvent.Type.DATA_SOURCE_CHANGED));
   }
   
+  public ColumnSpec<T,?> findColumnByName(String name)
+  {
+    return allColumns.stream()
+        .filter(c -> c.name.equals(name))
+        .findFirst()
+        .orElse(null);
+  }
+  
+  public void setDefaultRenderer(Class<?> type, TableCellRenderer renderer)
+  {
+    defaultRenderers.put(type, renderer);
+  }
+  
+  public void setDefaultEditor(Class<?> type, TableCellEditor editor)
+  {
+    defaultEditors.put(type, editor);
+  }
+  
+  @Override public boolean isCellEditable(int r, int c) { return columns.get(c).isEditable(); }
   @Override public String getColumnName(int col) { return columns.get(col).name; }
   @Override public Class<?> getColumnClass(int col) { return columns.get(col).type; }
   
@@ -145,6 +170,10 @@ public class TableModel<T> extends AbstractTableModel
   @Override
   public void setValueAt(Object value, int row, int col)
   {
-    ((BiConsumer<T,Object>)columns.get(col).setter.get()).accept(data.get().get(row), value);
+    ((TriConsumer<Integer,T,Object>)columns.get(col).setter.get()).accept(row, data.get().get(row), value);
   }
+  
+  public void setRowHeight(int r, int h) { table.setRowHeight(r, h); }
+  public void setRowHeight(int h) { table.setRowHeight(h); }
+
 }

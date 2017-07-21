@@ -8,6 +8,7 @@ public class TableEvent
      COLUMN_SHOWN,
      COLUMN_ADDED,
      DATA_SOURCE_CHANGED,
+     RENDERER_CHANGED,
    };
    
    public final Type type;

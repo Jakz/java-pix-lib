@@ -1,13 +1,18 @@
 package com.pixbits.lib.ui.table;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
+import com.pixbits.lib.functional.StreamException;
 import com.pixbits.lib.functional.TriConsumer;
 
 public class ColumnSpec<T, V>
@@ -20,9 +25,10 @@ public class ColumnSpec<T, V>
   Optional<TableCellEditor> editor;
   boolean active;
   boolean editable;
+  int width = -1;
   
   private TableModel<T> model;
-  
+    
   public ColumnSpec(String name, Class<V> type, BiFunction<Integer, T, V> getter, TriConsumer<Integer, T, V> setter)
   {
     this.name = name;
@@ -37,12 +43,52 @@ public class ColumnSpec<T, V>
   
   public ColumnSpec(String name, Class<V> type)
   {
-    this(name, type, null, null);
+    this(name, type, null, (TriConsumer<Integer,T,V>)null);
   }
 
   public ColumnSpec(String name, Class<V> type, Function<T, V> getter)
   {
     this(name, type, (i,t) -> getter.apply(t), null);
+  }
+  
+  public ColumnSpec(String name, Class<V> type, Function<T, V> getter, BiConsumer<T, V> setter)
+  {
+    this(name, type, (i,t) -> getter.apply(t), (i, t, v) -> setter.accept(t,v));
+  }
+  
+  @SuppressWarnings("unchecked")
+  public ColumnSpec(String name, Field field, boolean enableSetter)
+  {
+    Class<?> type = field.getType();
+    
+    /* needed because otherwise JTable doesn't recognize primitive types */
+    if (type == Integer.TYPE) type = Integer.class;
+    if (type == Float.TYPE) type = Float.class;
+
+    
+    this.name = name;
+    this.type = (Class<V>)type;
+    this.getter = StreamException.rethrowBiFunction((i, t) -> (V)field.get(t));
+    
+    if (enableSetter)
+    {
+      this.setter = Optional.of(StreamException.rethrowTriConsumer((i, t, v) -> field.set(t, v)));
+      this.editable = true;
+    }
+    
+    this.active = true;
+    this.renderer = Optional.empty();
+    this.editor = Optional.empty();
+  }
+  
+  public ColumnSpec(Field field, boolean enableSetter)
+  {
+    this(field.getName(), field, enableSetter);
+  }
+  
+  public ColumnSpec(Field field)
+  {
+    this(field.getName(), field, true);
   }
   
   public void setGetter(Function<T, V> getter) { this.getter = (i,t) -> getter.apply(t); }
@@ -55,8 +101,8 @@ public class ColumnSpec<T, V>
     this.model = model;
   }
 
-  boolean isEditable() { return editable && setter != null; }
-  void setEditable(boolean editable) { this.editable = editable; }
+  public boolean isEditable() { return editable && setter != null; }
+  public void setEditable(boolean editable) { this.editable = editable; }
   
   boolean isActive() { return active; }
   
@@ -81,5 +127,22 @@ public class ColumnSpec<T, V>
   public void setRenderer(TableCellRenderer renderer)
   {
     this.renderer = Optional.of(renderer);
+    /*if (model != null)
+      model.notifyEvent(new TableEvent(TableEvent.Type.RENDERER_CHANGED));*/
+  }
+  
+  public void setEditor(TableCellEditor editor)
+  {
+    this.editor = Optional.of(editor);
+  }
+  
+  public void setDefaultEnumEditor()
+  {
+    setEditor(new DefaultCellEditor(new JComboBox<>(type.getEnumConstants())));
+  }
+  
+  public void setWidth(int width)
+  {
+    this.width = width;
   }
 }

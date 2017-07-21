@@ -163,10 +163,18 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
   
   protected void rebuild()
   {
-    GradientColorGenerator gcg = new GradientColorGenerator(
-        new com.pixbits.lib.ui.color.Color(Color.RED), 
-        //new com.pixbits.lib.ui.color.Color(Color.BLUE),
-        new com.pixbits.lib.ui.color.Color(Color.YELLOW.darker())
+    /*GradientColorGenerator gcg = new GradientColorGenerator(
+        new com.pixbits.lib.ui.color.Color[] {
+          new com.pixbits.lib.ui.color.Color(Color.GREEN),
+          new com.pixbits.lib.ui.color.Color(Color.RED), 
+          new com.pixbits.lib.ui.color.Color(Color.BLUE),
+          new com.pixbits.lib.ui.color.Color(Color.YELLOW),
+        },
+        new float[] {
+          0.2f,
+          0.2f,
+          10.0f,
+        }
     );
     for (int i = 0; i < getWidth(); ++i)
     {
@@ -177,7 +185,7 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     }
     
     if (true)
-      return;
+      return;*/
     
     /* if panel is not visible we need to delay this when it is shown because we have
      * no correct size of the component */

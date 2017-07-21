@@ -4,6 +4,11 @@ public class Color
 {
   private int color;
   
+  public Color(int c)
+  {
+    this.color = c;
+  }
+  
   public Color(int r, int g, int b)
   {
     this(r,g,b,255);
@@ -58,4 +63,16 @@ public class Color
   {
     return new java.awt.Color(color);
   }
+  
+  public int toInt()
+  {
+    return color;
+  }
+  
+  public String toString()
+  {
+    return String.format("{ r: %d, g: %d, b: %d }", r(), g(), b());
+  }
+  
+  public final static Color black = new Color(0,0,0);
 }

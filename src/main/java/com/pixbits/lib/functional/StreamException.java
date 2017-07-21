@@ -1,6 +1,7 @@
 package com.pixbits.lib.functional;
 
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -14,11 +15,20 @@ public final class StreamException
   
   @FunctionalInterface
   public interface BiConsumer_WithExceptions<T, V> { void accept(T t, V v) throws Exception; }
+  
+  @FunctionalInterface
+  public interface TriConsumer_WithExceptions<T, U, V> { void accept(T t, U u, V v) throws Exception; }
 
   @FunctionalInterface
   public interface Function_WithExceptions<T, R>
   {
     R apply(T t) throws Exception;
+  }
+  
+  @FunctionalInterface
+  public interface BiFunction_WithExceptions<T, U, R>
+  {
+    R apply(T t, U u) throws Exception;
   }
 
   @FunctionalInterface
@@ -65,6 +75,20 @@ public final class StreamException
       }
     };
   }
+  
+  public static <T, U, V> TriConsumer<T,U,V> rethrowTriConsumer(TriConsumer_WithExceptions<T,U,V> consumer)
+  {
+    return (t,u,v) -> {
+      try
+      {
+        consumer.accept(t, u, v);
+      }
+      catch (Exception exception)
+      {
+        throwAsUnchecked(exception);
+      }
+    };
+  }
 
   /**
    * .map(rethrowFunction(name -> Class.forName(name))) or
@@ -76,6 +100,20 @@ public final class StreamException
       try
       {
         return function.apply(t);
+      } catch (Exception exception)
+      {
+        throwAsUnchecked(exception);
+        return null;
+      }
+    };
+  }
+  
+  public static <T, U, R> BiFunction<T, U, R> rethrowBiFunction(BiFunction_WithExceptions<T, U, R> function)
+  {
+    return (t, u) -> {
+      try
+      {
+        return function.apply(t,u);
       } catch (Exception exception)
       {
         throwAsUnchecked(exception);
