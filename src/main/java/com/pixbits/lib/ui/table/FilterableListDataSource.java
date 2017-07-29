@@ -24,6 +24,7 @@ public class FilterableListDataSource<T> implements FilterableDataSource<T>
   
   public void filter(Predicate<T> predicate)
   {
+    filtered.clear();
     data.stream()
       .filter(predicate)
       .forEach(filtered::add);
