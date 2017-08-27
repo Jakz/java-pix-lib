@@ -28,10 +28,8 @@ import com.pixbits.lib.ui.color.GradientColorGenerator;
 import com.pixbits.lib.ui.color.MappableColorGenerator;
 import com.pixbits.lib.ui.color.PleasantColorGenerator;
 
-public class BarChartPanel<T extends Measurable> extends CanvasPanel
-{
-  private final List<T> data;
-  
+public class BarChartPanel<T extends Measurable> extends ChartPanel<T>
+{  
   private Function<T, Brush> brush;
   private FillMode fillMode;
   private Anchor anchor;
@@ -40,14 +38,9 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
   
   private Pair<NormalizeMode, NormalizeMode> axisNormalize;
   
-  private boolean autoRebuild;
-  
-  private AncestorListener shownListener;
-
   public BarChartPanel(Dimension dimension)
   {
     super(dimension);
-    data = new ArrayList<>();
     
     //brush = m -> cbrush;
     final MappableColorGenerator<T> scg = new MappableColorGenerator<>(new PleasantColorGenerator());
@@ -57,49 +50,8 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     anchor = Anchor.BOTTOM;
     barWidth = 1;
     barMargin = 0;
-    
-    autoRebuild = false;
-    
-    this.addComponentListener(new ComponentAdapter()
-    {
-      @Override public void componentResized(ComponentEvent event)
-      {
-        rebuild();
-      }
-    });
   }
-  
-  public void add(T measurable)
-  {
-    data.add(measurable);
-    if (autoRebuild)
-      rebuild();
-  }
-  
-  public void add(Collection<T> measurables)
-  {
-    data.addAll(measurables);
-  }
-  
-  public void add(T... measurables)
-  {
-    data.addAll(Arrays.asList(measurables));
-    if (autoRebuild)
-      rebuild();
-  }
-  
-  public void insert(int index, T measurable)
-  {
-    data.add(index, measurable);
-    if (autoRebuild)
-      rebuild();
-  }
-  
-  public void setAutoRebuild(boolean autoRebuild)
-  {
-    this.autoRebuild = autoRebuild;
-  }
-  
+   
   /* generate a function which calculates bars */
   protected BiFunction<Integer, Float, Rect> calculateBarBuilder(Rect bounds, float barDelta, float barWidth)
   {
@@ -161,7 +113,8 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     return null;
   }
   
-  protected void rebuild()
+  @Override
+  protected void doRebuild()
   {
     /*GradientColorGenerator gcg = new GradientColorGenerator(
         new com.pixbits.lib.ui.color.Color[] {
@@ -186,22 +139,6 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     
     if (true)
       return;*/
-    
-    /* if panel is not visible we need to delay this when it is shown because we have
-     * no correct size of the component */
-    if (!isShowing())
-    {
-      if (shownListener == null)
-      {
-        shownListener = new AncestorListener() {
-          @Override public void ancestorAdded(AncestorEvent event) { rebuild(); }
-          @Override public void ancestorRemoved(AncestorEvent event) { }
-          @Override public void ancestorMoved(AncestorEvent event) { }
-        };
-        this.addAncestorListener(shownListener);
-      }
-      return;
-    }
     
     clear();
     
@@ -282,11 +219,5 @@ public class BarChartPanel<T extends Measurable> extends CanvasPanel
     }
     
     repaint();
-    
-    if (shownListener != null)
-    {
-      this.removeAncestorListener(shownListener);
-      shownListener = null;
-    }
   }
 }

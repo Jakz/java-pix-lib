@@ -30,8 +30,11 @@ public class Gfx
     this.h = r.height;
     
     if (antialias)
+    {
       this.g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-    
+      this.g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    }
+
     this.g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
     
@@ -43,6 +46,7 @@ public class Gfx
   public int x(float x) { return (int) (useMargin ? (x + margin) : x); }
   public int y(float y) { return (int) (useMargin ? (y + margin) : y); }
   
+  void saveColor() { color = g.getColor(); }
   void saveColor(Color nc) { g.setColor(nc); } 
   void restoreColor() { g.setColor(color); }
 

@@ -35,6 +35,7 @@ public class Brush
     this(null, strokeColor, width);
   }
   
+  public boolean hasFill() { return fillColor != null; }
   public boolean hasStroke() { return strokeWidth != 0.0f; }
   
   public float strokeWidth() { return strokeWidth; }
