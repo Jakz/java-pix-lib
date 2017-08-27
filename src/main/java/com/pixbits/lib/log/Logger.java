@@ -1,5 +1,8 @@
 package com.pixbits.lib.log;
 
+import java.util.Arrays;
+import java.util.function.Supplier;
+
 public abstract class Logger
 {  
   protected Log logLevel;
@@ -28,6 +31,11 @@ public abstract class Logger
   private final void log(Log type, String message, LogAttribute attr)
   {
     doLog(type, message, attr);
+  }
+  
+  public final void ld(String message, Supplier<Object>... args)
+  {
+    log(Log.DEBUG, null, message, Arrays.stream(args).map(Supplier::get).toArray(i -> new Object[i]));
   }
   
   public final void d(String message, Object... args) { log(Log.DEBUG, null, message, args); }
