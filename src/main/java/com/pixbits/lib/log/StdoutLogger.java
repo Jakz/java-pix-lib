@@ -12,10 +12,12 @@ class StdoutLogger extends Logger
     if (type != null && type.ordinal() > logLevel.ordinal())
       return;
     
+    String attr = attribute != null ? ("["+attribute.toString()+"] ") : "";
+    
     if (type == Log.DEBUG || type == Log.ERROR)
-      System.err.println("["+type+"] "+message);
+      System.err.println("["+type+"] "+attr+message);
     else if (type != null)
-      System.out.println("["+type+"] "+message);
+      System.out.println("["+type+"] "+attr+message);
     else
       System.out.println(message);
   }
