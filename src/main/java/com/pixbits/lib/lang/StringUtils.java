@@ -19,16 +19,16 @@ public class StringUtils
   
   public static String humanReadableByteCount(long bytes)
   {
-    return humanReadableByteCount(bytes, true);
+    return humanReadableByteCount(bytes, true, true);
   }
   
-  public static String humanReadableByteCount(long bytes, boolean si)
+  public static String humanReadableByteCount(long bytes, boolean si, boolean includeSpace)
   {
       int unit = si ? 1000 : 1024;
       if (bytes < unit) return bytes + " B";
       int exp = (int) (Math.log(bytes) / Math.log(unit));
       String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
-      return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+      return String.format("%.1f%s%sB", bytes / Math.pow(unit, exp), includeSpace ? " " : "", pre);
   }
   
   public static String toHexString(byte[] bytes)

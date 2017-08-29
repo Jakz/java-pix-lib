@@ -22,7 +22,7 @@ public class NestedArchiveBatch implements Iterable<NestedArchiveHandle>, Verifi
     this.handles = handles;
   }
   
-  public Stream<NestedArchiveHandle> stream() { return handles.stream(); }
+  public Stream<VerifierEntry> stream() { return handles.stream().map(nah -> (VerifierEntry)nah); }
   public Iterator<NestedArchiveHandle> iterator() { return handles.iterator(); }
   public int size() { return handles.size(); }
   
