@@ -23,9 +23,10 @@ public class ProgressDialog extends JDialog
 	JLabel title;
 	JLabel desc;
 	JProgressBar progress;
+	JProgressBar subProgress;
 	private final Runnable onCancel;
 	
-	private ProgressDialog(Frame parent, String title, Runnable onCancel)
+	private ProgressDialog(Frame parent, String title, Runnable onCancel, boolean enableSubProgress)
 	{
 		super(parent, title);
 		this.onCancel = onCancel;
@@ -38,6 +39,12 @@ public class ProgressDialog extends JDialog
 		
 		progress = new JProgressBar();
 		progress.setStringPainted(true);
+		
+		if (enableSubProgress)
+		{
+		  subProgress = new JProgressBar();
+		  subProgress.setStringPainted(true);
+		}
 		
 		this.title = new JLabel(title);
 		this.title.setFont(this.title.getFont().deriveFont(Font.BOLD));
@@ -55,6 +62,9 @@ public class ProgressDialog extends JDialog
 		upperPanel.add(desc);
 		panel.add(upperPanel, BorderLayout.NORTH);
 		
+		if (enableSubProgress)
+		  panel.add(subProgress, BorderLayout.SOUTH);
+		
 		if (onCancel != null)
 		{
 		  JButton cancelButton = new JButton("Cancel");
@@ -62,7 +72,14 @@ public class ProgressDialog extends JDialog
 		  cancelButton.addActionListener(e -> onCancel.run());
 		}
 		
-		panel.setPreferredSize(new Dimension(400, onCancel == null ? 100 : 120));
+		int height = 100;
+		
+		if (onCancel != null && enableSubProgress)
+		  height = 140;
+		else if (onCancel != null || enableSubProgress)
+		  height = 120;
+		
+		panel.setPreferredSize(new Dimension(400, height));
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
 		setLayout(new BorderLayout());
@@ -74,7 +91,7 @@ public class ProgressDialog extends JDialog
 	
 	public ProgressDialog()
 	{
-		this(null, "", null);
+		this(null, "", null, false);
 	}
 
 	public static class Manager
@@ -91,13 +108,18 @@ public class ProgressDialog extends JDialog
 	  
 	  public void show(Frame parent, String title, final Runnable onCancel)
 	  {
+	    show(parent, title, onCancel, false);
+	  }
+	  
+	  public void show(Frame parent, String title, final Runnable onCancel, final boolean enableSubProgress)
+	  {
 	    if (dialog != null)
 	      throw new ConcurrentModificationException("Progress dialog reinit while it was already displayed");
 	    
 	    if (onCancel != null)
-	      dialog = new ProgressDialog(parent, title, () -> { onCancel.run(); finished(); });
+	      dialog = new ProgressDialog(parent, title, () -> { onCancel.run(); finished(); }, enableSubProgress);
 	    else
-	      dialog = new ProgressDialog(parent, title, null);
+	      dialog = new ProgressDialog(parent, title, null, enableSubProgress);
 	    
 	    dialog.progress.setMaximum(100);
 	    dialog.progress.setValue(0);

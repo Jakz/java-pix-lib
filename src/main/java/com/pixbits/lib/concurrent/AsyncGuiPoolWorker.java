@@ -73,7 +73,7 @@ public class AsyncGuiPoolWorker<T,V>
             final float progress = current.get() / (float)total;
             SwingUtilities.invokeLater(() -> guiOperation.accept(previousCurrent, progress));
           }
-          
+                    
           Thread.sleep(50);
         } 
         catch (InterruptedException e)
@@ -86,23 +86,23 @@ public class AsyncGuiPoolWorker<T,V>
     guiThread.start();
     
     results = data.stream().map(t ->
-      CompletableFuture.supplyAsync(() -> t, executor).thenApplyAsync(tt -> { 
+      CompletableFuture.supplyAsync(() -> {
         try
         {
-          V v = operation.apply(tt);
-        current.incrementAndGet();
-        return v;
+          V v = operation.apply(t);
+          current.incrementAndGet();
+          return v;
         }
         catch (Exception e)
         {
           e.printStackTrace();
           return null;
         }
-      }).thenAccept(onResult)
-    ).toArray(i -> new CompletableFuture<?>[i]);
+      }, executor).thenAccept(onResult)
+    ).toArray(i -> new CompletableFuture<?>[i]);    
     
     executor.shutdown();
-    
+      
     CompletableFuture.allOf(results).thenRun(() -> {
       running = false;
       onComplete.run();
@@ -123,6 +123,7 @@ public class AsyncGuiPoolWorker<T,V>
   
   public void cancel()
   {
+    executor.shutdownNow();
     Arrays.stream(results).forEach(c -> c.cancel(false));
     running = false;
     cancelled = true;
