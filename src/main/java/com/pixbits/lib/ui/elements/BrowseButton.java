@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.function.Consumer;
@@ -57,6 +58,7 @@ public class BrowseButton extends JTextField
   private final JButton button;
   private final JFileChooser chooser;
   
+  private boolean openAtCurrentDirectory;
   private Type type;
   private Path path;
   
@@ -79,9 +81,20 @@ public class BrowseButton extends JTextField
 
     chooser = new JFileChooser();
     chooser.setMultiSelectionEnabled(false);
+    openAtCurrentDirectory = true;
     setChooserType(Type.FILES_AND_DIRECTORIES);
     
-    button.addActionListener(e -> dialogClosed(chooser.showOpenDialog(this)));
+    button.addActionListener(e -> {
+      if (openAtCurrentDirectory)
+      {
+        if (path != null)
+        {
+          Path parent = Files.isDirectory(path) ? path : path.getParent();
+          chooser.setCurrentDirectory(parent.toFile());
+        }
+      }
+      dialogClosed(chooser.showOpenDialog(this)); 
+    });
     this.setFocusable(false);
     
     getBasePath = () -> FileSystemView.getFileSystemView().getHomeDirectory().toPath();

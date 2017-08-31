@@ -2,6 +2,7 @@ package com.pixbits.lib.io.archive.handles;
 
 import java.nio.file.Path;
 
+import com.github.jakz.romlib.support.cso.CSOBinaryHandle;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,14 +10,17 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.pixbits.lib.io.archive.ArchiveFormat;
 import com.pixbits.lib.json.JsonAdapter;
+import com.pixbits.lib.lang.StringUtils;
 
+// TODO: this design is flawed, we must let each handle to manage serialization and deserialization by themselves
 public class JsonHandleAdapter implements JsonAdapter<Handle>
 {
   private static enum Type
   {
     binary,
     archived,
-    nested
+    nested,
+    cso
   }
   
   private static Type typeForClass(Class<? extends Handle> clazz)
@@ -27,6 +31,8 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
       return Type.archived;
     else if (clazz == NestedArchiveHandle.class)
       return Type.nested;
+    else if (clazz == CSOBinaryHandle.class)
+      return Type.cso;
     else
       throw new JsonParseException("Unkown handle type for JSON serialization");
   }
@@ -72,6 +78,14 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
         j.addProperty("csize", h.compressedSize);
         break;
       }
+      
+      case cso:
+      {
+        CSOBinaryHandle h = (CSOBinaryHandle)o;
+        j.add("header", h.serializeHeader());
+        j.addProperty("size", h.size());
+        j.addProperty("csize", h.compressedSize());
+      }
     }
     
     return j;
@@ -115,6 +129,14 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
         long csize = o.get("csize").getAsLong();
         
         return new NestedArchiveHandle(path, format, name, index, nformat, nname, nindex, size, csize, crc);
+      }
+      case cso:
+      {
+        String header = o.get("header").getAsString();
+        long size = o.get("size").getAsLong();
+        long csize = o.get("csize").getAsLong();
+        
+        return new CSOBinaryHandle(path, StringUtils.fromHexString(header), crc, size, csize);
       }
     }
     

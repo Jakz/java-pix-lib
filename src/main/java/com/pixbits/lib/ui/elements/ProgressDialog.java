@@ -23,12 +23,12 @@ public class ProgressDialog extends JDialog
 	JLabel title;
 	JLabel desc;
 	JProgressBar progress;
-	private final Runnable callback;
+	private final Runnable onCancel;
 	
-	private ProgressDialog(Frame parent, String title, Runnable cb)
+	private ProgressDialog(Frame parent, String title, Runnable onCancel)
 	{
 		super(parent, title);
-		this.callback = cb;
+		this.onCancel = onCancel;
 		
 		this.setUndecorated(true);
 
@@ -55,14 +55,14 @@ public class ProgressDialog extends JDialog
 		upperPanel.add(desc);
 		panel.add(upperPanel, BorderLayout.NORTH);
 		
-		if (callback != null)
+		if (onCancel != null)
 		{
 		  JButton cancelButton = new JButton("Cancel");
 		  panel.add(cancelButton, BorderLayout.SOUTH);
-		  cancelButton.addActionListener(e -> cb.run());
+		  cancelButton.addActionListener(e -> onCancel.run());
 		}
 		
-		panel.setPreferredSize(new Dimension(400, callback == null ? 100 : 120));
+		panel.setPreferredSize(new Dimension(400, onCancel == null ? 100 : 120));
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
 		setLayout(new BorderLayout());
@@ -89,13 +89,13 @@ public class ProgressDialog extends JDialog
 	    Manager.manager = this;
 	  }
 	  
-	  public void show(Frame parent, String title, final Runnable callback)
+	  public void show(Frame parent, String title, final Runnable onCancel)
 	  {
 	    if (dialog != null)
 	      throw new ConcurrentModificationException("Progress dialog reinit while it was already displayed");
 	    
-	    if (callback != null)
-	      dialog = new ProgressDialog(parent, title, () -> { callback.run(); finished(); });
+	    if (onCancel != null)
+	      dialog = new ProgressDialog(parent, title, () -> { onCancel.run(); finished(); });
 	    else
 	      dialog = new ProgressDialog(parent, title, null);
 	    
