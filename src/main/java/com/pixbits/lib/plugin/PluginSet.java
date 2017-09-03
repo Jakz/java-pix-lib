@@ -39,8 +39,13 @@ public class PluginSet<P extends Plugin>
     if (plugin.getPluginType().isMutuallyExclusive())
     {
       getEnabledPlugins(plugin.getPluginType()).stream()
-      .filter( p -> p.isEnabled() )
-      .forEach( p -> p.setEnabled(false) );
+        .filter( p -> p.isEnabled() )
+        .forEach(p -> {
+          p.setEnabled(false);
+          listeners.forEach(l -> 
+            l.pluginStateChanged(new PluginChangeEvent(PluginChangeEvent.Type.DISABLED, this, plugin))
+          );
+        });
     }
     
     plugins.add(plugin);

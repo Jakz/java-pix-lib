@@ -14,7 +14,7 @@ import com.google.gson.JsonSerializationContext;
 import com.pixbits.lib.json.JsonnableContext;
 import com.pixbits.lib.functional.StreamException;
 
-public abstract class Plugin implements JsonnableContext
+public abstract class Plugin implements JsonnableContext<Plugin>
 {
   protected PluginManager<?,?> manager;
   private final PluginID id;
@@ -56,7 +56,9 @@ public abstract class Plugin implements JsonnableContext
     enabled = context.deserialize(element.getAsJsonObject().get("isEnabled"), Boolean.class);
     
     getFields().stream()
-    .forEach(StreamException.rethrowConsumer(f -> f.set(this, context.deserialize(element.getAsJsonObject().get(f.getName()), f.getType()))) );    
+      .forEach(StreamException.rethrowConsumer(f -> 
+        f.set(this, context.deserialize(element.getAsJsonObject().get(f.getName()), f.getType()))) 
+      );    
   }
   
   private List<Field> getFields()
@@ -67,9 +69,9 @@ public abstract class Plugin implements JsonnableContext
     while (!clazz.equals(Plugin.class))
     {
       Arrays.stream(clazz.getDeclaredFields())
-      .filter( f -> f.getAnnotation(ExposedParameter.class) != null)
-      .map( f -> { f.setAccessible(true); return f; })
-      .forEach(fields::add);
+        .filter( f -> f.getAnnotation(ExposedParameter.class) != null)
+        .map( f -> { f.setAccessible(true); return f; })
+        .forEach(fields::add);
       
       clazz = clazz.getSuperclass();
     }

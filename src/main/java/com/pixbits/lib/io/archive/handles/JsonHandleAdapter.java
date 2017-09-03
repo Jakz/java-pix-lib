@@ -1,5 +1,8 @@
 package com.pixbits.lib.io.archive.handles;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 
 import com.github.jakz.romlib.support.cso.CSOBinaryHandle;
@@ -11,83 +14,63 @@ import com.google.gson.JsonSerializationContext;
 import com.pixbits.lib.io.archive.ArchiveFormat;
 import com.pixbits.lib.json.JsonAdapter;
 import com.pixbits.lib.lang.StringUtils;
+import com.pixbits.lib.log.Log;
 
 // TODO: this design is flawed, we must let each handle to manage serialization and deserialization by themselves
 public class JsonHandleAdapter implements JsonAdapter<Handle>
 {
-  private static enum Type
-  {
-    binary,
-    archived,
-    nested,
-    cso
-  }
-  
-  private static Type typeForClass(Class<? extends Handle> clazz)
-  {
-    if (clazz == BinaryHandle.class)
-      return Type.binary;
-    else if (clazz == ArchiveHandle.class)
-      return Type.archived;
-    else if (clazz == NestedArchiveHandle.class)
-      return Type.nested;
-    else if (clazz == CSOBinaryHandle.class)
-      return Type.cso;
-    else
-      throw new JsonParseException("Unkown handle type for JSON serialization");
-  }
-
   @Override
   public JsonElement serialize(Handle o, java.lang.reflect.Type type, JsonSerializationContext context)
   {    
     JsonObject j = new JsonObject();
     
-    Type handleType = typeForClass(o.getClass());
+    Class<?> handleType = o.getClass();
     
-    j.add("type", context.serialize(handleType));
+    j.add("type", context.serialize(handleType.getName()));
     j.add("path", context.serialize(o.path()));
     j.addProperty("crc", String.format("%08X", o.crc()));
 
-    switch (handleType)
+    if (handleType == BinaryHandle.class)
     {
-      case binary:
+      BinaryHandle h = (BinaryHandle)o;
+      /* not any additional data */
+    }
+    else if (handleType == ArchiveHandle.class)
+    {
+      ArchiveHandle h = (ArchiveHandle)o;
+      j.add("format", context.serialize(h.format));
+      j.addProperty("name", h.internalName);
+      j.addProperty("index", h.indexInArchive);
+      j.addProperty("size", h.size);
+      j.addProperty("csize", h.compressedSize);
+    }
+    else if (handleType == NestedArchiveHandle.class)
+    {
+      NestedArchiveHandle h = (NestedArchiveHandle)o;
+      j.add("format", context.serialize(h.format));
+      j.addProperty("name", h.internalName);
+      j.addProperty("index", h.indexInArchive);
+      j.add("nformat", context.serialize(h.nestedFormat));
+      j.addProperty("nname", h.nestedInternalName);
+      j.addProperty("nindex", h.nestedIndexInArchive);
+      j.addProperty("size", h.size);
+      j.addProperty("csize", h.compressedSize);
+    }
+    else
+    {
+      try
       {
-        BinaryHandle h = (BinaryHandle)o;
-        break;
-      }
-      case archived:
+        Method method = handleType.getDeclaredMethod("serializeToJson", JsonObject.class);
+        method.invoke(o, j);
+      } 
+      catch (NoSuchMethodException|SecurityException|IllegalAccessException|IllegalArgumentException|InvocationTargetException e)
       {
-        ArchiveHandle h = (ArchiveHandle)o;
-        j.add("format", context.serialize(h.format));
-        j.addProperty("name", h.internalName);
-        j.addProperty("index", h.indexInArchive);
-        j.addProperty("size", h.size);
-        j.addProperty("csize", h.compressedSize);
-        break;
-      }
-      case nested:
-      {
-        NestedArchiveHandle h = (NestedArchiveHandle)o;
-        j.add("format", context.serialize(h.format));
-        j.addProperty("name", h.internalName);
-        j.addProperty("index", h.indexInArchive);
-        j.add("nformat", context.serialize(h.nestedFormat));
-        j.addProperty("nname", h.nestedInternalName);
-        j.addProperty("nindex", h.nestedIndexInArchive);
-        j.addProperty("size", h.size);
-        j.addProperty("csize", h.compressedSize);
-        break;
-      }
-      
-      case cso:
-      {
-        CSOBinaryHandle h = (CSOBinaryHandle)o;
-        j.add("header", h.serializeHeader());
-        j.addProperty("size", h.size());
-        j.addProperty("csize", h.compressedSize());
+        Log.getLogger().e("Fatal error while trying to serialize a handle of type "+handleType.getName()+
+            ". A public method serializeToJson(JsonObject) is required in the class.");
+        throw new JsonParseException("Error serializing Handle", e);
       }
     }
-    
+
     return j;
   }
 
@@ -95,19 +78,20 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
   public Handle deserialize(JsonElement json, java.lang.reflect.Type type, JsonDeserializationContext context) throws JsonParseException
   {
     JsonObject o = json.getAsJsonObject();
+    Class<?> handleType = null;
     
-    Type handleType = context.deserialize(o.get("type"), Type.class);
-    
-    Path path = context.deserialize(o.get("path"), Path.class);
-    long crc = Long.parseUnsignedLong(o.get("crc").getAsString(), 16);
-    
-    switch (handleType)
+    try
     {
-      case binary:
+      handleType = Class.forName(context.deserialize(o.get("type"), String.class));
+    
+      Path path = context.deserialize(o.get("path"), Path.class);
+      long crc = Long.parseUnsignedLong(o.get("crc").getAsString(), 16);
+
+      if (handleType == BinaryHandle.class)
       {
         return new BinaryHandle(path, crc);
       }
-      case archived:
+      else if (handleType == ArchiveHandle.class)
       {
         ArchiveFormat format = context.deserialize(o.get("format"), ArchiveFormat.class);
         String name = o.get("name").getAsString();
@@ -117,7 +101,7 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
         
         return new ArchiveHandle(path, format, name, index, size, csize, crc);
       }
-      case nested:
+      else if (handleType == NestedArchiveHandle.class)
       {
         ArchiveFormat format = context.deserialize(o.get("format"), ArchiveFormat.class);
         String name = o.get("name").getAsString();
@@ -130,17 +114,20 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
         
         return new NestedArchiveHandle(path, format, name, index, nformat, nname, nindex, size, csize, crc);
       }
-      case cso:
+      else
       {
-        String header = o.get("header").getAsString();
-        long size = o.get("size").getAsLong();
-        long csize = o.get("csize").getAsLong();
-        
-        return new CSOBinaryHandle(path, StringUtils.fromHexString(header), crc, size, csize);
+        Constructor<?> method = handleType.getConstructor(JsonObject.class, JsonDeserializationContext.class);
+        Handle handle = (Handle)method.newInstance(o, context);
+        return handle;
       }
+    } 
+    catch (NoSuchMethodException | SecurityException | ClassCastException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException e)
+    {
+      if (handleType != null)
+        Log.getLogger().e("Fatal error while trying to deserialize a handle of type "+handleType.getName()+
+          ": a public constructor which accepts a JsonObject and a JsonDeserializationContext is required");
+      throw new JsonParseException("Error deserializing Handle, wrong handle type?", e);
     }
-    
-    throw new JsonParseException("Error deserializing Handle, wrong handle type?");
   };
   
   
