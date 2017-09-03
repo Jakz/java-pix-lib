@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 
-import com.github.jakz.romlib.support.cso.CSOBinaryHandle;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -13,7 +12,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.pixbits.lib.io.archive.ArchiveFormat;
 import com.pixbits.lib.json.JsonAdapter;
-import com.pixbits.lib.lang.StringUtils;
 import com.pixbits.lib.log.Log;
 
 // TODO: this design is flawed, we must let each handle to manage serialization and deserialization by themselves

@@ -98,6 +98,13 @@ public class ProgressDialog extends JDialog
 	{
 	  private static Manager manager = null;
 	  private ProgressDialog dialog = null;
+	  private Frame parent;
+	  
+	  public Manager(Frame parent)
+	  {
+	    this();
+	    this.parent = parent;
+	  }
 	  
 	  public Manager()
 	  {
@@ -106,11 +113,13 @@ public class ProgressDialog extends JDialog
 	    Manager.manager = this;
 	  }
 	  
+	  public void show(String title, final Runnable onCancel) { show(parent, title, onCancel); }
 	  public void show(Frame parent, String title, final Runnable onCancel)
 	  {
 	    show(parent, title, onCancel, false);
 	  }
 	  
+	  public void show(String title, final Runnable onCancel, final boolean enableSubProgress) { show(parent, title, onCancel, enableSubProgress); }
 	  public void show(Frame parent, String title, final Runnable onCancel, final boolean enableSubProgress)
 	  {
 	    if (dialog != null)
