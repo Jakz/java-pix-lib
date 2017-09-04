@@ -6,6 +6,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -81,7 +82,7 @@ public class FolderScanner
       innerScan(root);
     else if (filter.matches(root.getFileName()) && !shouldExclude(root))
       files.add(root);
-      
+
     return files;
   }
    

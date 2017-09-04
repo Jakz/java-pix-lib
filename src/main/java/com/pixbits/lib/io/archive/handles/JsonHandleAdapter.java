@@ -58,13 +58,13 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
     {
       try
       {
-        Method method = handleType.getDeclaredMethod("serializeToJson", JsonObject.class);
-        method.invoke(o, j);
+        Method method = handleType.getDeclaredMethod("serializeToJson", JsonObject.class, JsonSerializationContext.class);
+        method.invoke(o, j, context);
       } 
       catch (NoSuchMethodException|SecurityException|IllegalAccessException|IllegalArgumentException|InvocationTargetException e)
       {
         Log.getLogger().e("Fatal error while trying to serialize a handle of type "+handleType.getName()+
-            ". A public method serializeToJson(JsonObject) is required in the class.");
+            ". A public method serializeToJson(JsonObject, JsonSerializationContext) is required in the class.");
         throw new JsonParseException("Error serializing Handle", e);
       }
     }
@@ -80,7 +80,17 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
     
     try
     {
-      handleType = Class.forName(context.deserialize(o.get("type"), String.class));
+      String handleTypeString = context.deserialize(o.get("type"), String.class);
+      
+      //TODO: remove hardcoded
+      if (handleTypeString.equals("binary"))
+        handleType = BinaryHandle.class;
+      else if (handleTypeString.equals("archived"))
+        handleType = ArchiveHandle.class;
+      else if (handleTypeString.equals("nested"))
+        handleType = NestedArchiveHandle.class;
+      else
+        handleType = Class.forName(context.deserialize(o.get("type"), String.class));
     
       Path path = context.deserialize(o.get("path"), Path.class);
       long crc = Long.parseUnsignedLong(o.get("crc").getAsString(), 16);
@@ -115,16 +125,24 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
       else
       {
         Constructor<?> method = handleType.getConstructor(JsonObject.class, JsonDeserializationContext.class);
-        Handle handle = (Handle)method.newInstance(o, context);
+        Handle handle = (Handle) method.newInstance(o, context);
         return handle;
       }
     } 
-    catch (NoSuchMethodException | SecurityException | ClassCastException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException e)
+    catch (NoSuchMethodException | SecurityException | ClassCastException | InstantiationException | IllegalAccessException | IllegalArgumentException | ClassNotFoundException e)
     {
       if (handleType != null)
         Log.getLogger().e("Fatal error while trying to deserialize a handle of type "+handleType.getName()+
           ": a public constructor which accepts a JsonObject and a JsonDeserializationContext is required");
+      e.printStackTrace();
       throw new JsonParseException("Error deserializing Handle, wrong handle type?", e);
+    }
+    catch (InvocationTargetException e)
+    {
+      Log.getLogger().e("Fatal error while constructing a handle of type "+handleType.getName()+
+          ": "+e.getTargetException().getMessage());
+      e.getTargetException().printStackTrace();
+      throw new JsonParseException("Error deserializing Handle", e);
     }
   };
   

@@ -21,21 +21,21 @@ public class Verifier<T extends Verifiable>
   private final VerifierOptions voptions;
   private final HashCache<T> cache;
   
+  private boolean hasTransformer;
+  private Function<Handle,Handle> transformer;
+  
   private Optional<Consumer<List<VerifierResult<T>>>> callback;
 
   private final Digester digester;
-  
-  private boolean hasCustomStreamWrapper;
-  private Function<InputStream, InputStream> streamWrapper;
   
   public Verifier(VerifierOptions options, Digester digester, HashCache<T> cache)
   {
     this.voptions = options;
     this.cache = cache;
     this.digester = digester;
-    this.streamWrapper = is -> is;
-    this.hasCustomStreamWrapper = false;
     this.callback = Optional.empty();
+    this.hasTransformer = false;
+    this.transformer = h -> h;
   }
   
   public void setCallback(Consumer<List<VerifierResult<T>>> callback)
@@ -43,12 +43,18 @@ public class Verifier<T extends Verifiable>
     this.callback = Optional.of(callback);
   }
   
+  public void setTransformer(Function<Handle,Handle> transformer)
+  {
+    hasTransformer = true;
+    this.transformer = transformer;
+  }
+  
   protected Optional<Consumer<List<VerifierResult<T>>>> callback() { return callback; }
 
   
   private T verifyRawInputStream(Handle handle, InputStream is) throws IOException, NoSuchAlgorithmException
   {
-    DigestInfo info = digester.digest(canUseCachedCrcIfAvailable() ? handle : null, is);
+    DigestInfo info = digester.digest(canUseCachedCrcIfAvailable() && handle.crc() != -1 ? handle : null, is);
         
     T element = cache.elementForCrc(info.crc);
     
@@ -65,7 +71,7 @@ public class Verifier<T extends Verifiable>
   
   private boolean canUseCachedCrcIfAvailable()
   {
-    return voptions.verifyJustCRC() && !hasCustomStreamWrapper;
+    return voptions.verifyJustCRC();
   }
 
   private List<VerifierResult<T>> verifyBatch(VerifierEntry batch) throws NoSuchAlgorithmException, IOException
@@ -101,12 +107,13 @@ public class Verifier<T extends Verifiable>
     {
       T element = null;
       Handle handle = entry.getVerifierHandle();
+      handle = transformer.apply(handle);
       
-      if (canUseCachedCrcIfAvailable())
+      if (canUseCachedCrcIfAvailable() && handle.crc() != -1)
         element = verifyJustCRC(handle);
       else
       {
-        try (InputStream is = streamWrapper.apply(handle.getInputStream()))
+        try (InputStream is = handle.getInputStream())
         {
           element = verifyRawInputStream(handle, is);
         }
