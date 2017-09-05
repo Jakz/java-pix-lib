@@ -12,10 +12,17 @@ import javax.swing.ActionMap;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.DocumentFilter.FilterBypass;
 
 public class ConsolePanel extends JPanel implements KeyListener
 {
   private final JTextArea console;
+  private final AbstractDocument document;
   private int startCommandPosition;
   
   private Supplier<String> prompt = () -> "> ";
@@ -24,6 +31,7 @@ public class ConsolePanel extends JPanel implements KeyListener
   public ConsolePanel(int rows, int cols)
   {
     console = new JTextArea(rows, cols);
+    document = (AbstractDocument)console.getDocument();
     JScrollPane pane = new JScrollPane(console);
     pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -39,7 +47,8 @@ public class ConsolePanel extends JPanel implements KeyListener
     
     this.setLayout(new BorderLayout());
     this.add(pane, BorderLayout.CENTER);
-
+    
+    document.setDocumentFilter(new Filter());
     console.addKeyListener(this);
   }
   
@@ -85,6 +94,10 @@ public class ConsolePanel extends JPanel implements KeyListener
         appendPrompt();
       }
     }
+    else if (k.getKeyChar() == KeyEvent.VK_TAB)
+    {
+      k.consume();
+    }
     else if (k.getKeyChar() == KeyEvent.VK_UP)
     {
       
@@ -104,5 +117,31 @@ public class ConsolePanel extends JPanel implements KeyListener
   public void appendln(String string, Object... args)
   {
     console.append(String.format(string+"\n", args));
+  }
+  
+  private class Filter extends DocumentFilter
+  {
+    @Override
+    public void remove(FilterBypass fb, int offset, int length) throws BadLocationException
+    {
+      if (offset < startCommandPosition) ;
+      else
+        super.remove(fb, offset, length);
+    }
+    
+    @Override
+    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException
+    {
+      if (length > 0) ;
+      else if (text.equals("\t")) ;
+      else
+        super.replace(fb, offset, length, text, attrs);
+    }
+    
+    @Override
+    public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException
+    {
+      super.insertString(fb, offset, string, attr);
+    }
   }
 }
