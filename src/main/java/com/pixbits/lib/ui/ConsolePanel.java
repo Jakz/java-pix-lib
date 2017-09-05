@@ -5,7 +5,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import javax.swing.ActionMap;
@@ -20,9 +23,10 @@ import javax.swing.text.DocumentFilter;
 import javax.swing.text.DocumentFilter.FilterBypass;
 
 public class ConsolePanel extends JPanel implements KeyListener
-{
+{  
   private final JTextArea console;
   private final AbstractDocument document;
+  private final Filter filter;
   private int startCommandPosition;
   
   private Supplier<String> prompt = () -> "> ";
@@ -48,8 +52,15 @@ public class ConsolePanel extends JPanel implements KeyListener
     this.setLayout(new BorderLayout());
     this.add(pane, BorderLayout.CENTER);
     
-    document.setDocumentFilter(new Filter());
     console.addKeyListener(this);
+    
+    filter = new Filter();
+    document.setDocumentFilter(filter);
+    
+    filter.addDeleteRule(i -> i.offset < startCommandPosition);
+    
+    filter.addInsertRule(i -> i.length > 0);
+    filter.addInsertRule(i -> i.text.equals("\t"));
   }
   
   public void setPrompt(Supplier<String> prompt) { this.prompt = prompt; }
@@ -119,22 +130,57 @@ public class ConsolePanel extends JPanel implements KeyListener
     console.append(String.format(string+"\n", args));
   }
   
+
   private class Filter extends DocumentFilter
   {
+    public class Info
+    {
+      public final String text;
+      public final int offset;
+      public final int length;
+      public final AttributeSet attrs;
+      
+      public Info(String text, int offset, int length, AttributeSet attrs)
+      {
+        this.text = text;
+        this.offset = offset;
+        this.length = length;
+        this.attrs = attrs;
+      }
+    }
+    
+    private final Set<Predicate<Info>> onDeleteRules;
+    private final Set<Predicate<Info>> onInsertRules;
+    
+    public Filter()
+    {
+      onDeleteRules = new HashSet<>();
+      onInsertRules = new HashSet<>();
+    }
+    
+    public void addDeleteRule(Predicate<Info> rule) { onDeleteRules.add(rule); }
+    public void addInsertRule(Predicate<Info> rule) { onInsertRules.add(rule); }
+
+    
     @Override
     public void remove(FilterBypass fb, int offset, int length) throws BadLocationException
     {
-      if (offset < startCommandPosition) ;
-      else
+      Info info = new Info(null, offset, length, null);
+      
+      if (!onDeleteRules.stream().anyMatch(p -> p.test(info)))
         super.remove(fb, offset, length);
     }
     
     @Override
     public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException
     {
-      if (length > 0) ;
-      else if (text.equals("\t")) ;
-      else
+      /* adjust caret to always be at end when text is going to be typed */
+      console.setCaretPosition(console.getText().length());
+      offset = console.getText().length();
+      
+      Info info = new Info(text, offset, length, attrs);
+
+      if (!onInsertRules.stream().anyMatch(p -> p.test(info)))
         super.replace(fb, offset, length, text, attrs);
     }
     
