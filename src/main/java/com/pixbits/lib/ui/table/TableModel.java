@@ -59,6 +59,7 @@ public class TableModel<T> extends AbstractTableModel
     if (spec.isActive())
       columns.add(spec);
     
+    spec.setModel(this);
     notifyEvent(new TableEvent(TableEvent.Type.COLUMN_ADDED));
   }
   

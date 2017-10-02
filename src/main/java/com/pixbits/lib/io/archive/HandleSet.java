@@ -1,10 +1,10 @@
 package com.pixbits.lib.io.archive;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,6 +40,7 @@ public class HandleSet implements Iterable<VerifierEntry>
     public final long totalEntries;
     public final long totalHandles;
     public final long binaryCount;
+    public final long archivedCount;
     public final long archiveCount;
     public final long nestedArchiveCount;
     public final long nestedArchiveInnerCount;
@@ -54,8 +55,19 @@ public class HandleSet implements Iterable<VerifierEntry>
       
       totalEntries = counts.values().stream().count();
       binaryCount = counts.getOrDefault(BinaryHandle.class, 0L);
-      archiveCount = counts.getOrDefault(ArchiveHandle.class, 0L);
+      archivedCount = counts.getOrDefault(ArchiveHandle.class, 0L);
       nestedArchiveCount = counts.getOrDefault(NestedArchiveBatch.class, 0L);
+      
+      if (archivedCount > 0)
+      {
+        Map<Path, List<VerifierEntry>> archives = byType.get(ArchiveHandle.class).stream()
+          .collect(Collectors.groupingBy(h -> h.getVerifierHandle().path()));
+        archiveCount = archives.size();
+      }
+      else
+        archiveCount = 0;
+      
+      //archiveCount = byType.get(ArchiveHandle.class).stream().collect(Collectors.groupingBy(e -> e.handle().path(), HashMap::new, Collectors.toList())).size();
       
       nestedArchiveInnerCount = set.entries.stream()
           .filter(e -> e instanceof NestedArchiveBatch)
@@ -63,7 +75,7 @@ public class HandleSet implements Iterable<VerifierEntry>
           .flatMap(e -> e.stream())
           .count();
       
-      totalHandles = binaryCount + archiveCount + nestedArchiveInnerCount;
+      totalHandles = binaryCount + archivedCount + nestedArchiveInnerCount;
     }
     
   }

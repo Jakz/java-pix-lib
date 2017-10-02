@@ -1,12 +1,12 @@
 package com.pixbits.lib.io;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +21,7 @@ public class FolderScanner
   final boolean recursive;
   final boolean multithreaded = true;
   final boolean includeFilesPassedIfMatching = true;
-  
+    
   public FolderScanner(boolean recursive)
   {
     this(FileSystems.getDefault().getPathMatcher("glob:*.*"), null, recursive);
@@ -70,7 +70,7 @@ public class FolderScanner
         files.add(root);
     }
     
-    return files;
+    return new HashSet<>(files);
   }
   
   public Set<Path> scan(Path root) throws IOException
@@ -83,7 +83,7 @@ public class FolderScanner
     else if (filter.matches(root.getFileName()) && !shouldExclude(root))
       files.add(root);
 
-    return files;
+    return new HashSet<>(files);
   }
    
   private void innerScan(Path folder) throws IOException
@@ -100,6 +100,10 @@ public class FolderScanner
             files.add(e);
         }
       }));
+    }
+    catch (AccessDeniedException e)
+    {
+      /* silently kill */
     }
   }
 }

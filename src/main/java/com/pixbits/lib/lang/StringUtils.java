@@ -31,6 +31,14 @@ public class StringUtils
       return String.format("%.1f%s%sB", bytes / Math.pow(unit, exp), includeSpace ? " " : "", pre);
   }
   
+  public static String toPercent(float v, int digits)
+  {
+    if (digits == 0)
+      return String.format("%d", (int)(v*100));
+    else
+      return String.format("%1."+digits+"f", v*100);
+  }
+  
   public static String toHexString(byte[] bytes)
   {
     return hexConverter.marshal(bytes);

@@ -3,7 +3,7 @@ package com.pixbits.lib.io.archive.support;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.pixbits.lib.io.PipedOutputStream;
+import com.pixbits.lib.io.stream.PipedOutputStream;
 
 import net.sf.sevenzipjbinding.IInArchive;
 

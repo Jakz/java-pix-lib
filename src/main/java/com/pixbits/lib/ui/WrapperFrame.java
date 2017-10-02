@@ -21,4 +21,9 @@ public class WrapperFrame<T extends JPanel> extends JFrame
   {
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
   }
+  
+  public void centerOnScreen()
+  {
+    this.setLocationRelativeTo(null);
+  }
 }

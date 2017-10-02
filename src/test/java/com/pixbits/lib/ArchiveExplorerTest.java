@@ -6,20 +6,16 @@ import org.junit.Test;
 
 import com.pixbits.lib.io.archive.ArchiveFormat;
 import com.pixbits.lib.io.archive.enumerator.ArchiveExplorer;
-import com.pixbits.lib.io.archive.enumerator.ArchiveNode;
 import com.pixbits.lib.io.archive.enumerator.BinaryNode;
 import com.pixbits.lib.io.archive.enumerator.RootNode;
 
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
-import static com.pixbits.lib.Tests.getResourceBase;
 import static org.junit.Assert.*;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 
 import java.io.IOException;
-import java.nio.file.Paths;
-
 import static com.pixbits.lib.Tests.getPathForReadableResource;
 
 public class ArchiveExplorerTest

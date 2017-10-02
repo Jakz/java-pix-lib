@@ -7,12 +7,17 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-public class LambdaLabelTableRenderer<T> extends DefaultTableCellRenderer
+import com.pixbits.lib.functional.TriConsumer;
+import com.pixbits.lib.ui.table.DataSource;
+
+public class LambdaLabelTableRendererWithSource<U,T> extends DefaultTableCellRenderer
 {
-  private final BiConsumer<T, JLabel> lambda;
+  private final DataSource<U> source;
+  private final TriConsumer<U, T, JLabel> lambda;
   
-  public LambdaLabelTableRenderer(BiConsumer<T, JLabel> lambda)
+  public LambdaLabelTableRendererWithSource(DataSource<U> source, TriConsumer<U, T, JLabel> lambda)
   {
+    this.source = source;
     this.lambda = lambda;
   }
   
@@ -22,7 +27,8 @@ public class LambdaLabelTableRenderer<T> extends DefaultTableCellRenderer
   {
     JLabel label = (JLabel)super.getTableCellRendererComponent(table, object, isSelected, hasFocus, row, column);
     T value = (T)object;
-    lambda.accept(value, label);
+    U source = this.source.get(table.convertRowIndexToModel(row));
+    lambda.accept(source, value, label);
     return label;
   }
 }

@@ -1,11 +1,11 @@
 package com.pixbits.lib.ui.table;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 public class FilterableListDataSource<T> implements FilterableDataSource<T>
@@ -74,7 +74,7 @@ public class FilterableListDataSource<T> implements FilterableDataSource<T>
     manageSort();
   }
   
-  public void setData(final List<T> data)
+  public void setData(final Collection<? extends T> data)
   {
     this.data.clear();
     this.data.addAll(data);    

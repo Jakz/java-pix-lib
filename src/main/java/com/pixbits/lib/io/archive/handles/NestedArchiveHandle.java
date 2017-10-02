@@ -8,7 +8,6 @@ import java.util.Objects;
 
 import com.pixbits.lib.io.archive.ArchiveFormat;
 import com.pixbits.lib.io.archive.ExtractionCanceledException;
-import com.pixbits.lib.io.archive.FormatUnrecognizedException;
 import com.pixbits.lib.io.archive.support.ArchiveExtractCallback;
 import com.pixbits.lib.io.archive.support.ArchiveExtractPipedStream;
 import com.pixbits.lib.io.archive.support.MemoryArchive;
@@ -110,8 +109,10 @@ public class NestedArchiveHandle extends Handle
   
   @Override public String toString() { return path.getFileName().toString() + "/" + internalName + "/" + nestedInternalName; }
   @Override public String plainName() { return path.getFileName().toString().substring(0, path.getFileName().toString().lastIndexOf('.')); }
+  
+  //TODO: makes sense to return the innermost name?
   @Override public String plainInternalName() { return internalName.substring(0, internalName.toString().lastIndexOf('.')); }
-  @Override public String getInternalExtension() { return internalName.substring(internalName.toString().lastIndexOf('.')+1); }
+  @Override public String getInternalExtension() { return nestedInternalName.substring(nestedInternalName.toString().lastIndexOf('.')+1); }
   
   @Override public long size() { return size; }
   @Override public long compressedSize() { return compressedSize; }

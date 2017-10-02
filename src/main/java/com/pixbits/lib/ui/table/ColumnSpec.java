@@ -1,7 +1,6 @@
 package com.pixbits.lib.ui.table;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -95,7 +94,7 @@ public class ColumnSpec<T, V>
   public void setGetter(BiFunction<Integer, T, V> getter) { this.getter = getter; }
   public void setSetter(BiConsumer<T, V> setter) { this.setter = Optional.of((i, t, v) -> setter.accept(t,v)); }
   public void setSetter(TriConsumer<Integer, T, V> setter) { this.setter = Optional.of(setter); }
-  
+
   void setModel(TableModel<T> model)
   {
     this.model = model;

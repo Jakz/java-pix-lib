@@ -1,4 +1,4 @@
-package com.pixbits.lib.io;
+package com.pixbits.lib.io.stream;
 
 import java.io.FilterInputStream;
 import java.io.IOException;

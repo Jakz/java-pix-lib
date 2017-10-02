@@ -2,29 +2,14 @@ package com.pixbits.lib.ui.charts;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import javax.swing.JPanel;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
-
 import com.pixbits.lib.functional.MinMaxCollector;
 import com.pixbits.lib.lang.Pair;
-import com.pixbits.lib.lang.Point;
 import com.pixbits.lib.lang.Rect;
 import com.pixbits.lib.ui.canvas.Brush;
-import com.pixbits.lib.ui.canvas.CanvasPanel;
-import com.pixbits.lib.ui.canvas.Line;
 import com.pixbits.lib.ui.canvas.Rectangle;
-import com.pixbits.lib.ui.color.GradientColorGenerator;
 import com.pixbits.lib.ui.color.MappableColorGenerator;
 import com.pixbits.lib.ui.color.PleasantColorGenerator;
 

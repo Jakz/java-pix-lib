@@ -6,8 +6,10 @@ import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -18,12 +20,15 @@ import javax.swing.JTextArea;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
-import javax.swing.text.DocumentFilter.FilterBypass;
 
-public class ConsolePanel extends JPanel implements KeyListener
+public class ConsolePanel extends JPanel implements KeyListener, ConsoleInterface
 {  
+  public static interface Interface
+  {
+    public void setCaret(int position);
+  }
+  
   private final JTextArea console;
   private final AbstractDocument document;
   private final Filter filter;
@@ -54,15 +59,22 @@ public class ConsolePanel extends JPanel implements KeyListener
     
     console.addKeyListener(this);
     
-    filter = new Filter();
+    filter = new Filter(this);
     document.setDocumentFilter(filter);
     
     filter.addDeleteRule(i -> i.offset < startCommandPosition);
     
+    filter.addFullInsertRule(i -> {
+      /* adjust caret to always be at end when text is going to be typed */
+      i.area.setCaretPosition(i.area.getTextLength());
+      return Optional.of(i.offset(i.area.getTextLength()));
+    });
+    
     filter.addInsertRule(i -> i.length > 0);
-    filter.addInsertRule(i -> i.text.equals("\t"));
+    //filter.addInsertRule(i -> i.text.equals("\t"));
   }
   
+  public void addInsertRule(Function<Info, Optional<Info>> rule) { this.filter.addFullInsertRule(rule); }
   public void setPrompt(Supplier<String> prompt) { this.prompt = prompt; }
   public void setParser(Consumer<String> parser) { this.parser = parser; };
   
@@ -87,7 +99,7 @@ public class ConsolePanel extends JPanel implements KeyListener
     {
       try
       {
-        String command = console.getText(startCommandPosition, console.getText().length() - 1 - startCommandPosition);
+        String command = getCurrentCommand();
         parser.accept(command);
       }
       /*catch (ParserException e)
@@ -130,58 +142,99 @@ public class ConsolePanel extends JPanel implements KeyListener
     console.append(String.format(string+"\n", args));
   }
   
-
-  private class Filter extends DocumentFilter
-  {
-    public class Info
+  @Override public void setCaretPosition(int position) { console.setCaretPosition(position); }
+  @Override public int getTextLength() { return console.getText().length(); }
+  
+  @Override public String getCurrentCommand()
+  { 
+    try
     {
-      public final String text;
-      public final int offset;
-      public final int length;
-      public final AttributeSet attrs;
-      
-      public Info(String text, int offset, int length, AttributeSet attrs)
-      {
-        this.text = text;
-        this.offset = offset;
-        this.length = length;
-        this.attrs = attrs;
-      }
+      return console.getText(startCommandPosition, console.getText().length() - startCommandPosition);
+    } catch (BadLocationException e)
+    {
+      e.printStackTrace();
+      return "";
+    }
+  }
+  
+  @Override public void replaceCurrentCommand(String text)
+  {
+    console.replaceRange(text, startCommandPosition, console.getText().length());
+  }
+
+  public static class Info
+  {
+    public final ConsoleInterface area;
+    public final String text;
+    public final int offset;
+    public final int length;
+    public final AttributeSet attrs;
+    
+    public Info(ConsoleInterface area, String text, int offset, int length, AttributeSet attrs)
+    {
+      this.area = area;
+      this.text = text;
+      this.offset = offset;
+      this.length = length;
+      this.attrs = attrs;
     }
     
-    private final Set<Predicate<Info>> onDeleteRules;
-    private final Set<Predicate<Info>> onInsertRules;
+    public Info offset(int offset) { return new Info(area, text, offset, length, attrs); } 
+  }
+  
+  private class Filter extends DocumentFilter
+  {
+
     
-    public Filter()
+    private final ConsoleInterface console;
+    private final Set<Function<Info, Optional<Info>>> onDeleteRules;
+    private final Set<Function<Info, Optional<Info>>> onInsertRules;
+    
+    public Filter(ConsoleInterface console)
     {
+      this.console = console;
       onDeleteRules = new HashSet<>();
       onInsertRules = new HashSet<>();
     }
     
-    public void addDeleteRule(Predicate<Info> rule) { onDeleteRules.add(rule); }
-    public void addInsertRule(Predicate<Info> rule) { onInsertRules.add(rule); }
-
+    public void addDeleteRule(Predicate<Info> rule) { addFullDeleteRule(i -> rule.test(i) ? Optional.empty() : Optional.of(i)); }
+    public void addFullDeleteRule(Function<Info, Optional<Info>> rule) { onDeleteRules.add(rule); }
+    
+    public void addInsertRule(Predicate<Info> rule) { addFullInsertRule(i -> rule.test(i) ? Optional.empty() : Optional.of(i)); }
+    public void addFullInsertRule(Function<Info, Optional<Info>> rule) { onInsertRules.add(rule); }
     
     @Override
     public void remove(FilterBypass fb, int offset, int length) throws BadLocationException
     {
-      Info info = new Info(null, offset, length, null);
+      Optional<Info> info = Optional.of(new Info(console, null, offset, length, null));
       
-      if (!onDeleteRules.stream().anyMatch(p -> p.test(info)))
-        super.remove(fb, offset, length);
+      for (Function<Info, Optional<Info>> rule : onDeleteRules)
+      {
+        if (!info.isPresent())
+          break;
+        else
+          info = rule.apply(info.get());
+      }
+ 
+      if (info.isPresent())
+        super.remove(fb, info.get().offset, info.get().length);
     }
     
     @Override
     public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException
-    {
-      /* adjust caret to always be at end when text is going to be typed */
-      console.setCaretPosition(console.getText().length());
-      offset = console.getText().length();
+    {      
+      Optional<Info> info = Optional.of(new Info(console, text, offset, length, attrs));
       
-      Info info = new Info(text, offset, length, attrs);
-
-      if (!onInsertRules.stream().anyMatch(p -> p.test(info)))
-        super.replace(fb, offset, length, text, attrs);
+      for (Function<Info, Optional<Info>> rule : onInsertRules)
+      {
+        if (!info.isPresent())
+          break;
+        else
+          info = rule.apply(info.get());
+      }
+ 
+      if (info.isPresent())
+        super.replace(fb, info.get().offset, info.get().length, info.get().text, info.get().attrs);
     }
     
     @Override

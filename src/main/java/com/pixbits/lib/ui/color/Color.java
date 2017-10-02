@@ -69,6 +69,11 @@ public class Color
     return color;
   }
   
+  public String toCSS()
+  { 
+    return String.format("#%02X%02X%02X", r(), g(), b());
+  }
+  
   public String toString()
   {
     return String.format("{ r: %d, g: %d, b: %d }", r(), g(), b());

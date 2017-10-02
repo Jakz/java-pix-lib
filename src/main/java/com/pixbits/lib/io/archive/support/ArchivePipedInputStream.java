@@ -2,7 +2,7 @@ package com.pixbits.lib.io.archive.support;
 
 import java.io.IOException;
 
-import com.pixbits.lib.io.PipedInputStream;
+import com.pixbits.lib.io.stream.PipedInputStream;
 
 import net.sf.sevenzipjbinding.IInArchive;
 

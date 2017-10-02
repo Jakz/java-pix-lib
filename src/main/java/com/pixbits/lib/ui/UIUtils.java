@@ -2,13 +2,17 @@ package com.pixbits.lib.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+
+import com.pixbits.lib.lang.Size;
 
 public class UIUtils
 {
@@ -50,6 +54,23 @@ public class UIUtils
     frame.pack();
     
     return frame;
+  }
+  
+  public static <T extends Component> JPanel buildFillPanel(T component, Size.Int size)
+  {
+    JPanel panel = new JPanel(new BorderLayout());
+    JScrollPane inner = new JScrollPane(component);
+    inner.setPreferredSize(new Dimension(size.w, size.h));
+    panel.add(inner, BorderLayout.CENTER);
+    return panel;
+  }
+  
+  public static <T extends Component> JPanel buildFillPanel(T component, boolean scrollPane)
+  {
+    JPanel panel = new JPanel(new BorderLayout());
+    Component inner = scrollPane ? new JScrollPane(component) : component;
+    panel.add(inner, BorderLayout.CENTER);
+    return panel;
   }
   
   public static void setNimbusLNF()

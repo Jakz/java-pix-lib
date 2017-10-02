@@ -2,7 +2,6 @@ package com.pixbits.lib.collections;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 
 public class JointIterator<T> implements Iterator<T>
