@@ -1,6 +1,8 @@
 package com.pixbits.lib.yaml.unserializer;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.function.Function;
 
 import com.pixbits.lib.yaml.YamlException;
 import com.pixbits.lib.yaml.YamlNode;
@@ -10,11 +12,18 @@ public class ReflectiveUnserializer<T> implements YamlUnserializer<T>
 {
   private final Class<T> type;
   private final Field[] fields;
+  private Function<String, String> fieldRemapper;
   
   public ReflectiveUnserializer(Class<T> type)
   {
+    this(type, s -> s);
+  }
+  
+  public ReflectiveUnserializer(Class<T> type, Function<String, String> fieldRemapper)
+  {
     this.type = type;
     this.fields = type.getFields();
+    this.fieldRemapper = fieldRemapper;
   }
 
   @Override
@@ -28,14 +37,18 @@ public class ReflectiveUnserializer<T> implements YamlUnserializer<T>
     }
     catch (Exception e)
     {
-      throw new YamlException("Unable to istantiate type "+type.getSimpleName(), e);
+      if ((type.getModifiers() & Modifier.STATIC) == 0)
+        throw new YamlException("Unable to istantiate type "+type.getSimpleName()+", class is not static, that may be the cause", e);
+      else
+        throw new YamlException("Unable to istantiate type "+type.getSimpleName(), e);
     }
     
     try
     {
       for (Field field : fields)
       {
-        YamlNode child = node.get(field.getName());
+        String yamlFieldName = fieldRemapper.apply(field.getName());
+        YamlNode child = node.get(yamlFieldName);
         
         if (child.exists())
         {

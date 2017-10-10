@@ -65,6 +65,7 @@ public class GpxTrackSegment implements DataSource<GpxWaypoint>
   @Override public GpxWaypoint get(int index) { return points.get(index); }
   @Override public int size() { return points.size(); }
   @Override public int indexOf(GpxWaypoint object) { return points.indexOf(object); }
+  public GpxExtension extensions() { return extensions; }
   
   private Color color;
   private static final ColorGenerator colorGenerator = new PleasantColorGenerator();

@@ -80,18 +80,8 @@ public class JsonHandleAdapter implements JsonAdapter<Handle>
     
     try
     {
-      String handleTypeString = context.deserialize(o.get("type"), String.class);
-      
-      //TODO: remove hardcoded
-      if (handleTypeString.equals("binary"))
-        handleType = BinaryHandle.class;
-      else if (handleTypeString.equals("archived"))
-        handleType = ArchiveHandle.class;
-      else if (handleTypeString.equals("nested"))
-        handleType = NestedArchiveHandle.class;
-      else
-        handleType = Class.forName(context.deserialize(o.get("type"), String.class));
-    
+      handleType = Class.forName(context.deserialize(o.get("type"), String.class));
+  
       Path path = context.deserialize(o.get("path"), Path.class);
       long crc = Long.parseUnsignedLong(o.get("crc").getAsString(), 16);
 

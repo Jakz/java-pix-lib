@@ -2,6 +2,7 @@ package com.pixbits.lib.functional;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -25,5 +26,9 @@ public class StreamUtil
         }
     };
     return StreamSupport.stream(i.spliterator(), false);
+  }
+  
+  public static <T> Predicate<T> not(Predicate<T> t) {
+    return t.negate();
   }
 }

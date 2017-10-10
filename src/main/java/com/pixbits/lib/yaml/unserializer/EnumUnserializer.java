@@ -1,31 +1,37 @@
 package com.pixbits.lib.yaml.unserializer;
 
-import com.pixbits.lib.yaml.YamlException;
 import com.pixbits.lib.yaml.YamlNode;
 import com.pixbits.lib.yaml.YamlUnserializer;
 
-public class EnumUnserializer<T> implements YamlUnserializer<T>
+public class EnumUnserializer<T extends Enum<T>> implements YamlUnserializer<T>
 {
-  Class<T> type;
+  private final Class<T> clazz;
+  private final boolean logError;
   
-  public EnumUnserializer(Class<T> type)
+  public EnumUnserializer(Class<T> clazz)
   {
-    this.type = type;
+    this(clazz, false);
+  }
+ 
+  public EnumUnserializer(Class<T> clazz, boolean logError)
+  {
+    this.clazz = clazz;
+    this.logError = logError;
   }
   
   @Override
   public T unserialize(YamlNode node)
   {
-    String name = node.rawGet();
+    String value = node.asString();
     try
     {
-      //TODO: maybe there's a way to do it without hacks
-      return (T)Enum.valueOf((Class)type, name);
+      return Enum.valueOf(clazz, value);
     }
     catch (IllegalArgumentException e)
     {
-      throw new YamlException("Enum constant not found: "+type.getName()+"::"+name, e);
-    }
+      if (logError)
+        e.printStackTrace();
+      return null;
+    }  
   }
-
 }

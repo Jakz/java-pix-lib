@@ -28,6 +28,16 @@ public class TimeInterval
     return new TimeInterval(years, months, days, hours, minutes, seconds);
   }
   
+  public double asMinutes()
+  {
+    // TODO: missing day months and years for now
+    return 
+        seconds / 60.0 +
+        minutes +
+        hours * 60.0
+    ;
+  }
+  
   public int years() { return years; }
   public int months() { return months; }
   public int days() { return days; }
