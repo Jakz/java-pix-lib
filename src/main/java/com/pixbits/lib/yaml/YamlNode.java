@@ -33,8 +33,17 @@ public class YamlNode implements Iterable<YamlNode>
    
   public <T> T rawGet() { return (T)node; }
   
-  public String asString() { return env.findUnserializer(String.class).unserialize(this); }
-  public int asInt() { return env.findUnserializer(Integer.class).unserialize(this); }
+  public String asString()
+  { 
+    YamlUnserializer<String> unserializer = env.findUnserializer(String.class);
+    return unserializer.unserialize(this);    
+  }
+  
+  public int asInt()
+  {  
+    YamlUnserializer<Integer> unserializer = env.findUnserializer(Integer.class);
+    return unserializer.unserialize(this);
+  }
   
   public YamlNode get(String key)
   {

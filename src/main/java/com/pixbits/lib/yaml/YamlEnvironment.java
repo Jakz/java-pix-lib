@@ -1,5 +1,7 @@
 package com.pixbits.lib.yaml;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +13,7 @@ import com.pixbits.lib.yaml.unserializer.ReflectiveUnserializer;
 
 public class YamlEnvironment
 {
-  private final Map<Class<?>, YamlUnserializer<?>> unserializers;
+  private final Map<Type, YamlUnserializer<?>> unserializers;
   private Function<String, String> defaultUnserializeFieldNameRemapper = s -> s;
 
   private void setupBasicUnserializers()
@@ -73,26 +75,26 @@ public class YamlEnvironment
   }
   
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public <T> YamlUnserializer<T> findUnserializer(Class<T> type)
+  public <T> YamlUnserializer<T> findUnserializer(Type type)
   {
     YamlUnserializer<T> unserializer = (YamlUnserializer<T>)unserializers.get(type);
     
     if (unserializer != null)
       return unserializer;
-    else if (type.isEnum())
+    else if (type instanceof Class<?> && ((Class<?>)type).isEnum())
     {
       return (YamlUnserializer<T>)unserializers
-          .computeIfAbsent(type, t -> new EnumUnserializer(t));
+          .computeIfAbsent(type, t -> new EnumUnserializer((Class<T>)t));
     }
-    else if (List.class.equals(type))
+    else if ((type instanceof ParameterizedType) && ((ParameterizedType)type).getRawType().equals(List.class))
     {
       return (YamlUnserializer<T>)unserializers
-          .computeIfAbsent(type, t -> new ListUnserializer<>(t));
+          .computeIfAbsent(type, t -> new ListUnserializer((Class<?>)((ParameterizedType)type).getActualTypeArguments()[0]));
     }
     else
     {
       return (YamlUnserializer<T>)unserializers
-          .computeIfAbsent(type, t -> new ReflectiveUnserializer<>(t, defaultUnserializeFieldNameRemapper));
+          .computeIfAbsent(type, t -> new ReflectiveUnserializer<>((Class<T>)t, defaultUnserializeFieldNameRemapper));
     }
   }
 }

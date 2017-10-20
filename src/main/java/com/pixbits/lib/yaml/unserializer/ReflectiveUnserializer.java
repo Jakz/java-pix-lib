@@ -2,6 +2,7 @@ package com.pixbits.lib.yaml.unserializer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.function.Function;
 
 import com.pixbits.lib.yaml.YamlException;
@@ -49,10 +50,10 @@ public class ReflectiveUnserializer<T> implements YamlUnserializer<T>
       {
         String yamlFieldName = fieldRemapper.apply(field.getName());
         YamlNode child = node.get(yamlFieldName);
-        
+
         if (child.exists())
         {
-          YamlUnserializer<?> unserializer = node.environment().findUnserializer(field.getType());
+          YamlUnserializer<?> unserializer = node.environment().findUnserializer(field.getGenericType());
           field.set(object, unserializer.unserialize(child));
         }
       }
