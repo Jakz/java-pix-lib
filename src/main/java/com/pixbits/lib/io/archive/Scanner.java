@@ -14,6 +14,7 @@ import com.pixbits.lib.io.archive.handles.BinaryHandle;
 import com.pixbits.lib.io.archive.handles.NestedArchiveBatch;
 import com.pixbits.lib.io.archive.handles.NestedArchiveHandle;
 import com.pixbits.lib.io.archive.support.MemoryArchive;
+import com.pixbits.lib.lang.Pair;
 
 import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.PropID;
@@ -40,7 +41,7 @@ public class Scanner
     return false;
   }
   
-  private IInArchive openArchive(Path path, boolean keepOpen) throws FormatUnrecognizedException
+  private Pair<IInArchive, RandomAccessFileInStream> openArchive(Path path, boolean keepOpen) throws FormatUnrecognizedException
   {
     try
     {
@@ -54,7 +55,8 @@ public class Scanner
       
       if (!keepOpen)
         rfile.close();
-      return archive;
+      
+      return new Pair<>(archive, rfile);
     }
     catch (IOException e)
     {
@@ -190,7 +192,8 @@ public class Scanner
         /* for each element in the archive, scan it, it could return an ArchiveHandle or a NestedArchiveHandle */
         try
         {
-          IInArchive archive = openArchive(path, true);
+          Pair<IInArchive, RandomAccessFileInStream> pair = openArchive(path, true);
+          IInArchive archive = pair.first;
           int itemCount = archive.getNumberOfItems();
           
           for (int i = 0; i < itemCount; ++i)
@@ -203,6 +206,7 @@ public class Scanner
           }
           
           archive.close();
+          pair.second.close();
         }
         catch (FormatUnrecognizedException e)
         {

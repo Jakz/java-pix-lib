@@ -64,7 +64,7 @@ public class FolderScanner
     {      
       if (!Files.exists(root))
         throw new FileNotFoundException(root);     
-      else if (Files.isDirectory(root))
+      else if (Files.isDirectory(root) && !Files.isHidden(root))
         innerScan(root);
       else if (filter.matches(root.getFileName()))
         files.add(root);

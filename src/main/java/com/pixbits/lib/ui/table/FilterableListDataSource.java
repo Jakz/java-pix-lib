@@ -13,7 +13,7 @@ public class FilterableListDataSource<T> implements FilterableDataSource<T>
   private final List<T> data;
   private final List<T> filtered;
   private Predicate<T> predicate;
-  private Comparator<T> sorter;
+  private Comparator<? super T> sorter;
   
   public FilterableListDataSource()
   {
@@ -68,7 +68,7 @@ public class FilterableListDataSource<T> implements FilterableDataSource<T>
     manageSort();
   }
   
-  public void sort(Comparator<T> sorter)
+  public void sort(Comparator<? super T> sorter)
   {
     this.sorter = sorter;
     manageSort();
