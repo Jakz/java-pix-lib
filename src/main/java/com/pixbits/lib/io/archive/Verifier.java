@@ -22,7 +22,7 @@ public class Verifier<T extends Verifiable>
   private final HashCache<T> cache;
   
   private boolean hasTransformer;
-  private Function<Handle,Handle> transformer;
+  private Function<VerifierEntry, ? extends VerifierEntry> transformer;
   
   private Optional<Consumer<List<VerifierResult<T>>>> callback;
 
@@ -43,10 +43,18 @@ public class Verifier<T extends Verifiable>
     this.callback = Optional.of(callback);
   }
   
-  public void setTransformer(Function<Handle,Handle> transformer)
+  public void setTransformer(Function<VerifierEntry, ? extends VerifierEntry> transformer)
   {
-    hasTransformer = true;
-    this.transformer = transformer;
+    if (transformer != null)
+    {
+      hasTransformer = true;
+      this.transformer = transformer;
+    }
+    else
+    {
+      hasTransformer = false;
+      this.transformer = v -> v;
+    }
   }
   
   protected Optional<Consumer<List<VerifierResult<T>>>> callback() { return callback; }
@@ -71,7 +79,7 @@ public class Verifier<T extends Verifiable>
   
   private boolean canUseCachedCrcIfAvailable()
   {
-    return voptions.verifyJustCRC();
+    return voptions.verifyJustCRC() && !hasTransformer;
   }
 
   private List<VerifierResult<T>> verifyBatch(VerifierEntry batch) throws NoSuchAlgorithmException, IOException
@@ -106,8 +114,8 @@ public class Verifier<T extends Verifiable>
     if (entry.isSingleVerifierEntry())
     {
       T element = null;
-      Handle handle = entry.getVerifierHandle();
-      handle = transformer.apply(handle);
+      VerifierEntry tentry = transformer.apply(entry);
+      Handle handle = tentry.getVerifierHandle();
       
       if (canUseCachedCrcIfAvailable() && handle.crc() != -1)
         element = verifyJustCRC(handle);

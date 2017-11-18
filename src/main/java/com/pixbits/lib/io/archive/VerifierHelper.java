@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
+
 import com.pixbits.lib.io.digest.DigestOptions;
 import com.pixbits.lib.io.digest.Digester;
 import com.pixbits.lib.io.digest.HashCache;
@@ -45,6 +47,10 @@ public class VerifierHelper<U extends Verifiable>
     digester = new Digester(new DigestOptions(true, options.matchMD5, options.matchSHA1, multiThreaded)); 
     verifier = new Verifier<>(options, digester, cache);
     verifier.setCallback(callback);
+    
+    if (options.transformer != null)
+      verifier.setTransformer(options.transformer);
+    
     this.multiThreaded = multiThreaded;
     this.reporter = new Reporter<>();
   }
