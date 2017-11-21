@@ -48,8 +48,7 @@ public class VerifierHelper<U extends Verifiable>
     verifier = new Verifier<>(options, digester, cache);
     verifier.setCallback(callback);
     
-    if (options.transformer != null)
-      verifier.setTransformer(options.transformer);
+    verifier.setTransformer(options.transformer());
     
     this.multiThreaded = multiThreaded;
     this.reporter = new Reporter<>();

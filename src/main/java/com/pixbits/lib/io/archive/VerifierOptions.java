@@ -8,7 +8,7 @@ public class VerifierOptions
   public final boolean matchSHA1;
   public final boolean matchMD5;
   public final boolean checkNestedArchives;
-  public Function<VerifierEntry, VerifierEntry> transformer;
+  private Function<VerifierEntry, ? extends VerifierEntry> transformer;
 
   
   public VerifierOptions(boolean matchSize, boolean matchSHA1, boolean matchMD5, boolean checkNestedArchives)
@@ -24,6 +24,10 @@ public class VerifierOptions
   {
     this(true, false, false, true);
   }
+  
+  public boolean hasTransformer() { return transformer != null; }
+  public Function<VerifierEntry, ? extends VerifierEntry> transformer() { return transformer; }
+  public void setTransformer(Function<VerifierEntry, ? extends VerifierEntry> transformer) { this.transformer = transformer; }
   
   public boolean verifyJustCRC() { return !(matchSHA1 || matchMD5); }
 }

@@ -7,12 +7,13 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class FilterableListDataSource<T> implements FilterableDataSource<T>
 {
   private final List<T> data;
   private final List<T> filtered;
-  private Predicate<T> predicate;
+  private Predicate<? super T> predicate;
   private Comparator<? super T> sorter;
   
   public FilterableListDataSource()
@@ -52,7 +53,7 @@ public class FilterableListDataSource<T> implements FilterableDataSource<T>
     filter(predicate);
   }
   
-  public void filter(Predicate<T> predicate)
+  public void filter(Predicate<? super T> predicate)
   {
     if (predicate == null)
     {
@@ -86,4 +87,6 @@ public class FilterableListDataSource<T> implements FilterableDataSource<T>
   @Override public T get(int index) { return filtered.get(index); }
   @Override public int size() { return filtered.size(); }
   @Override public int indexOf(T object) { return filtered.indexOf(object); }
+  
+  public Stream<T> originalStream() { return data.stream(); }
 }
