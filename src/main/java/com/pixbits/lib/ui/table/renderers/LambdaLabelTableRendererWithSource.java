@@ -1,8 +1,6 @@
 package com.pixbits.lib.ui.table.renderers;
 
 import java.awt.Component;
-import java.util.function.BiConsumer;
-
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;

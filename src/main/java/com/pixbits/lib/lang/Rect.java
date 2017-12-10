@@ -100,4 +100,29 @@ public class Rect implements JsonnableContext<Rect>
     w = a.get(2).getAsInt();
     h = a.get(3).getAsInt();
   }
+  
+  public static Rect ofJson(JsonElement element)
+  {
+    Rect r = new Rect();
+    
+    if (element != null)
+    {
+      /* fallback in case of serialization as java.awt.Rectangle */
+      if (element.isJsonObject())
+      {
+        JsonObject obj = element.getAsJsonObject();
+        r.x = obj.get("x").getAsInt();
+        r.y = obj.get("y").getAsInt();
+        r.w = obj.get("width").getAsInt();
+        r.h = obj.get("height").getAsInt();
+      }
+      else
+        r.unserialize(element, null);
+    }
+    
+    if (r.w == 0 && r.h == 0)
+      return null;
+    
+    return r;
+  }
 }

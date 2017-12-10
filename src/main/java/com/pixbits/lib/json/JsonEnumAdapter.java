@@ -32,7 +32,9 @@ public class JsonEnumAdapter<T extends JsonnableEnum<T>> implements JsonAdapter<
     }
   }
   
-  public JsonEnumAdapter(Class<?> eclazz, boolean cacheValues)
+  public JsonEnumAdapter(Class<T> eclazz) { this(eclazz, true); }
+  
+  public JsonEnumAdapter(Class<T> eclazz, boolean cacheValues)
   {
     this.eclazz = eclazz;
     

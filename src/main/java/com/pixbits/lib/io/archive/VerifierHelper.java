@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
-
 import com.pixbits.lib.io.digest.DigestOptions;
 import com.pixbits.lib.io.digest.Digester;
 import com.pixbits.lib.io.digest.HashCache;

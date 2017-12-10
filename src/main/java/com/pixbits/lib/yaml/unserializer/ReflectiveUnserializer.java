@@ -2,7 +2,6 @@ package com.pixbits.lib.yaml.unserializer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.util.function.Function;
 
 import com.pixbits.lib.yaml.YamlException;

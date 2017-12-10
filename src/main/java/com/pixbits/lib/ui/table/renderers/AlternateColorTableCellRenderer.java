@@ -24,14 +24,17 @@ public class AlternateColorTableCellRenderer implements TableCellRenderer
   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean cellHasFocus, int r, int c)
   {
     JComponent component = (JComponent)renderer.getTableCellRendererComponent(table, value, isSelected, cellHasFocus, r, c);
-    
+    setBackgroundColor(component, isSelected, r);
+    return component;
+  }
+  
+  public static void setBackgroundColor(JComponent component, boolean isSelected, int r)
+  {
     component.setOpaque(true);
     
     if (isSelected)
       component.setBackground(selectedColor);
     else
       component.setBackground(r % 2 == 0 ? evenColor : oddColor);
-
-    return component;
   }
 }
