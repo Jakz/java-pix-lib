@@ -4,9 +4,6 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 public class GpxMetadata
 {
   @XmlElement String name;

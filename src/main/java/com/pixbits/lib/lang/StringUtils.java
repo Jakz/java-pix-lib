@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
-public class StringUtils
+public abstract class StringUtils
 {
   private static final HexBinaryAdapter hexConverter = new HexBinaryAdapter();
 
@@ -58,5 +58,21 @@ public class StringUtils
   public static boolean isEmpty(String string)
   {
     return string == null || string.isEmpty();
+  }
+  
+  public static String camelCase(String input)
+  {
+    String[] tks = input.split(" ");
+    StringBuilder o = new StringBuilder();
+
+    for (int i = 0; i < tks.length; ++i)
+    {
+      o.append(tks[i].substring(0, 1).toUpperCase()).append(tks[i].substring(1));
+
+      if (i < tks.length - 1)
+        o.append(" ");
+    }
+
+    return o.toString();
   }
 }

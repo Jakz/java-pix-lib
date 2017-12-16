@@ -43,6 +43,11 @@ public class SquareIconGenerator
     this(generator, width, height, 0, null);
   }
   
+  public SquareIconGenerator(int width, int height, Color strokeColor)
+  {
+    this(null, width, height, 1, strokeColor);
+  }
+  
   public void flushCache()
   {
     cache.clear();

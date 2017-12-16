@@ -19,6 +19,11 @@ public class Color
     this.color = (a << 24) | (r << 16) | (g << 8) | (b);
   }
   
+  public Color(int... values)
+  {
+    this(values[0], values[1], values[2]);
+  }
+  
   public Color(java.awt.Color color)
   {
     this.color = color.getRGB();
@@ -69,6 +74,8 @@ public class Color
     return color;
   }
   
+  public int[] toArray() { return new int[] { r(), g(), b() }; }
+  
   public String toCSS()
   { 
     return String.format("#%02X%02X%02X", r(), g(), b());
@@ -77,6 +84,24 @@ public class Color
   public String toString()
   {
     return String.format("{ r: %d, g: %d, b: %d }", r(), g(), b());
+  }
+  
+  public String toCSV() 
+  {
+    return String.format("%d,%d,%d", r(), g(), b());
+  }
+  
+  public static Color of(String string)
+  {
+    try
+    {
+      String[] tokens = string.split(",");
+      return new Color(Integer.parseInt(tokens[0].trim()), Integer.parseInt(tokens[1].trim()), Integer.parseInt(tokens[2].trim()));
+    }
+    catch (Exception e)
+    {
+      return null;
+    }
   }
   
   public final static Color black = new Color(0,0,0);

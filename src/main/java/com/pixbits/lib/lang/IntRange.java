@@ -3,13 +3,15 @@ package com.pixbits.lib.lang;
 import com.google.gson.*;
 import com.pixbits.lib.json.JsonnableContext;
 
-public class FloatRange implements JsonnableContext<FloatRange>
+public class IntRange implements JsonnableContext<IntRange>
 {
-  public float min, max;
+  public int min, max;
   
-  public FloatRange() { }
+  public IntRange() { }
 
-  public FloatRange(String string)
+  public IntRange(int min, int max) { this.min = min; this.max = max; }
+  
+  public IntRange(String string)
   {
     String[] tks = string.split(":");
     
@@ -19,35 +21,21 @@ public class FloatRange implements JsonnableContext<FloatRange>
         throw new NumberFormatException();
       else
       {
-        min = Float.valueOf(tks[0]);
-        max = Float.valueOf(tks[1]);
+        min = Integer.valueOf(tks[0]);
+        max = Integer.valueOf(tks[1]);
       }
     }
     catch (NumberFormatException e)
     {
-      min = 0.0f;
-      max = 1.0f;
+      min = 0;
+      max = 1;
       throw e;
     }
   }
   
-  public static FloatRange of(String string)
-  {
-     FloatRange range = new FloatRange(string);
-     return range;
-  }
-  
-  public static FloatRange ofJson(JsonElement element)
-  {
-    FloatRange range = new FloatRange();
-    range.unserialize(element, null);
-    return range;
-  }
-  
-  public FloatRange(float min, float max) { this.min = min; this.max = max; }
 
   public String toString() { return min+":"+max; }
-  
+
   @Override
   public JsonElement serialize(JsonSerializationContext context)
   {
@@ -61,7 +49,7 @@ public class FloatRange implements JsonnableContext<FloatRange>
   public void unserialize(JsonElement element, JsonDeserializationContext context)
   {
     JsonArray a = element.getAsJsonArray();
-    min = a.get(0).getAsFloat();
-    max = a.get(1).getAsFloat();
+    min = a.get(0).getAsInt();
+    max = a.get(1).getAsInt();
   }
 }

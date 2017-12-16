@@ -94,11 +94,14 @@ public class Rect implements JsonnableContext<Rect>
   @Override
   public void unserialize(JsonElement element, JsonDeserializationContext context)
   {
-    JsonArray a = element.getAsJsonArray();
-    x = a.get(0).getAsInt();
-    y = a.get(1).getAsInt();
-    w = a.get(2).getAsInt();
-    h = a.get(3).getAsInt();
+    if (element != null)
+    {
+      JsonArray a = element.getAsJsonArray();
+      x = a.get(0).getAsInt();
+      y = a.get(1).getAsInt();
+      w = a.get(2).getAsInt();
+      h = a.get(3).getAsInt();
+    }
   }
   
   public static Rect ofJson(JsonElement element)
