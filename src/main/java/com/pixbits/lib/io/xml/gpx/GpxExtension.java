@@ -18,4 +18,17 @@ public class GpxExtension
       extensions = new ArrayList<Element>();
     return extensions;   
   }
+  
+  public void clear()
+  {
+    extensions.clear();
+  }
+  
+  public void add(Element element)
+  {
+    if (extensions == null)
+      extensions = new ArrayList<>();
+    
+    extensions.add(element);
+  }
 }

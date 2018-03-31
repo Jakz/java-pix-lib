@@ -15,4 +15,5 @@ public class GpxWaypoint
   public GpxExtension extensions() { return extensions; }
   
   public void setTime(ZonedDateTime time) { this.time = time; }
+  public void setExtensions(GpxExtension extensions) { this.extensions = extensions; }
 }
