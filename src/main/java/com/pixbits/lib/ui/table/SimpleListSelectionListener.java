@@ -2,6 +2,7 @@ package com.pixbits.lib.ui.table;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -51,6 +52,20 @@ public abstract class SimpleListSelectionListener implements ListSelectionListen
       
       commonActionAfter();
     }
+  }
+  
+  public static SimpleListSelectionListener of(Consumer<Integer> lambda)
+  {
+    return new SimpleListSelectionListener() {
+
+      @Override protected void commonActionBefore() { }
+      @Override protected void commonActionAfter() { }
+
+      @Override protected void multipleSelection(List<Integer> indices) { indices.forEach(lambda); }
+      @Override protected void singleSelection(int index) { lambda.accept(index); }
+
+      @Override protected void clearSelection() { }      
+    };
   }
 
 }
