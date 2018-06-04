@@ -50,6 +50,12 @@ public class HandleLink extends Handle
   {
     return original.plainInternalName();
   }
+  
+  @Override
+  public String internalName()
+  {
+    return original.internalName();
+  }
 
   @Override
   public void relocate(Path file)

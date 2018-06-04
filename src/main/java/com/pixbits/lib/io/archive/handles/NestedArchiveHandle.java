@@ -111,6 +111,7 @@ public class NestedArchiveHandle extends Handle
   @Override public String plainName() { return path.getFileName().toString().substring(0, path.getFileName().toString().lastIndexOf('.')); }
   
   //TODO: makes sense to return the innermost name?
+  @Override public String internalName() { return internalName; }
   @Override public String plainInternalName() { return internalName.substring(0, internalName.toString().lastIndexOf('.')); }
   @Override public String getInternalExtension() { return nestedInternalName.substring(nestedInternalName.toString().lastIndexOf('.')+1); }
   

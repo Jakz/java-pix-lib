@@ -187,7 +187,7 @@ public class Compressor<H extends Compressible>
           
           CreateCallback<IOutItemZip> callback = new CreateCallback<IOutItemZip>(handles, new ItemDecoratorZip<H>());
           
-          //archive.setTrace(true);
+          archive.setTrace(true);
           archive.createArchive(new RandomAccessFileOutStream(raf), handles.size(), callback);
           
           break;

@@ -17,6 +17,7 @@ public abstract class Handle implements DigestableCRC, Compressible, VerifierEnt
   public abstract String relativePath();
   public abstract String fileName();
   
+  public abstract String internalName();
   public abstract String plainName();
   public abstract String plainInternalName();
   public abstract void relocate(Path file);

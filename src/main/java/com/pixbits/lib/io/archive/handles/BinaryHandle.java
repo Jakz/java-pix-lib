@@ -47,6 +47,8 @@ public class BinaryHandle extends Handle
   public String plainName() { return path.getFileName().toString().substring(0, path.getFileName().toString().lastIndexOf('.')); }
   @Override
   public String plainInternalName() { return plainName(); }
+  @Override
+  public String internalName() { return path.getFileName().toString(); }
   
   @Override public long size() {
     try

@@ -78,6 +78,7 @@ public class ArchiveHandle extends Handle
   @Override public String fileName() { return internalName; }
   
   @Override public String toString() { return path.getFileName().toString() + "/" + internalName; }
+  @Override public String internalName() { return internalName; }
   @Override public String plainName() { return path.getFileName().toString().substring(0, path.getFileName().toString().lastIndexOf('.')); }
   @Override public String plainInternalName() { return internalName.substring(0, internalName.toString().lastIndexOf('.')); }
   @Override public String getInternalExtension() { return internalName.substring(internalName.toString().lastIndexOf('.')+1); }

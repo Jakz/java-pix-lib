@@ -40,6 +40,12 @@ public class FileUtils
       return path;
   }
   
+  public static String pathExtension(Path path) {
+    String fileName = path.getFileName().toString();
+    int index = fileName.indexOf('.');
+    return index != -1 ? fileName.substring(index+1) : "";
+  }
+  
   public static String fileNameWithoutExtension(Path path) {
     String fileName = path.getFileName().toString();
     int lastDot = fileName.lastIndexOf(".");
