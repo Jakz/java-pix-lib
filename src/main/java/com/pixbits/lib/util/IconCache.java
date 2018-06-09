@@ -2,6 +2,7 @@ package com.pixbits.lib.util;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -23,16 +24,9 @@ public class IconCache<T> implements Function<T, ImageIcon>
     this.builder = builder;
   }
   
-  private ImageIcon generate(T key)
-  {
-    ImageIcon icon = builder.apply(key);
-    cache.put(key,  icon);
-    return icon;
-  }
-  
   public ImageIcon get(T key)
   {
-    return cache.computeIfAbsent(key, k -> generate(k));
+    return cache.computeIfAbsent(key, k -> builder.apply(k));
   }
   
   @Override public ImageIcon apply(T key) { return get(key); }
