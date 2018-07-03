@@ -1,5 +1,6 @@
 package com.pixbits.lib.ui.table;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,4 +26,6 @@ public interface DataSource<T> extends Iterable<T>
       @Override public int indexOf(U object) { return list.indexOf(object); }    
     };
   }
+  
+  public static <U> DataSource<U> empty() { return DataSource.of(Collections.emptyList()); }
 }

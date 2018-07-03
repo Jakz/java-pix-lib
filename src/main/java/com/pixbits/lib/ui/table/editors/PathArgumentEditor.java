@@ -1,7 +1,8 @@
-package com.pixbits.lib.plugin.ui;
+package com.pixbits.lib.ui.table.editors;
 
 import java.awt.Component;
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,8 +27,9 @@ public class PathArgumentEditor implements TableCellEditor
   
   private JTable table;
   private int row;
+  private Path startPath;
     
-  PathArgumentEditor(int type)
+  public PathArgumentEditor(int type)
   {
     inner = new DefaultCellEditor(new JTextField());
     field = (JTextField)inner.getComponent();
@@ -42,6 +44,10 @@ public class PathArgumentEditor implements TableCellEditor
     browse.addActionListener( e -> {
       final JFileChooser jfc = new JFileChooser();
       jfc.setFileSelectionMode(type);
+      
+      if (startPath != null)
+        jfc.setCurrentDirectory(startPath.toFile());
+
       int response = jfc.showOpenDialog(table);
       
       if (response == JFileChooser.APPROVE_OPTION)
@@ -66,6 +72,14 @@ public class PathArgumentEditor implements TableCellEditor
   {
     this.table = table;
     this.row = row;
+    
+    Path path = (Path)value;
+    
+    if (path != null && !Files.isDirectory(path))
+      path = path.getParent();
+    
+    startPath = Files.exists(path) ? path : null;
+
     return inner.getTableCellEditorComponent(table, value, isSelected, row, column);
   }
   

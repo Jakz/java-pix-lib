@@ -13,6 +13,7 @@ import javax.swing.table.TableCellRenderer;
 
 import com.pixbits.lib.plugin.Plugin;
 import com.pixbits.lib.plugin.PluginArgument;
+import com.pixbits.lib.ui.table.editors.PathArgumentEditor;
 import com.pixbits.lib.ui.table.renderers.AlternateColorTableCellRenderer;
 
 public class PluginConfigTable extends JTable

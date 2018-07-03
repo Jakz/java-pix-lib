@@ -56,7 +56,7 @@ public class StreamUtil
     @Override
     public boolean tryAdvance(Consumer<? super List<T>> action)
     {
-      deque.pollFirst();
+      deque.clear();
       fillDeque();
       if (deque.size() == n)
       {
