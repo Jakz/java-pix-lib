@@ -6,6 +6,7 @@ import java.util.List;
 public interface ModifiableDataSource<T> extends DataSource<T>
 {
   public void add(int index, T element);
+  public void remove(int index);
   
   public static <U> ModifiableDataSource<U> of(final List<U> list)
   {
@@ -15,6 +16,7 @@ public interface ModifiableDataSource<T> extends DataSource<T>
       @Override public int size() { return list.size(); }
       @Override public int indexOf(U object) { return list.indexOf(object); }
       @Override public void add(int index, U element) { list.add(index, element); }
+      @Override public void remove(int index) { list.remove(index); }
     };
   }
 }

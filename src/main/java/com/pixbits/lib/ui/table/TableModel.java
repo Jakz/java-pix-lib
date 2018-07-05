@@ -122,6 +122,8 @@ public class TableModel<T> extends AbstractTableModel
     }
   }
   
+  public DataSource<T> data() { return data.orElse(DataSource.empty()); }
+  
   public void setData(DataSource<T> data)
   {
     this.data = Optional.of(data);
