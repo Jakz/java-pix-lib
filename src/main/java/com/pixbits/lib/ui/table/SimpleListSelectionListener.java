@@ -54,6 +54,20 @@ public abstract class SimpleListSelectionListener implements ListSelectionListen
     }
   }
   
+  public static SimpleListSelectionListener ofJustSingle(Consumer<Integer> lambda)
+  {
+    return new SimpleListSelectionListener() {
+
+      @Override protected void commonActionBefore() { }
+      @Override protected void commonActionAfter() { }
+
+      @Override protected void multipleSelection(List<Integer> indices) { lambda.accept(indices.get(indices.size()-1)); }
+      @Override protected void singleSelection(int index) { lambda.accept(index); }
+
+      @Override protected void clearSelection() { }      
+    }; 
+  }
+  
   public static SimpleListSelectionListener of(Consumer<Integer> lambda)
   {
     return new SimpleListSelectionListener() {
