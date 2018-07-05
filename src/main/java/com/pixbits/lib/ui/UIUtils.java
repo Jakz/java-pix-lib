@@ -2,8 +2,10 @@ package com.pixbits.lib.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -87,5 +89,17 @@ public class UIUtils
       e.printStackTrace();
         // If Nimbus is not available, you can set the GUI to another look and feel.
     }
+  }
+  
+  public static boolean showConfirmDialog(Container parent, String title, String text)
+  {
+    int result = JOptionPane.showConfirmDialog(
+        parent,
+        text,
+        title,
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.WARNING_MESSAGE
+    );
+    return result == JOptionPane.YES_OPTION;
   }
 }

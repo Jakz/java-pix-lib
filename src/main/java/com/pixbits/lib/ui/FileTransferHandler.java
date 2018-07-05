@@ -9,7 +9,8 @@ import java.util.List;
 
 import javax.swing.TransferHandler;
 
-public class FileTransferHandler extends TransferHandler {
+public class FileTransferHandler extends TransferHandler 
+{
   @FunctionalInterface
   public static interface Listener
   {
