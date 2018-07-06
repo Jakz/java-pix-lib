@@ -18,6 +18,20 @@ import com.pixbits.lib.lang.Size;
 
 public class UIUtils
 {
+  public static enum OperatingSystem { WIN, OSX, LINUX }
+  
+  public static OperatingSystem getOperatingSystem()
+  {
+    String system = java.lang.System.getProperty("os.name").toLowerCase();
+    
+    if (system.indexOf("win") >= 0)
+      return OperatingSystem.WIN;
+    else if (system.indexOf("mac") >= 0)
+      return OperatingSystem.OSX;
+    else
+      return OperatingSystem.LINUX;
+  }
+  
   public static void resizeTableColumn(TableColumn column, int width)
   {
     column.setMinWidth(width);
