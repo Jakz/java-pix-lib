@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.TransferHandler;
 
@@ -14,7 +15,7 @@ public class FileTransferHandler extends TransferHandler
   @FunctionalInterface
   public static interface Listener
   {
-    public void filesDropped(Path[] files);
+    public void filesDropped(TransferHandler.TransferSupport info, Path[] files);
   }
   
   private static final DataFlavor FILE_FLAVOR = DataFlavor.javaFileListFlavor;
@@ -24,6 +25,11 @@ public class FileTransferHandler extends TransferHandler
   public FileTransferHandler(Listener listener)
   {
     this.listener = listener;
+  }
+  
+  public FileTransferHandler(Consumer<Path[]> listener)
+  {
+    this.listener = (i,f) -> listener.accept(f);
   }
 
   @SuppressWarnings("unchecked")
@@ -41,7 +47,7 @@ public class FileTransferHandler extends TransferHandler
       support.setDropAction(LINK);
 
       Path[] paths = files.stream().map( f -> f.toPath() ).toArray(Path[]::new);
-      listener.filesDropped(paths);
+      listener.filesDropped(support, paths);
     } 
     catch (IOException e)
     {

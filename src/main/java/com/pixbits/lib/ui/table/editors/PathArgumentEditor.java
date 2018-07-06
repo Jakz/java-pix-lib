@@ -78,7 +78,7 @@ public class PathArgumentEditor implements TableCellEditor
     if (path != null && !Files.isDirectory(path))
       path = path.getParent();
     
-    startPath = Files.exists(path) ? path : null;
+    startPath = path != null && Files.exists(path) ? path : null;
 
     return inner.getTableCellEditorComponent(table, value, isSelected, row, column);
   }

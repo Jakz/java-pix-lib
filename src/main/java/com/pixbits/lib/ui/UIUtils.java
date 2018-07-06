@@ -91,6 +91,16 @@ public class UIUtils
     }
   }
   
+  public static void showErrorDialog(Container parent, String title, String text)
+  {
+    JOptionPane.showMessageDialog(
+        parent,
+        text,
+        title,
+        JOptionPane.ERROR_MESSAGE
+    );
+  }
+  
   public static boolean showConfirmDialog(Container parent, String title, String text)
   {
     int result = JOptionPane.showConfirmDialog(
