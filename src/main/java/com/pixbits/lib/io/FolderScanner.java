@@ -15,12 +15,27 @@ import com.pixbits.lib.functional.StreamException;
 
 public class FolderScanner
 {
+  public static enum FolderMode
+  {
+    NON_RECURSIVE,
+    RECURSIVE,
+    ADD_TO_RESULT
+  };
+  
   final Set<Path> files;
   final Set<Path> excluded;
   final PathMatcher filter;
-  final boolean recursive;
+  final FolderMode folderMode;
   final boolean multithreaded = true;
   final boolean includeFilesPassedIfMatching = true;
+  
+  public FolderScanner(FolderMode mode)
+  {
+    files = new HashSet<Path>();
+    this.filter = FileSystems.getDefault().getPathMatcher("glob:*.*");
+    this.excluded = null;
+    this.folderMode = mode;
+  }
     
   public FolderScanner(boolean recursive)
   {
@@ -47,7 +62,7 @@ public class FolderScanner
     files = new HashSet<Path>();
     this.filter = filter;
     this.excluded = excluded;
-    this.recursive = recursive;
+    this.folderMode = recursive ? FolderMode.RECURSIVE : FolderMode.NON_RECURSIVE;
   }
   
   private boolean shouldExclude(Path path)
@@ -94,8 +109,13 @@ public class FolderScanner
       {                        
         if (!shouldExclude(e))
         {
-          if (Files.isDirectory(e) && recursive)
-            innerScan(e);
+          if (Files.isDirectory(e))
+          {
+            if (folderMode == FolderMode.RECURSIVE)
+              innerScan(e);
+            else if (folderMode == FolderMode.ADD_TO_RESULT)
+              files.add(e);
+          }
           else if (filter.matches(e.getFileName()))
             files.add(e);
         }
