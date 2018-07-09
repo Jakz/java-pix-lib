@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -18,18 +20,43 @@ import com.pixbits.lib.lang.Size;
 
 public class UIUtils
 {
-  public static enum OperatingSystem { WIN, OSX, LINUX }
+  public static enum OperatingSystem
+  { 
+    WIN, 
+    OSX, 
+    LINUX 
+    
+    ;
+    
+    public boolean isWindows() { return this == WIN; }
+    
+    public Path convertPathIfNeeded(Path path)
+    {
+      if (this != OperatingSystem.WIN)
+        return Paths.get(path.toString().replaceAll("\\\\", "/"));
+      else
+        return Paths.get(path.toString().replaceAll("\\/", "\\"));
+    }
+    
+    public static OperatingSystem get() { return getOperatingSystem(); }
+  }
   
+  private static OperatingSystem operatingSystem = null;
   public static OperatingSystem getOperatingSystem()
   {
-    String system = java.lang.System.getProperty("os.name").toLowerCase();
+    if (operatingSystem == null)
+    {
+      String system = java.lang.System.getProperty("os.name").toLowerCase();
+      
+      if (system.indexOf("win") >= 0)
+        operatingSystem = OperatingSystem.WIN;
+      else if (system.indexOf("mac") >= 0)
+        operatingSystem = OperatingSystem.OSX;
+      else
+        operatingSystem = OperatingSystem.LINUX;
+    }
     
-    if (system.indexOf("win") >= 0)
-      return OperatingSystem.WIN;
-    else if (system.indexOf("mac") >= 0)
-      return OperatingSystem.OSX;
-    else
-      return OperatingSystem.LINUX;
+    return operatingSystem;
   }
   
   public static void resizeTableColumn(TableColumn column, int width)
