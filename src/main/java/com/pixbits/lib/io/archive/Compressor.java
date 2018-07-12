@@ -25,7 +25,8 @@ import net.sf.sevenzipjbinding.impl.RandomAccessFileOutStream;
 
 public class Compressor<H extends Compressible>
 { 
-  private static final ProgressLogger progressLogger = Log.getProgressLogger(Compressor.class);
+  private static ProgressLogger progressLogger = Log.getProgressLogger(Compressor.class);
+  public static void setProgressLogger(ProgressLogger logger) { Compressor.progressLogger = logger; }
   
   private final CompressorOptions options;
   private Consumer<H> beforeAddingEntryToArchiveCallback = h -> {};

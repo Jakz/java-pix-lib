@@ -18,7 +18,16 @@ import com.pixbits.lib.lang.Size;
 
 public class UIUtils
 {
-  public static enum OperatingSystem { WIN, OSX, LINUX }
+  public static enum OperatingSystem
+  { 
+    WIN, 
+    OSX, 
+    LINUX 
+    
+    ;
+    
+    public boolean isWindows() { return this == WIN; }
+  }
   
   public static OperatingSystem getOperatingSystem()
   {
