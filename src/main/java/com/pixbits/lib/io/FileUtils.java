@@ -3,8 +3,10 @@ package com.pixbits.lib.io;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.CRC32;
 
 public class FileUtils
@@ -29,6 +31,27 @@ public class FileUtils
       
       return crc.getValue();
     }
+  }
+  
+  public static long folderSize(Path root, boolean recursive, boolean includeHidden) throws IOException
+  {
+    AtomicLong length = new AtomicLong();
+    
+    try (DirectoryStream<Path> files = Files.newDirectoryStream(root))
+    {
+      for (Path path : files)
+      {
+        if (Files.isDirectory(path))
+        {
+          if (recursive)
+            length.addAndGet(folderSize(path, recursive, includeHidden));
+        }
+        else if (!Files.isHidden(path) || includeHidden)
+          length.addAndGet(Files.size(path));
+      }
+    }
+
+    return length.get();
   }
   
   public static String lastPathComponent(String path) {

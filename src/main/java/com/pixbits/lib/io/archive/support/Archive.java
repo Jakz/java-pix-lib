@@ -81,24 +81,34 @@ public class Archive
     close();
   }
   
+  public void extractItemAt(int index, Path folder) throws IOException, FormatUnrecognizedException
+  {
+    if (items.isEmpty())
+      cacheInformations();
+    
+    if (index >= items.size())
+      throw new IOException("Item at index "+index+" for archive "+path.toString()+" doesn't exist");
+    
+    extract(items.get(0), folder.resolve(items.get(0).path));
+  }
+  
   private void extract(Item item, Path dest) throws IOException, FormatUnrecognizedException
   {
     if (archive == null)
-    {
       open();
  
-      final ArchiveToFileExtractStream stream = new ArchiveToFileExtractStream(dest);
-      final ArchiveExtractCallback callback = new ArchiveExtractCallback(stream);
-      
-      archive.extract(new int[] { item.index }, false, callback);
-      callback.close();
-      stream.close();
-    }
+    final ArchiveToFileExtractStream stream = new ArchiveToFileExtractStream(dest);
+    final ArchiveExtractCallback callback = new ArchiveExtractCallback(stream);
+    
+    archive.extract(new int[] { item.index }, false, callback);
+    callback.close();
+    stream.close();
   }
   
   public int size() { return items.size(); }
   public Stream<Item> stream() { return items.stream(); }
   public Iterator<Item> iterator() { return items.iterator(); }
+  public Item itemAt(int index) { return items.get(index); }
   
   private ArchiveHandle buildHandle(int index)
   {

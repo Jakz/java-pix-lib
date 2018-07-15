@@ -1,11 +1,16 @@
 package com.pixbits.lib.io.archive;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import com.pixbits.lib.log.Log;
 import com.pixbits.lib.log.ProgressLogger;
@@ -155,6 +160,8 @@ public class Compressor<H extends Compressible>
     }
   }
   
+  private final static int JDK_BUFFER_SIZE = 128*1024;
+  
   public void createArchive(Path dest, List<H> handles) throws IOException
   {
     try (RandomAccessFile raf = new RandomAccessFile(dest.toFile(), "rw"))
@@ -182,14 +189,54 @@ public class Compressor<H extends Compressible>
         }
         case ZIP:
         {
-          // TODO: test
-          IOutCreateArchiveZip archive = SevenZip.openOutArchiveZip();
-          archive.setLevel(options.compressionLevel);
+          // TODO: sevenzipjbindings doesn't work, we need to understand why, meanwhile we use native JDK API
           
-          CreateCallback<IOutItemZip> callback = new CreateCallback<IOutItemZip>(handles, new ItemDecoratorZip<H>());
+          try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(dest)))
+          {
+            byte buffer[] = new byte[JDK_BUFFER_SIZE];
+            long totalBytes = handles.stream().mapToLong(H::size).sum();
+            long bytesProcessed = 0;
+            
+            zos.setLevel(options.compressionLevel);
+            
+            for (H handle : handles)
+            {
+              beforeAddingEntryToArchiveCallback.accept(handle);
+              
+              try (InputStream is = handle.getInputStream())
+              {
+                ZipEntry zipEntry = new ZipEntry(handle.fileName());
+                zos.putNextEntry(zipEntry);
+                
+                int read;
+                while ((read = is.read(buffer)) >= 0)
+                {
+                  bytesProcessed += read;
+                  progressLogger.updateProgress(bytesProcessed/(float)totalBytes, "");
+                  zos.write(buffer, 0, read);
+                }
+                
+                zos.closeEntry();
+              }
+            }
+            
+            zos.close();
+            
+          }
           
-          archive.setTrace(true);
-          archive.createArchive(new RandomAccessFileOutStream(raf), handles.size(), callback);
+          
+          
+          
+          if (false)
+          {
+            IOutCreateArchiveZip archive = SevenZip.openOutArchiveZip();
+            archive.setLevel(options.compressionLevel);
+            
+            CreateCallback<IOutItemZip> callback = new CreateCallback<IOutItemZip>(handles, new ItemDecoratorZip<H>());
+            
+            archive.setTrace(true);
+            archive.createArchive(new RandomAccessFileOutStream(raf), handles.size(), callback);       
+          }
           
           break;
         }
