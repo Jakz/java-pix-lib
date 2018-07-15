@@ -65,7 +65,7 @@ public class FileUtils
   
   public static String pathExtension(Path path) {
     String fileName = path.getFileName().toString();
-    int index = fileName.indexOf('.');
+    int index = fileName.lastIndexOf('.');
     return index != -1 ? fileName.substring(index+1) : "";
   }
   

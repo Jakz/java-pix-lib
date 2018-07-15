@@ -22,28 +22,31 @@ public class ArchiveExtractCallback implements IArchiveExtractCallback
   
   public ISequentialOutStream getStream(int index, ExtractAskMode mode)
   {
+    //System.out.println("ArchiveExtractCallback::getStream("+index+","+mode+")");
+
     if (mode != ExtractAskMode.EXTRACT) return null;
     return stream;
   }
   
   public void prepareOperation(ExtractAskMode extractAskMode) throws SevenZipException
   {
-    
+    //System.out.println("ArchiveExtractCallback::prepareOperation("+extractAskMode+")");
   }
   
   public void setOperationResult(ExtractOperationResult result) throws SevenZipException
   {
-     //System.out.println("Extract Stream finished: "+result);
+    //System.out.println("ArchiveExtractCallback::setOperationResult("+result+")");
   }
   
   public void setCompleted(long completeValue) throws SevenZipException
   {
-    
+    System.out.println("ArchiveExtractCallback::setCompleted("+completeValue+")");
+
   }
 
   public void setTotal(long total) throws SevenZipException
   {
-
+    System.out.println("ArchiveExtractCallback::setTotal("+total+")");
   }
   
   public static class Blocking extends ArchiveExtractCallback

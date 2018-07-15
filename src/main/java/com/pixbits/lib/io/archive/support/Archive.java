@@ -43,7 +43,10 @@ public class Archive
   }
   
   private final Path path;
+  
   private IInArchive archive;
+  private RandomAccessFile rfile;
+  
   private ArchiveFormat format;
   private final List<Item> items;
   
@@ -79,6 +82,7 @@ public class Archive
     }
     
     close();
+    archive = null;
   }
   
   public void extractItemAt(int index, Path folder) throws IOException, FormatUnrecognizedException
@@ -103,6 +107,9 @@ public class Archive
     archive.extract(new int[] { item.index }, false, callback);
     callback.close();
     stream.close();
+    
+    rfile.close();
+    rfile = null;
   }
   
   public int size() { return items.size(); }
@@ -119,9 +126,10 @@ public class Archive
   
   public void open() throws FormatUnrecognizedException
   {
-    try (RandomAccessFileInStream rfile = new RandomAccessFileInStream(new RandomAccessFile(path.toFile(), "r")))
+    try
     {
-      archive = SevenZip.openInArchive(null, rfile);
+      rfile = new RandomAccessFile(path.toFile(), "r");
+      archive = SevenZip.openInArchive(null, new RandomAccessFileInStream(rfile));
       format = ArchiveFormat.formatForNative(archive.getArchiveFormat());
 
       if (format == null)
@@ -136,9 +144,18 @@ public class Archive
     }
   }
   
-  public void close() throws SevenZipException
+  public void close() throws IOException, SevenZipException
   {
     if (archive != null)
+    {
       archive.close();
+      archive = null;
+    }
+    
+    if (rfile != null)
+    {
+      rfile.close();
+      rfile = null;
+    }
   }
 }
