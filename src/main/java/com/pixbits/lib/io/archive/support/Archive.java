@@ -6,12 +6,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.pixbits.lib.io.archive.ArchiveFormat;
 import com.pixbits.lib.io.archive.FormatUnrecognizedException;
 import com.pixbits.lib.io.archive.handles.ArchiveHandle;
 
+import net.sf.sevenzipjbinding.IArchiveExtractCallback;
 import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.PropID;
 import net.sf.sevenzipjbinding.SevenZip;
@@ -85,31 +88,32 @@ public class Archive
     archive = null;
   }
   
-  public void extractItemAt(int index, Path folder) throws IOException, FormatUnrecognizedException
+  public void extract(Item item, Path dest) throws IOException, FormatUnrecognizedException
   {
+    extract(item, dest, stream -> new ArchiveExtractCallback(stream));
+  }
+  
+  public void extract(Item item, Path dest, final Consumer<Float> onProgress, final Consumer<Boolean> onComplete) throws IOException, FormatUnrecognizedException
+  {
+    extract(item, dest, stream -> new ArchiveExtractCallback.Logging(stream, onProgress, onComplete));
+  }
+  
+  private void extract(Item item, Path dest, Function<ArchiveExtractStream, ArchiveExtractCallback> builder) throws IOException, FormatUnrecognizedException
+  {
+    open();
+    
     if (items.isEmpty())
       cacheInformations();
     
-    if (index >= items.size())
-      throw new IOException("Item at index "+index+" for archive "+path.toString()+" doesn't exist");
-    
-    extract(items.get(0), folder.resolve(items.get(0).path));
-  }
-  
-  private void extract(Item item, Path dest) throws IOException, FormatUnrecognizedException
-  {
-    if (archive == null)
-      open();
+    if (item.index >= items.size())
+      throw new IOException("Item at index "+item.index+" for archive "+path.toString()+" doesn't exist");
  
     final ArchiveToFileExtractStream stream = new ArchiveToFileExtractStream(dest);
-    final ArchiveExtractCallback callback = new ArchiveExtractCallback(stream);
+    final ArchiveExtractCallback callback = builder.apply(stream);
     
     archive.extract(new int[] { item.index }, false, callback);
     callback.close();
     stream.close();
-    
-    rfile.close();
-    rfile = null;
   }
   
   public int size() { return items.size(); }
@@ -128,9 +132,12 @@ public class Archive
   {
     try
     {
-      rfile = new RandomAccessFile(path.toFile(), "r");
-      archive = SevenZip.openInArchive(null, new RandomAccessFileInStream(rfile));
-      format = ArchiveFormat.formatForNative(archive.getArchiveFormat());
+      if (archive == null)
+      {
+        rfile = new RandomAccessFile(path.toFile(), "r");
+        archive = SevenZip.openInArchive(null, new RandomAccessFileInStream(rfile));
+        format = ArchiveFormat.formatForNative(archive.getArchiveFormat());
+      }
 
       if (format == null)
       {

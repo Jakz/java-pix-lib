@@ -1,6 +1,8 @@
 package com.pixbits.lib.io.archive.support;
 
 import java.io.IOException;
+import java.util.function.Consumer;
+
 import net.sf.sevenzipjbinding.ExtractAskMode;
 import net.sf.sevenzipjbinding.ExtractOperationResult;
 import net.sf.sevenzipjbinding.IArchiveExtractCallback;
@@ -40,13 +42,41 @@ public class ArchiveExtractCallback implements IArchiveExtractCallback
   
   public void setCompleted(long completeValue) throws SevenZipException
   {
-    System.out.println("ArchiveExtractCallback::setCompleted("+completeValue+")");
-
+    //System.out.println("ArchiveExtractCallback::setCompleted("+completeValue+")");
   }
 
   public void setTotal(long total) throws SevenZipException
   {
-    System.out.println("ArchiveExtractCallback::setTotal("+total+")");
+    //System.out.println("ArchiveExtractCallback::setTotal("+total+")");
+  }
+  
+  public static class Logging extends ArchiveExtractCallback
+  {
+    private final Consumer<Float> onProgress;
+    private final Consumer<Boolean> onComplete;
+    private float total;
+    
+    public Logging(ArchiveExtractStream stream, Consumer<Float> onProgress, Consumer<Boolean> onComplete)
+    {
+      super(stream);
+      this.onProgress = onProgress;
+      this.onComplete = onComplete;
+    }
+    
+    public void setCompleted(long completeValue) throws SevenZipException
+    {
+      onProgress.accept(completeValue / total);
+    }
+
+    public void setTotal(long total) throws SevenZipException
+    {
+      this.total = total;
+    }
+    
+    public void setOperationResult(ExtractOperationResult result) throws SevenZipException
+    {
+      onComplete.accept(result == ExtractOperationResult.OK);
+    }
   }
   
   public static class Blocking extends ArchiveExtractCallback
