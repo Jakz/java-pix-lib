@@ -28,7 +28,7 @@ public class ImplicitContextedAdapter<T extends JsonnableContext> implements Jso
   public T deserialize(JsonElement element, Type type, JsonDeserializationContext context)
   {
     try {
-      T v = clazz.newInstance();
+      T v = clazz.getDeclaredConstructor().newInstance();
       v.unserialize(element, context);
       return v;
     }

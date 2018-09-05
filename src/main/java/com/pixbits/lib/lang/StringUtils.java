@@ -3,6 +3,7 @@ package com.pixbits.lib.lang;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.Locale;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
@@ -28,7 +29,7 @@ public abstract class StringUtils
       if (bytes < unit) return bytes + " B";
       int exp = (int) (Math.log(bytes) / Math.log(unit));
       String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
-      return String.format("%.1f%s%sB", bytes / Math.pow(unit, exp), includeSpace ? " " : "", pre);
+      return String.format(Locale.US, "%.1f%s%sB", bytes / Math.pow(unit, exp), includeSpace ? " " : "", pre);
   }
   
   public static String toPercent(float v, int digits)
@@ -36,7 +37,7 @@ public abstract class StringUtils
     if (digits == 0)
       return String.format("%d", (int)(v*100));
     else
-      return String.format("%1."+digits+"f", v*100);
+      return String.format(Locale.US, "%1."+digits+"f", v*100);
   }
   
   public static String toHexString(byte[] bytes)

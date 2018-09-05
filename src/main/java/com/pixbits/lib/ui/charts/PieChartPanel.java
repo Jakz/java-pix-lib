@@ -2,12 +2,17 @@ package com.pixbits.lib.ui.charts;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.util.Arrays;
 import java.util.function.Function;
 import com.pixbits.lib.functional.MinMaxCollector;
 import com.pixbits.lib.lang.Point;
 import com.pixbits.lib.lang.Size;
 import com.pixbits.lib.ui.canvas.Arc;
 import com.pixbits.lib.ui.canvas.Brush;
+import com.pixbits.lib.ui.charts.events.PieChartMouseListener;
 import com.pixbits.lib.ui.color.MappableColorGenerator;
 import com.pixbits.lib.ui.color.PleasantColorGenerator;
 
@@ -69,5 +74,59 @@ public class PieChartPanel<T extends Measurable> extends ChartPanel<T>
     }
 
     repaint();
+  }
+  
+  private static class WrapperListener extends MouseAdapter
+  {
+    enum State
+    {
+      OUTSIDE_PIE,
+      INSIDE_PIE
+    };
+    
+    private State state;
+    private final PieChartPanel<?> parent;
+    private final PieChartMouseListener listener;
+    
+    public WrapperListener(PieChartPanel<?> parent, PieChartMouseListener listener)
+    { 
+      this.state = State.OUTSIDE_PIE;
+      this.parent = parent;
+      this.listener = listener; 
+    }
+    
+    @Override
+    public void mouseMoved(MouseEvent e)
+    {
+      final int x = e.getX(), y = e.getY();
+      final Point center = new Point(parent.getWidth()/2, parent.getHeight()/2);
+
+      //TODO: keepSquare management?
+      
+      float dx = Math.abs(center.x - x), dy = Math.abs(center.y - y);
+      float distance = (float)Math.sqrt(dx*dx + dy*dy);
+      float radius = parent.pieSize.w/2.0f * parent.getWidth();
+      //System.out.println(distance+" "+radius);
+      
+      boolean isInside = distance <= radius; 
+      
+      if (isInside && state == State.OUTSIDE_PIE)
+      {
+        listener.enteredPie();
+        state = State.INSIDE_PIE;
+      }
+      else if (!isInside && state == State.INSIDE_PIE)
+      {
+        listener.exitedPie();
+        state = State.OUTSIDE_PIE;
+      }
+    }
+  }
+  
+  public void addListener(PieChartMouseListener listener)
+  {
+    WrapperListener wlistener = new WrapperListener(this, listener);
+    addMouseListener(wlistener);
+    addMouseMotionListener(wlistener);
   }
 }

@@ -6,7 +6,9 @@ import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
@@ -72,11 +74,32 @@ public abstract class ChartPanel<T extends Measurable> extends CanvasPanel
   public void add(Collection<T> measurables)
   {
     data.addAll(measurables);
+    if (autoRebuild)
+      rebuild();
   }
   
   public void add(T... measurables)
   {
     data.addAll(Arrays.asList(measurables));
+    if (autoRebuild)
+      rebuild();
+  }
+  
+  public void add(Iterable<T> iterable)
+  {
+    Iterator<T> it = iterable.iterator();
+    while(it.hasNext())
+      data.add(it.next());
+    
+    if (autoRebuild)
+      rebuild();
+    
+  }
+  
+  public void add(Stream<T> stream)
+  {
+    stream.forEach(data::add);
+    
     if (autoRebuild)
       rebuild();
   }
@@ -95,6 +118,6 @@ public abstract class ChartPanel<T extends Measurable> extends CanvasPanel
   
   protected abstract void doRebuild();
   
-  
+  public void refresh() { rebuild(); }
 
 }
