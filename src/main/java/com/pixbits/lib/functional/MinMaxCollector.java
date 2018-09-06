@@ -5,11 +5,11 @@ import java.util.stream.Collector;
 
 public class MinMaxCollector<T>
 {
-  private int count;
-  private final Comparator<? super T> comparator;
-  private T min, max;
+  protected int count;
+  protected final Comparator<? super T> comparator;
+  protected T min, max;
   
-  private MinMaxCollector(Comparator<? super T> comparator)
+  protected MinMaxCollector(Comparator<? super T> comparator)
   {
     this.comparator = comparator;
   }
