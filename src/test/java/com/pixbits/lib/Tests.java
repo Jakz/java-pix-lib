@@ -8,9 +8,12 @@ import java.nio.file.Paths;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import com.pixbits.lib.lang.CommutablePairTests;
+
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  FilterCollectionTests.class
+  FilterCollectionTests.class,
+  CommutablePairTests.class
 })
 public class Tests
 {
