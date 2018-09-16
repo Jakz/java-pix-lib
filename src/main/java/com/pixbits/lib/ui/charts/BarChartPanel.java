@@ -10,7 +10,7 @@ import com.pixbits.lib.lang.Pair;
 import com.pixbits.lib.lang.Rect;
 import com.pixbits.lib.ui.canvas.Brush;
 import com.pixbits.lib.ui.canvas.Rectangle;
-import com.pixbits.lib.ui.color.ColorCache;
+import com.pixbits.lib.ui.color.HashColorCache;
 import com.pixbits.lib.ui.color.PleasantColorGenerator;
 
 public class BarChartPanel<T extends Measurable> extends ChartPanel<T>
@@ -28,7 +28,7 @@ public class BarChartPanel<T extends Measurable> extends ChartPanel<T>
     super(dimension);
     
     //brush = m -> cbrush;
-    final ColorCache<T> scg = new ColorCache<>(new PleasantColorGenerator());
+    final HashColorCache<T> scg = new HashColorCache<>(new PleasantColorGenerator());
     brush = m -> new Brush(scg.getColor(m), Color.BLACK);
     
     fillMode = FillMode.FILL_FRACTIONAL;

@@ -7,10 +7,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class TarjanSCC<T>
+public class TarjanSCC<T,D>
 {
-  private final DirectedGraph<T> graph;
+  private final DirectedGraph<T,D> graph;
   private int index;
   private final Deque<Vertex<T>> S;
   
@@ -20,7 +21,7 @@ public class TarjanSCC<T>
   private final Set<Set<Vertex<T>>> sccs;
 
 
-  TarjanSCC(DirectedGraph<T> graph)
+  TarjanSCC(DirectedGraph<T,D> graph)
   {
     this.graph = graph;
     this.index = 0;
@@ -36,8 +37,11 @@ public class TarjanSCC<T>
   {    
     for (Vertex<T> vertex : graph.vertices())
     {
+      System.out.println((visited.contains(vertex) ? "Skipping " : "Visiting ")+" "+vertex.data());
       if (!visited.contains(vertex))
+      {
         strongConnect(vertex);
+      }
     }
     
     return sccs;
@@ -46,14 +50,19 @@ public class TarjanSCC<T>
   void strongConnect(Vertex<T> v)
   {
     lowlinks.put(v, index++);
+    visited.add(v);
     
     S.push(v);
     int min = lowlinks.get(v);
     
-    for (Edge<T> e : graph.successorsOf(v))
+    System.out.println("Strong connect "+v.data());
+    System.out.println("Successors: "+graph.successorsOf(v).stream().map(DirectedEdge::to).map(Vertex::data).map(Object::toString).collect(Collectors.joining(", ")));
+    
+    for (DirectedEdge<T,D> e : graph.successorsOf(v))
     {
-      Vertex<T> w = e.v2;
-      
+      Vertex<T> w = e.to();
+
+      System.out.println((visited.contains(v) ? "Skipping " : "Visiting ")+" "+v.data());
       if (!visited.contains(w))
       {
         strongConnect(w);

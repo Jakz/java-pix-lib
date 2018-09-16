@@ -33,19 +33,42 @@ public class TarjanAlgorithmTests
    }
   
    //@Test
-   public void testSingleNodeSCC()
+   public void testSingleVertexSCC()
    {
-     DirectedGraph<Integer> graph = DirectedGraph.of(123,123);
+     DirectedGraph<Integer, Void> graph = DirectedGraph.of(123,123);
      Set<Set<Vertex<Integer>>> sccs = new TarjanSCC<>(graph).compute();
      assertSCCS(sccs, new int[][] { { 123 } });
    }
    
    @Test
-   public void testTwoNodesSingleSCC()
+   public void testTwoVerticesSingleSCC()
    {
-     DirectedGraph<Integer> graph = DirectedGraph.of(123,124);
+     DirectedGraph<Integer, Void> graph = DirectedGraph.of(123,124,  124,123);
      Set<Set<Vertex<Integer>>> sccs = new TarjanSCC<>(graph).compute();
      assertSCCS(sccs, new int[][] { { 123, 124 } });
-
+   }
+   
+   @Test
+   public void testTwoVerticesSingleWithAdditionalExitingEdgeSCC()
+   {
+     DirectedGraph<Integer, Void> graph = DirectedGraph.of(123,124,  124,123,  123,125);
+     Set<Set<Vertex<Integer>>> sccs = new TarjanSCC<>(graph).compute();
+     assertSCCS(sccs, new int[][] { { 123, 124 }, { 125 } });
+   }
+   
+   @Test
+   public void testTwoVerticesSingleWithAdditionalEnteringEdgeSCC()
+   {
+     DirectedGraph<Integer, Void> graph = DirectedGraph.of(123,124,  124,123,  125,123);
+     Set<Set<Vertex<Integer>>> sccs = new TarjanSCC<>(graph).compute();
+     assertSCCS(sccs, new int[][] { { 123, 124 }, { 125 } });
+   }
+   
+   @Test
+   public void testFourVerticesTwoSCC()
+   {
+     DirectedGraph<Integer, Void> graph = DirectedGraph.of(123,124,  124,123,  125,126,  126,125);
+     Set<Set<Vertex<Integer>>> sccs = new TarjanSCC<>(graph).compute();
+     assertSCCS(sccs, new int[][] { { 123, 124 }, { 125, 126 } });
    }
 }

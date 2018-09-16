@@ -13,7 +13,7 @@ import com.pixbits.lib.lang.Size;
 import com.pixbits.lib.ui.canvas.Arc;
 import com.pixbits.lib.ui.canvas.Brush;
 import com.pixbits.lib.ui.charts.events.PieChartMouseListener;
-import com.pixbits.lib.ui.color.ColorCache;
+import com.pixbits.lib.ui.color.HashColorCache;
 import com.pixbits.lib.ui.color.PleasantColorGenerator;
 
 public class PieChartPanel<T extends Measurable> extends ChartPanel<T>
@@ -31,7 +31,7 @@ public class PieChartPanel<T extends Measurable> extends ChartPanel<T>
     pieSize = new Size(0.5f,0.5f);
     keepSquare = false;
     
-    final ColorCache<T> scg = new ColorCache<>(new PleasantColorGenerator());
+    final HashColorCache<T> scg = new HashColorCache<>(new PleasantColorGenerator());
     brush = m -> new Brush(scg.getColor(m), Color.BLACK, 2.0f);
   }
   

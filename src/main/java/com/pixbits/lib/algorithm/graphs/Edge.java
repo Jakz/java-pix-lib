@@ -1,12 +1,18 @@
 package com.pixbits.lib.algorithm.graphs;
 
-public class Edge<T>
+public interface Edge<T, D>
 {
-  public final Vertex<T> v1, v2;
+  public Vertex<T> v1();
+  public Vertex<T> v2();
+  public D data();
   
-  public Edge(Vertex<T> v1, Vertex<T> v2)
+  public static <T, D> Edge<T, D> of(Vertex<T> v1, Vertex<T> v2)
   {
-    this.v1 = v1;
-    this.v2 = v2;
+    return new Edge<>()
+    {
+      @Override public Vertex<T> v1() { return v1; }
+      @Override public Vertex<T> v2() { return v2; }
+      @Override public D data() { return null; }
+    };
   }
 }
