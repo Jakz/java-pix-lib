@@ -28,7 +28,7 @@ public class GpxTrackSegment implements DataSource<GpxWaypoint>
     totalLength = Double.NaN;
   }
   
-  GpxTrackSegment()
+  public GpxTrackSegment()
   {
     points = new ArrayList<>();
     totalLength = Double.NaN;

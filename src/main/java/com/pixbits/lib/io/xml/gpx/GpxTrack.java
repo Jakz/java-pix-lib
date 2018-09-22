@@ -22,6 +22,11 @@ public class GpxTrack
 
   }
   
+  public GpxTrack(String name)
+  {
+    this.name = name;
+  }
+  
   public List<GpxTrackSegment> segments() { return segments; }
   public String name() { return name; }
   

@@ -9,13 +9,16 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 
+import com.pixbits.lib.lang.Pair;
+
 public class TarjanAlgorithmTests
 {
-   private void assertSCCS(Set<Set<Vertex<Integer>>> actual, int[][] expected)
-   {
+   private void assertSCCS(Set<TarjanSCC.SCC<Integer, Void>> actual, int[][] expected)
+   {     
      Set<Set<Integer>> cactual = actual.stream()
          .map(set -> 
            set.stream()
+             .map(TarjanSCC.SCCEntry::vertex)
              .map(Vertex::data)
              .collect(Collectors.toSet())
          )  
@@ -36,7 +39,7 @@ public class TarjanAlgorithmTests
    public void testSingleVertexSCC()
    {
      DirectedGraph<Integer, Void> graph = DirectedGraph.of(123,123);
-     Set<Set<Vertex<Integer>>> sccs = new TarjanSCC<>(graph).compute();
+     Set<TarjanSCC.SCC<Integer,Void>> sccs = new TarjanSCC<>(graph).compute();
      assertSCCS(sccs, new int[][] { { 123 } });
    }
    
@@ -44,7 +47,7 @@ public class TarjanAlgorithmTests
    public void testTwoVerticesSingleSCC()
    {
      DirectedGraph<Integer, Void> graph = DirectedGraph.of(123,124,  124,123);
-     Set<Set<Vertex<Integer>>> sccs = new TarjanSCC<>(graph).compute();
+     Set<TarjanSCC.SCC<Integer,Void>> sccs = new TarjanSCC<>(graph).compute();
      assertSCCS(sccs, new int[][] { { 123, 124 } });
    }
    
@@ -52,7 +55,7 @@ public class TarjanAlgorithmTests
    public void testTwoVerticesSingleWithAdditionalExitingEdgeSCC()
    {
      DirectedGraph<Integer, Void> graph = DirectedGraph.of(123,124,  124,123,  123,125);
-     Set<Set<Vertex<Integer>>> sccs = new TarjanSCC<>(graph).compute();
+     Set<TarjanSCC.SCC<Integer,Void>> sccs = new TarjanSCC<>(graph).compute();
      assertSCCS(sccs, new int[][] { { 123, 124 }, { 125 } });
    }
    
@@ -60,7 +63,7 @@ public class TarjanAlgorithmTests
    public void testTwoVerticesSingleWithAdditionalEnteringEdgeSCC()
    {
      DirectedGraph<Integer, Void> graph = DirectedGraph.of(123,124,  124,123,  125,123);
-     Set<Set<Vertex<Integer>>> sccs = new TarjanSCC<>(graph).compute();
+     Set<TarjanSCC.SCC<Integer,Void>> sccs = new TarjanSCC<>(graph).compute();
      assertSCCS(sccs, new int[][] { { 123, 124 }, { 125 } });
    }
    
@@ -68,7 +71,7 @@ public class TarjanAlgorithmTests
    public void testFourVerticesTwoSCC()
    {
      DirectedGraph<Integer, Void> graph = DirectedGraph.of(123,124,  124,123,  125,126,  126,125);
-     Set<Set<Vertex<Integer>>> sccs = new TarjanSCC<>(graph).compute();
+     Set<TarjanSCC.SCC<Integer,Void>> sccs = new TarjanSCC<>(graph).compute();
      assertSCCS(sccs, new int[][] { { 123, 124 }, { 125, 126 } });
    }
 }

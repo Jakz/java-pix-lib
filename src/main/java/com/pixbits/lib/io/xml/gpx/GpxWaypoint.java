@@ -14,6 +14,7 @@ public class GpxWaypoint
   public ZonedDateTime time() { return time; }
   public GpxExtension extensions() { return extensions; }
   
+  public void setCoordinate(Coordinate coordinate) { this.coordinate = coordinate; }
   public void setTime(ZonedDateTime time) { this.time = time; }
   public void setExtensions(GpxExtension extensions) { this.extensions = extensions; }
 }
