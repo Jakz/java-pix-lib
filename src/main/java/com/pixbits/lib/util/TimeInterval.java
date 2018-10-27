@@ -28,6 +28,40 @@ public class TimeInterval
     return new TimeInterval(years, months, days, hours, minutes, seconds);
   }
   
+  public static TimeInterval zero() { return TimeInterval.of(0, 0, 0, 0, 0, 0); }
+  
+  public static TimeInterval sum(TimeInterval i, TimeInterval o)
+  {
+    int y = i.years + o.years;
+    int M = i.months + o.months;
+    int d = i.days + o.days;
+    int h = i.hours + o.hours;
+    int m = i.minutes + o.minutes;
+    int s = i.seconds + o.seconds;
+     
+    m += s / 60;
+    s %= 60;
+    
+    h += m / 60;
+    m %= 60;
+    
+    d += h / 24;
+    h %= 24;
+    
+    M += d / 30;
+    d %= 30;
+    
+    y += M / 12;
+    M %= 12;
+    
+    return TimeInterval.of(y, M, d, h, m, s);
+  }
+  
+  public TimeInterval add(TimeInterval o)
+  {
+    return TimeInterval.sum(this, o);
+  }
+    
   public double asMinutes()
   {
     // TODO: missing day months and years for now
@@ -44,7 +78,7 @@ public class TimeInterval
   public int hours() { return hours; }
   public int minutes() { return minutes; }
   public int seconds() { return seconds; }
-  
+
   private static final ChronoUnit units[] = {
     ChronoUnit.YEARS,
     ChronoUnit.MONTHS,

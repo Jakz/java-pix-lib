@@ -26,6 +26,8 @@ public class TarjanSCC<T,D>
       this.edge = edge;
     }
     
+    public String toString() { return vertex.toString(); }
+    
     public Vertex<T> vertex() { return vertex; }
     public DirectedEdge<T,D> origin() { return edge; }
   }
@@ -81,7 +83,7 @@ public class TarjanSCC<T,D>
   {    
     for (Vertex<T> vertex : graph.vertices())
     {
-      System.out.println((visited.contains(vertex) ? "Skipping " : "Visiting ")+" "+vertex.data());
+      System.out.println((visited.contains(vertex) ? "Skipping " : "Visiting ")+" "+vertex);
       if (!visited.contains(vertex))
       {
         strongConnect(vertex, null);
@@ -106,11 +108,9 @@ public class TarjanSCC<T,D>
     {
       Vertex<T> w = e.to();
 
-      System.out.println((visited.contains(v) ? "Skipping " : "Visiting ")+" "+v.data());
+      System.out.println((visited.contains(w) ? "Skipping " : "Visiting ")+" "+w.data());
       if (!visited.contains(w))
-      {
-        strongConnect(w, e);
-      }
+        strongConnect(w, e);     
       if (lowlinks.get(w) < min)
         min = lowlinks.get(w);
     }
@@ -129,8 +129,9 @@ public class TarjanSCC<T,D>
       k = S.pop();
       scc.add(k);
       lowlinks.put(k.vertex, graph.vertices().size());
-    } while (k != v);
+    } while (!k.vertex.equals(v));
       
+    System.out.println("SCC: "+scc.stream().map(Object::toString).collect(Collectors.joining(", ", "[", "]")));
     sccs.add(scc);
   }
 }

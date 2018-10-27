@@ -1,8 +1,8 @@
 package com.pixbits.lib.algorithm.graphs;
 
-public interface Vertex<T>
+public abstract class Vertex<T>
 {
-  T data();
+  public abstract T data();
 
   public static <K> Vertex<K> of(K k)
   {
@@ -10,4 +10,15 @@ public interface Vertex<T>
       public K data() { return k; }
     };
   }
+  
+  public static <K> Vertex<K> ofs(K k)
+  {
+    return new Vertex<>() {
+      public K data() { return k; }
+      public int hashCode() { return k.hashCode(); }
+      public boolean equals(Object o) { return o instanceof Vertex && ((Vertex<?>)o).data().equals(data()); }
+    };
+  }
+  
+  public String toString() { return data().toString(); }
 }

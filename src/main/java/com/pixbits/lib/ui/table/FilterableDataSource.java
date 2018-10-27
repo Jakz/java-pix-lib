@@ -1,5 +1,6 @@
 package com.pixbits.lib.ui.table;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -11,5 +12,10 @@ public interface FilterableDataSource<T> extends DataSource<T>
   public static <U> FilterableDataSource<U> of(final List<U> data)
   {
     return new FilterableListDataSource<>(data);
+  }
+  
+  public static <U> FilterableDataSource<U> empty()
+  {
+    return of(Collections.emptyList());
   }
 }

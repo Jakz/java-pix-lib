@@ -17,7 +17,6 @@ public class HashColorCache<T> implements ColorCache<T>
   
   public Color getColor(T key)
   {
-    System.out.println("get: "+key);
     return colors.computeIfAbsent(key, k -> generator.getColor());
   }
   

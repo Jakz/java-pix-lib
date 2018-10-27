@@ -30,6 +30,11 @@ public class GradientColorGenerator
     }
   }
   
+  public GradientColorGenerator(java.awt.Color c1, java.awt.Color c2)
+  {
+    this(new Color[] { new Color(c1), new Color(c2) });
+  }
+  
   public GradientColorGenerator(Color... colors)
   {
     this(colors, null);

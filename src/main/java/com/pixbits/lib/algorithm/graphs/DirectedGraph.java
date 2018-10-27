@@ -47,6 +47,30 @@ public interface DirectedGraph<V,D>
     };
   }
   
+  public static <T,D> DirectedGraph<T,D> ofIndices(List<Vertex<T>> vertices, int... edgeIndexPairs)
+  {
+    final Set<DirectedEdge<T,D>> edges = new HashSet<>();
+    final Map<Vertex<T>, Set<DirectedEdge<T,D>>> edgesPerVertex = new HashMap<>();
+    
+    for (int i = 0; i < edgeIndexPairs.length; i += 2)
+    {
+      Vertex<T> first = vertices.get(edgeIndexPairs[i]);
+      Vertex<T> second = vertices.get(edgeIndexPairs[i+1]);
+      
+      DirectedEdge<T, D> edge = DirectedEdge.of(first, second);
+      edgesPerVertex.computeIfAbsent(first, v -> new HashSet<>()).add(edge);
+      edges.add(edge);
+    }
+    
+    return new DirectedGraph<>()
+    {
+      private final Set<Vertex<T>> verticesSet = new HashSet<>(vertices);
+      @Override public Set<Vertex<T>> vertices() { return verticesSet; }
+      @Override public Set<DirectedEdge<T,D>> edges() { return edges; }
+      @Override public Set<DirectedEdge<T,D>> successorsOf(Vertex<T> vertex) { return edgesPerVertex.getOrDefault(vertex, Collections.emptySet()); }
+    };
+  }
+  
   public static <T,D,U> DirectedGraph<T,D> of(Collection<U> pairs, Function<U, Pair<T,T>> vertexMapper, Function<U, D> edgeDataMapper)
   {
     final Map<T, Vertex<T>> vertices = new HashMap<>();
@@ -57,8 +81,8 @@ public interface DirectedGraph<V,D>
     {
       Pair<T,T> vp = vertexMapper.apply(u);
       
-      Vertex<T> fv = Vertex.of(vp.first);
-      Vertex<T> sv = Vertex.of(vp.second);
+      Vertex<T> fv = Vertex.ofs(vp.first);
+      Vertex<T> sv = Vertex.ofs(vp.second);
       DirectedEdge<T,D> edge = DirectedEdge.of(fv, sv, edgeDataMapper.apply(u));
       
       vertices.put(vp.first, fv);
