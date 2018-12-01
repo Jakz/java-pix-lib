@@ -19,6 +19,11 @@ public class Color
     this.color = (a << 24) | (r << 16) | (g << 8) | (b);
   }
   
+  public Color(Integer... values)
+  {
+    this(values[0], values[1], values[2]);
+  }
+  
   public Color(int... values)
   {
     this(values[0], values[1], values[2]);
@@ -33,6 +38,11 @@ public class Color
   public int g() { return (color >>> 8) & 0xFF; }
   public int b() { return (color >>> 0) & 0xFF; }
   public int a() { return (color >>> 24) & 0xFF; }
+  
+  public Color withAlpha(int a)
+  {
+    return new Color((color & 0x00FFFFFF) | a << 24);
+  }
 
   public void r(int r)
   {
