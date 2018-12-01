@@ -4,12 +4,12 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MappableColorGenerator<T>
+public class HashColorCache<T> implements ColorCache<T>
 {
   private final ColorGenerator generator;
   private final Map<T, Color> colors;
   
-  public MappableColorGenerator(ColorGenerator generator)
+  public HashColorCache(ColorGenerator generator)
   {
     this.generator = generator;
     this.colors = new HashMap<>();
@@ -18,5 +18,14 @@ public class MappableColorGenerator<T>
   public Color getColor(T key)
   {
     return colors.computeIfAbsent(key, k -> generator.getColor());
+  }
+  
+  @Override
+  public Color get(T key) { return getColor(key); }
+  public void set(T k, Color v) { colors.put(k, v); }
+  
+  public void clear()
+  {
+    colors.clear();
   }
 }

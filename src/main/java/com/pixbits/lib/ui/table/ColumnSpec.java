@@ -44,6 +44,12 @@ public class ColumnSpec<T, V>
   {
     this(name, type, null, (TriConsumer<Integer,T,V>)null);
   }
+  
+
+  public ColumnSpec(String name, Class<V> type, BiFunction<Integer, T, V> getter)
+  {
+    this(name, type, getter, null);
+  }
 
   public ColumnSpec(String name, Class<V> type, Function<T, V> getter)
   {

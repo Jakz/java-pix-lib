@@ -8,9 +8,17 @@ import java.nio.file.Paths;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import com.pixbits.lib.algorithm.graphs.GraphTests;
+import com.pixbits.lib.algorithm.graphs.TarjanAlgorithmTests;
+import com.pixbits.lib.lang.CommutablePairTests;
+
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  FilterCollectionTests.class
+  FilterCollectionTests.class,
+  CommutablePairTests.class,
+  
+  GraphTests.class,
+  TarjanAlgorithmTests.class,
 })
 public class Tests
 {

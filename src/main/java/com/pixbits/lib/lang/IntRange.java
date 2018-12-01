@@ -7,6 +7,9 @@ public class IntRange implements JsonnableContext<IntRange>
 {
   public int min, max;
   
+  public int first() { return min; }
+  public int last() { return max; }
+  
   public IntRange() { }
 
   public IntRange(int min, int max) { this.min = min; this.max = max; }

@@ -1,5 +1,6 @@
 package com.pixbits.lib.io.xml.gpx;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -20,6 +21,12 @@ public class GpxTrack
   GpxTrack()
   {
 
+  }
+  
+  public GpxTrack(String name)
+  {
+    this.name = name;
+    this.segments = new ArrayList<>();
   }
   
   public List<GpxTrackSegment> segments() { return segments; }

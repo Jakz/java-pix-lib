@@ -23,6 +23,14 @@ public class BinaryBuffer implements AutoCloseable
   private final MapMode mapMode;
   private ByteOrder order;
   
+  public BinaryBuffer(byte[] data, ByteOrder order)
+  {
+    buffer = ByteBuffer.wrap(data);
+    this.order = order;
+    this.file = null;
+    this.mapMode = MapMode.PRIVATE;
+  }
+  
   public BinaryBuffer(String fileName, Mode mode, ByteOrder order) throws FileNotFoundException, IOException
   {
     this(Paths.get(fileName), mode, order);
@@ -56,7 +64,7 @@ public class BinaryBuffer implements AutoCloseable
     this.order = order;
   }
   
-  void setByteOrder(ByteOrder order)
+  public void setByteOrder(ByteOrder order)
   {
     this.order = order;
   }
@@ -207,6 +215,15 @@ public class BinaryBuffer implements AutoCloseable
   {
     return buffer.get() & 0xFF;
   }
+  
+  public int readU8(int position)
+  {
+    int backup = position();
+    position(position);
+    int value = readU8();
+    buffer.position(backup);
+    return value;
+  }
 
   public int readU24()
   {
@@ -231,11 +248,37 @@ public class BinaryBuffer implements AutoCloseable
     return value;
   }
   
+  public int readS16()
+  {
+    byte[] data = new byte[2];
+    readOrdered(data);
+    return (data[0] & 0xFF) | (data[1] << 8);
+  }
+  
   public int readU16()
   {
     byte[] data = new byte[2];
     readOrdered(data);
     return (data[0] & 0xFF) | ((data[1] & 0xFF) << 8);
+  }
+  
+  public int readU16(int position)
+  {
+    int backup = position();
+    position(position);
+    int value = readU16();
+    buffer.position(backup);
+    return value;
+  }
+  
+  public char[] readAsBytes(char[] buffer, int position)
+  {
+    int backup = position();
+    position(position);
+    for (int i = 0; i < buffer.length; ++i)
+      buffer[i] = (char)readByte();
+    this.buffer.position(backup);
+    return buffer;
   }
 
   public void writeU24(int value, int position)
