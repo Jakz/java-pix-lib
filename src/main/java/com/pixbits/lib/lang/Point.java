@@ -1,5 +1,7 @@
 package com.pixbits.lib.lang;
 
+import java.util.Objects;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
@@ -9,6 +11,19 @@ import com.pixbits.lib.json.JsonnableContext;
 
 public class Point implements JsonnableContext<Point>
 {
+  public static class Int
+  {
+    public final int x;
+    public final int y;
+    
+    public Int() { this.x = 0; this.y = 0; }
+    public Int(int x, int y) { this.x = x; this.y =y; }
+    @Override public boolean equals(Object o) { return o instanceof Int && ((Int)o).x == x && ((Int)o).y == y; }
+    @Override public int hashCode() { return Objects.hash((Integer)x, (Integer)y); }
+    
+    public Size scale(float percent) { return new Size((x*percent), (y*percent)); }
+  }
+  
   public float x;
   public float y;
   
