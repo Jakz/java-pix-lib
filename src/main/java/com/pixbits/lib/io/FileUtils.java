@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 public class FileUtils
 {
@@ -31,6 +32,13 @@ public class FileUtils
       
       return crc.getValue();
     }
+  }
+  
+  public static long calculateCRC32(byte[] data, int off, int size)
+  {
+    Checksum checksum = new CRC32();
+    checksum.update(data, off, size);
+    return checksum.getValue();
   }
   
   public static long folderSize(Path root, boolean recursive, boolean includeHidden) throws IOException

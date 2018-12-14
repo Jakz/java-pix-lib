@@ -22,6 +22,7 @@ public class Size implements JsonnableContext<Size>
     @Override public int hashCode() { return Objects.hash((Integer)w, (Integer)h); }
     
     public Size scale(float percent) { return new Size((w*percent), (h*percent)); }
+    public boolean contains(int x, int y) { return x >= 0 && x < w && y >= 0 && y < h; }
   }
   
   

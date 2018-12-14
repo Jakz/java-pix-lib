@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.pixbits.lib.json.JsonnableContext;
+import com.pixbits.lib.lang.Size.Int;
 
 public class Point implements JsonnableContext<Point>
 {
@@ -23,6 +24,8 @@ public class Point implements JsonnableContext<Point>
     
     public Size scale(float percent) { return new Size((x*percent), (y*percent)); }
   }
+  
+  
   
   public float x;
   public float y;
@@ -68,4 +71,7 @@ public class Point implements JsonnableContext<Point>
     x = a.get(0).getAsFloat();
     y = a.get(1).getAsFloat();
   }
+  
+  public static Point.Int of (java.awt.Point point) { return new Point.Int(point.x, point.y); }
 }
+>>>>>>> branch 'master' of git@github.com:Jakz/java-pix-lib.git

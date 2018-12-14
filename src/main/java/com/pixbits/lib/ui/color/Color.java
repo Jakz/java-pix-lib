@@ -26,7 +26,7 @@ public class Color
   
   public Color(int... values)
   {
-    this(values[0], values[1], values[2]);
+    this(values[0], values[1], values[2], values.length > 3 ? values[3] : 255);
   }
   
   public Color(java.awt.Color color)
