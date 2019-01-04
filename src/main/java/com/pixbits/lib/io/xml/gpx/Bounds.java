@@ -10,6 +10,12 @@ public class Bounds
     
   }
   
+  public Bounds(Coordinate coord)
+  {
+    ne = coord;
+    sw = coord;
+  }
+  
   public Bounds(Iterable<Coordinate> coords)
   {
     coords.forEach(c -> updateBound(c));
@@ -18,6 +24,22 @@ public class Bounds
   public void updateBound(Iterable<Coordinate> coords)
   {
     coords.forEach(c -> updateBound(c));
+  }
+  
+  public void updateBound(Bounds bounds)
+  {
+    updateBound(bounds.sw());
+    updateBound(bounds.ne());
+  }
+  
+  public Bounds merge(Bounds other)
+  {
+    Bounds bounds = new Bounds();
+    bounds.updateBound(ne);
+    bounds.updateBound(sw);
+    bounds.updateBound(other.ne);
+    bounds.updateBound(other.sw);
+    return bounds;
   }
   
   public void updateBound(Coordinate coord)

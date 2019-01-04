@@ -74,4 +74,3 @@ public class Point implements JsonnableContext<Point>
   
   public static Point.Int of (java.awt.Point point) { return new Point.Int(point.x, point.y); }
 }
->>>>>>> branch 'master' of git@github.com:Jakz/java-pix-lib.git
