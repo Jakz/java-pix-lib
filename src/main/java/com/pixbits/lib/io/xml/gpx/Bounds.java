@@ -10,6 +10,15 @@ public class Bounds
     
   }
   
+  public Bounds(Coordinate... coords)
+  {
+    ne = coords[0];
+    sw = coords[0];
+    
+    for (int i = 1; i < coords.length; ++i)
+      updateBound(coords[i]);
+  }
+  
   public Bounds(Coordinate coord)
   {
     ne = coord;

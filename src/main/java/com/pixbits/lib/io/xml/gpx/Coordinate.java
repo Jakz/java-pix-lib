@@ -1,5 +1,6 @@
 package com.pixbits.lib.io.xml.gpx;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.StreamSupport;
@@ -36,7 +37,7 @@ public class Coordinate
   public void setLng(double lng) { this.longitude = lng; }
   public void setAlt(double alt) { this.altitude = alt; }
     
-  public boolean isValid() { return true; }
+  public boolean isValid() { return !Double.isNaN(latitude) && !Double.isNaN(longitude); }
   public boolean isUnknown() { return Double.isNaN(latitude); }
   
   public double lat() { return latitude; }
@@ -106,6 +107,20 @@ public class Coordinate
   public String toString()
   {
     return String.format("{ %2.4f, %2.4f }", latitude, longitude);
+  }
+  
+  public byte[] toByteArray()
+  {
+    ByteBuffer buffer = ByteBuffer.allocate(Double.BYTES * 3);
+    buffer.putDouble(latitude).putDouble(longitude).putDouble(altitude);
+    return buffer.array();
+  }
+  
+  public static Coordinate of(byte[] data)
+  {
+    ByteBuffer buffer = ByteBuffer.wrap(data);
+    double lat = buffer.getDouble(), lon = buffer.getDouble(), alt = buffer.getDouble();
+    return new Coordinate(lat, lon, alt);
   }
   
   public static <T extends Coordinate> Coordinate computeCenterOfGravity(Iterable<T> coords)

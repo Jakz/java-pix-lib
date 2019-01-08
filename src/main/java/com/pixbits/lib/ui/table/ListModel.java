@@ -16,6 +16,8 @@ public class ListModel<T> extends AbstractListModel<T>
     list.setModel(this);
   }
   
+  public void setData(DataSource<T> data) { this.source = data; }
+  
   @Override public int getSize() { return source.size(); }
   @Override public T getElementAt(int index) { return source.get(index); }
 

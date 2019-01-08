@@ -29,7 +29,7 @@ public abstract class SimpleListSelectionListener implements ListSelectionListen
     if (!e.getValueIsAdjusting())
     {
       commonActionBefore();
-      
+       
       ListSelectionModel model = (ListSelectionModel)e.getSource();
       
       if (model.isSelectionEmpty())

@@ -79,7 +79,7 @@ public class MapPanel extends JPanel implements JXMap
     .stream()
     .map(c -> new GeoPosition(c.lat(), c.lng()))
     .collect(Collectors.toSet()
-        ), 0.7);
+        ), maxFraction);
     
     painters.forEach(MapPainter::invalidate);
   }
