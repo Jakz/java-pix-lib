@@ -43,6 +43,7 @@ public class PolylinePainter implements MapPainter
     synchronized (tracks)
     {
       PolylineElement element = new PolylineElement(points, generator.getColor());
+      element.setWidth(2);
       tracks.add(new MapElement<>(map, element));
       return element;
     }
