@@ -16,10 +16,12 @@ import javax.swing.JPanel;
 
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.VirtualEarthTileFactoryInfo;
 import org.jxmapviewer.painter.CompoundPainter;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactory;
 import org.jxmapviewer.viewer.TileFactoryInfo;
 
 import com.pixbits.lib.io.xml.gpx.Bounds;
@@ -28,6 +30,8 @@ import com.pixbits.lib.io.xml.gpx.Coordinate;
 public class MapPanel extends JPanel implements JXMap
 {
   JXMapViewer viewer;
+  
+  TileFactory factory;
   TileFactoryInfo info;
 
   private final List<MapPainter> painters;
@@ -41,8 +45,8 @@ public class MapPanel extends JPanel implements JXMap
     viewer.setPreferredSize(new Dimension(width, height));
     
     info = new OSMTileFactoryInfo();
-    DefaultTileFactory tileFactory = new DefaultTileFactory(info);
-    viewer.setTileFactory(tileFactory);
+    factory = new DefaultTileFactory(info);
+    viewer.setTileFactory(factory);
 
     painters = new ArrayList<>();
     compoundPainter = new CompoundPainter<>();
@@ -55,6 +59,13 @@ public class MapPanel extends JPanel implements JXMap
     
     setLayout(new BorderLayout());
     add(viewer, BorderLayout.CENTER);
+  }
+  
+  public void setTileFactoryInfo(TileFactoryInfo info)
+  {
+    this.info = info;
+    this.factory = new DefaultTileFactory(info);
+    viewer.setTileFactory(factory);
   }
   
   public void addPainter(MapPainter painter)

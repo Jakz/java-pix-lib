@@ -24,9 +24,9 @@ public class FilterableListDataSource<T> implements FilterableDataSource<T>
     sorter = null;
   }
 
-  public FilterableListDataSource(List<T> data)
+  public FilterableListDataSource(Collection<T> data)
   {
-    this.data = data;
+    this.data = new ArrayList<T>(data);
     this.filtered = new ArrayList<T>(data);
     predicate = null;
     sorter = null;
@@ -82,7 +82,18 @@ public class FilterableListDataSource<T> implements FilterableDataSource<T>
     filter(predicate);
     manageSort();
   }
+  
+  public void add(T element)
+  {
+    data.add(element);
     
+    if (predicate == null || predicate.test(element))
+    {
+      filtered.add(element);
+      manageSort();
+    }
+  }
+     
   @Override public Iterator<T> iterator() { return filtered.iterator(); }
   @Override public T get(int index) { return filtered.get(index); }
   @Override public int size() { return filtered.size(); }
