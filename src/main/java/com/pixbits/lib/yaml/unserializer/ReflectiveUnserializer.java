@@ -55,6 +55,10 @@ public class ReflectiveUnserializer<T> implements YamlUnserializer<T>
           YamlUnserializer<?> unserializer = node.environment().findUnserializer(field.getGenericType());
           field.set(object, unserializer.unserialize(child));
         }
+        else
+        {
+          System.out.println("Children not found while unserializing "+type.getSimpleName()+": "+field.getName());
+        }
       }
     } 
     catch (IllegalArgumentException | IllegalAccessException e)

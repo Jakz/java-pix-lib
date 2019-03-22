@@ -45,6 +45,12 @@ public class YamlNode implements Iterable<YamlNode>
     return unserializer.unserialize(this);
   }
   
+  public float asFloat()
+  {
+    YamlUnserializer<Float> unserializer = env.findUnserializer(Float.class);
+    return unserializer.unserialize(this);
+  }
+  
   public YamlNode get(String key)
   {
     return new YamlNode(env, rawGet(key));
@@ -99,6 +105,15 @@ public class YamlNode implements Iterable<YamlNode>
       return asList().size();
     else
       return 0;
+  }
+  
+  public boolean isSequence() { return node instanceof List; }
+  public boolean isMap() { return node instanceof java.util.Map; }
+  public boolean isFloat() {
+    try { Float.parseFloat(asString()); return true; } catch (NumberFormatException e) { return false; }
+  }
+  public boolean isInteger() {
+    try { Integer.parseInt(asString()); return true; } catch (NumberFormatException e) { return false; }
   }
   
   @Override
