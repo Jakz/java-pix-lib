@@ -1,20 +1,19 @@
 package com.pixbits.lib.algorithm;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 
 import com.pixbits.lib.lang.IntRange;
 
 public class DouglasPeucker2D<T>
 {
-  public Function<T, Double> mapperX;
-  public Function<T, Double> mapperY;
+  public ToDoubleFunction<T> mapperX;
+  public ToDoubleFunction<T> mapperY;
   private T[] data;
 
-  public DouglasPeucker2D(T[] data, Function<T, Double> mx, Function<T, Double> my)
+  public DouglasPeucker2D(T[] data, ToDoubleFunction<T> mx, ToDoubleFunction<T> my)
   {
     this.data = data; 
     this.mapperX = mx;
@@ -23,8 +22,8 @@ public class DouglasPeucker2D<T>
 
   public double getSquareDistance(T p1, T p2) {
 
-    double dx = mapperX.apply(p1) - mapperX.apply(p2);
-    double dy = mapperY.apply(p1) - mapperY.apply(p2);
+    double dx = mapperX.applyAsDouble(p1) - mapperX.applyAsDouble(p2);
+    double dy = mapperY.applyAsDouble(p1) - mapperY.applyAsDouble(p2);
 
     return dx * dx + dy * dy;
   }
@@ -32,12 +31,12 @@ public class DouglasPeucker2D<T>
   public double getSquareSegmentDistance(T p0, T p1, T p2) {
     double x0, y0, x1, y1, x2, y2, dx, dy, t;
 
-    x1 = mapperX.apply(p1);
-    y1 = mapperY.apply(p1);
-    x2 = mapperX.apply(p2);
-    y2 = mapperY.apply(p2);
-    x0 = mapperX.apply(p0);
-    y0 = mapperY.apply(p0);
+    x1 = mapperX.applyAsDouble(p1);
+    y1 = mapperY.applyAsDouble(p1);
+    x2 = mapperX.applyAsDouble(p2);
+    y2 = mapperY.applyAsDouble(p2);
+    x0 = mapperX.applyAsDouble(p0);
+    y0 = mapperY.applyAsDouble(p0);
 
     dx = x2 - x1;
     dy = y2 - y1;

@@ -54,18 +54,27 @@
       <groupId>net.sf.sevenzipjbinding</groupId>
       <artifactId>sevenzipjbinding</artifactId>
       <version>${zip7.version}</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>net.sf.sevenzipjbinding</groupId>
       <artifactId>sevenzipjbinding-all-platforms</artifactId>
       <version>${zip7.version}</version>
       <scope>test</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.esotericsoftware.yamlbeans</groupId>
       <artifactId>yamlbeans</artifactId>
       <version>${yamlbeans.version}</version>
+      <optional>true</optional>
     </dependency>
+		<dependency>
+			<groupId>org.jxmapviewer</groupId>
+			<artifactId>jxmapviewer2</artifactId>
+			<version>2.4</version>
+      <optional>true</optional>
+		</dependency>
     <dependency>
       <groupId>javax.xml.bind</groupId>
       <artifactId>jaxb-api</artifactId>

@@ -2,7 +2,7 @@ package com.pixbits.lib.searcher;
 
 import java.util.function.Predicate;
 
-public abstract class BasicPredicate<T> extends SearchPredicate<T>
+public abstract class BasicPredicate<T> implements SearchPredicate<T>
 {
   final String name;
   final String description;
@@ -23,7 +23,7 @@ public abstract class BasicPredicate<T> extends SearchPredicate<T>
   }
   
   @Override public abstract Predicate<T> buildPredicate(String token);
-  @Override public String getName() { return name; }
-  @Override public String getExample() { return example; }
-  @Override public String getDescription() { return description; }
+  public String getName() { return name; }
+  public String getExample() { return example; }
+  public String getDescription() { return description; }
 }

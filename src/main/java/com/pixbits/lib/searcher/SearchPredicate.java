@@ -3,14 +3,15 @@ package com.pixbits.lib.searcher;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
-public abstract class SearchPredicate<T>
+@FunctionalInterface
+public abstract interface SearchPredicate<T>
 {
-  abstract String getName();
+  /*abstract String getName();
   abstract String getDescription();
-  abstract String getExample();
+  abstract String getExample();*/
   abstract Predicate<T> buildPredicate(String token);
   
-  protected String[] splitWithDelimiter(String token, String delim)
+  default String[] splitWithDelimiter(String token, String delim)
   {
     String[] tokens = token.split(delim);
     
@@ -27,9 +28,9 @@ public abstract class SearchPredicate<T>
     return null;
   }
   
-  protected boolean isSearchArg(String[] tokens, String... vals)
+  default boolean isSearchArg(String[] tokens, String... vals)
   {
     boolean firstMatch = tokens != null && tokens[0].equals(vals[0]);  
     return firstMatch && Arrays.stream(vals, 1, vals.length).anyMatch( v -> v.equals(tokens[1]));
-  }
+  } 
 }
