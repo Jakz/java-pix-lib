@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 
-public class TimeInterval
+public class TimeInterval implements Comparable<TimeInterval>
 {
   private final int years;
   private final int months;
@@ -100,5 +100,19 @@ public class TimeInterval
     }
 
     return TimeInterval.of(result[0], result[1], result[2], result[3], result[4], result[5]);
+  }
+
+  @Override
+  public int compareTo(TimeInterval o)
+  {
+    int c = Integer.compare(years, o.years);
+    
+    if (c == 0) c = Integer.compare(months, o.months);
+    if (c == 0) c = Integer.compare(days, o.days);
+    if (c == 0) c = Integer.compare(hours, o.hours);
+    if (c == 0) c = Integer.compare(minutes, o.minutes);
+    if (c == 0) c = Integer.compare(seconds, o.seconds);
+    
+    return c;
   }
 }

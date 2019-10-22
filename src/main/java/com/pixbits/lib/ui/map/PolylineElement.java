@@ -19,7 +19,7 @@ public class PolylineElement implements Positionable
   {
     this.track = track;
     this.color = color;
-    this.width = 1;
+    this.width = 2;
   }
   
   public List<Coordinate> track() { return track; }
