@@ -29,6 +29,26 @@ public class IconCache<T> implements Function<T, ImageIcon>
     return cache.computeIfAbsent(key, k -> builder.apply(k));
   }
   
+  public ImageIcon asyncGet(T key, Runnable callback)
+  {
+    ImageIcon icon = cache.get(key);
+    
+    if (icon != null)
+      return icon;
+    else
+    {
+      new Thread() {
+        @Override
+        public void run()
+        {
+          cache.put(key, builder.apply(key));
+          callback.run();
+        }
+      }.start();
+      return null;
+    }
+  }
+  
   @Override public ImageIcon apply(T key) { return get(key); }
   
   public void flush(T key) { cache.remove(key); }

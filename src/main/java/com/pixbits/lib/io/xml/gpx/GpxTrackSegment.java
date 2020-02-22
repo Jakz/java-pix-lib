@@ -3,6 +3,7 @@ package com.pixbits.lib.io.xml.gpx;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -90,6 +91,9 @@ public class GpxTrackSegment implements DataSource<GpxWaypoint>
       color = colorGenerator.getColor();
     return color; 
   }
+  
+  public void addWaypoint(GpxWaypoint point) { points.add(point); }
+  public void sort() { Collections.sort(points, (p1, p2) -> p1.time.compareTo(p2.time)); }
   
   public Stream<GpxWaypoint> stream() { return points().stream(); }
 }

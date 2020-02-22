@@ -146,8 +146,9 @@ public class ColumnSpec<T, V>
     setEditor(new DefaultCellEditor(new JComboBox<>(type.getEnumConstants())));
   }
   
-  public void setWidth(int width)
+  public ColumnSpec<T,V> setWidth(int width)
   {
     this.width = width;
+    return this;
   }
 }

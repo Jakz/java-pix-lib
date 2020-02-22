@@ -29,7 +29,10 @@ public class Gpx
   @XmlElement List<GpxWpt> wpt;
   /*List<GpxWaypoint> waypoints;*/
 
-  public Gpx() { }
+  public Gpx()
+  { 
+    tracks = new ArrayList<>();
+  }
  
   public Gpx(String version, String creator)
   {
@@ -42,6 +45,9 @@ public class Gpx
   public List<GpxTrack> tracks() { return tracks; }
   public String name() { return metadata.name; }
   public ZonedDateTime time() { return metadata.time.time; }
+  
+  public void addTrack(GpxTrack track) { tracks.add(track); }
+  public void setName(String name) { metadata.name = name; }
   
   public Stream<GpxTrack> stream() { return tracks().stream(); }
 }

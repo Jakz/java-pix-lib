@@ -17,4 +17,12 @@ public class GpxWaypoint
   public void setCoordinate(Coordinate coordinate) { this.coordinate = coordinate; }
   public void setTime(ZonedDateTime time) { this.time = time; }
   public void setExtensions(GpxExtension extensions) { this.extensions = extensions; }
+  
+  public static GpxWaypoint of(Coordinate coordinate, ZonedDateTime time)
+  {
+    GpxWaypoint point = new GpxWaypoint();
+    point.coordinate = coordinate;
+    point.time = time;
+    return point;
+  }
 }

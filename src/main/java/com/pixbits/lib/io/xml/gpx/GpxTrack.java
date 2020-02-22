@@ -32,5 +32,8 @@ public class GpxTrack
   public List<GpxTrackSegment> segments() { return segments; }
   public String name() { return name; }
   
+  public void addSegment(GpxTrackSegment segment) { segments.add(segment); }
+  public void setName(String name) { this.name = name; }
+  
   public Stream<GpxTrackSegment> stream() { return segments().stream(); }
 }
