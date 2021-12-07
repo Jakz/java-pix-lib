@@ -178,5 +178,6 @@ public class TableModel<T> extends AbstractTableModel
   
   public void setRowHeight(int r, int h) { table.setRowHeight(r, h); }
   public void setRowHeight(int h) { table.setRowHeight(h); }
+  public void setAutoSort() { table.setAutoCreateRowSorter(true); }
 
 }

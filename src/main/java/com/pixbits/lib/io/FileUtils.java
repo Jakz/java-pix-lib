@@ -1,17 +1,31 @@
 package com.pixbits.lib.io;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
+import com.pixbits.lib.functional.StreamException;
+
 public class FileUtils
 {
+  public static void deleteDirectoryContent(Path directory, boolean hidden) throws IOException
+  {    
+    Files.list(directory).forEach(StreamException.rethrowConsumer(path -> {
+      Files.walk(path)
+        .filter(StreamException.rethrowPredicate(p -> !Files.isHidden(p) || !hidden))
+        .sorted(Comparator.reverseOrder())
+        .forEach(StreamException.rethrowConsumer(Files::delete));
+    }));
+  }
+  
   public static long calculateCRCFast(Path filename) throws IOException
   {
     final int SIZE = 16 * 1024;

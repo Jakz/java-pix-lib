@@ -3,6 +3,7 @@ package com.pixbits.lib.io;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -110,10 +111,23 @@ public class BinaryBuffer implements AutoCloseable
   {
     buffer.position(buffer.position()+length);
   }
-  
-  public long length() throws IOException
+
+  public void seek(int position)
   {
-    return file.length();
+    position(position);
+  }
+  
+  public long length()
+  {
+    try
+    {
+      return file != null ? file.length() : buffer.limit();
+    } 
+    catch (IOException e)
+    {
+      e.printStackTrace();
+      return 0;
+    }
   }
   
   public int position()
@@ -371,12 +385,22 @@ public class BinaryBuffer implements AutoCloseable
     if (buffer.isDirect())
     {
       try 
-      {
-        Method cleaner = buffer.getClass().getMethod("cleaner");
+      {        
+        Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+        Field unsafeField = unsafeClass.getDeclaredField("theUnsafe");
+        unsafeField.setAccessible(true);
+        Object unsafe = unsafeField.get(null);
+        Method invokeCleaner = unsafeClass.getMethod("invokeCleaner", ByteBuffer.class);
+        invokeCleaner.invoke(unsafe, buffer);
+        
+        /* JDK 8- 
+         
         cleaner.setAccessible(true);
         Method clean = Class.forName("sun.misc.Cleaner").getMethod("clean");
         clean.setAccessible(true);
         clean.invoke(cleaner.invoke(buffer));
+        
+        */
       } 
       catch(Exception ex)
       { 

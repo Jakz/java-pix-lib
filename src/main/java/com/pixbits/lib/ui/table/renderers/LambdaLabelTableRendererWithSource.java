@@ -10,13 +10,18 @@ import com.pixbits.lib.ui.table.DataSource;
 
 public class LambdaLabelTableRendererWithSource<U,T> extends DefaultTableCellRenderer
 {
-  private final DataSource<U> source;
+  private DataSource<U> source;
   private final TriConsumer<U, T, JLabel> lambda;
   
   public LambdaLabelTableRendererWithSource(DataSource<U> source, TriConsumer<U, T, JLabel> lambda)
   {
     this.source = source;
     this.lambda = lambda;
+  }
+  
+  public void setData(DataSource<U> source)
+  {
+    this.source = source;
   }
   
   @SuppressWarnings("unchecked")

@@ -33,7 +33,7 @@ public class ReflectiveUnserializer<T> implements YamlUnserializer<T>
     
     try
     {
-      object = type.newInstance();
+      object = type.getDeclaredConstructor().newInstance();
     }
     catch (Exception e)
     {

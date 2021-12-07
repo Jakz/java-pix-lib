@@ -31,6 +31,14 @@ public class Rect implements JsonnableContext<Rect>
     }
   }
   
+  public Rect(int[] v)
+  {
+    if (v.length != 4) throw new NumberFormatException("must be 4 values");
+    
+    x = v[0]; y = v[1];
+    w = v[2]; h = v[3];
+  }
+  
   public java.awt.Rectangle toRectangle()
   {
     return new java.awt.Rectangle(x,y,w,h);

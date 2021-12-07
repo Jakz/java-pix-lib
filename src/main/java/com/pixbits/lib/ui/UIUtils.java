@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -130,6 +133,13 @@ public class UIUtils
       e.printStackTrace();
         // If Nimbus is not available, you can set the GUI to another look and feel.
     }
+  }
+  
+  public static void enableAntiAliasing(Graphics g)
+  {
+    Graphics2D g2 = (Graphics2D)g;
+    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); 
+    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON); 
   }
   
   public static void showErrorDialog(Container parent, String title, String text)

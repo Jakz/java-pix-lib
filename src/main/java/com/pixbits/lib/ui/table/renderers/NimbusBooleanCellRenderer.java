@@ -1,10 +1,13 @@
 package com.pixbits.lib.ui.table.renderers;
 
+import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 
 public class NimbusBooleanCellRenderer extends JCheckBox implements TableCellRenderer
@@ -20,16 +23,18 @@ public class NimbusBooleanCellRenderer extends JCheckBox implements TableCellRen
   {  
     if (isSelected) 
     {
-      setForeground(table.getSelectionForeground());
       setBackground(table.getSelectionBackground());
     } 
     else
     {
-      setForeground(table.getForeground());
-      setBackground(table.getBackground());
+      if ((row % 2) == 1)
+        setBackground(UIManager.getColor("Table.alternateRowColor"));
+      else
+        setBackground(Color.WHITE);
     }
   
-    setSelected((value != null && ((Boolean)value).booleanValue())); return this; 
+    setSelected((value != null && ((Boolean)value).booleanValue()));
+    return this; 
   }
   
   @Override public boolean isOpaque() { return true; }

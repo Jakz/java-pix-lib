@@ -4,8 +4,10 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -17,11 +19,13 @@ public class IconCache<T> implements Function<T, ImageIcon>
 {
   private final Map<T, ImageIcon> cache;
   private final Function<T, ImageIcon> builder;
+  private final Set<T> asyncSet;
   
   public IconCache(Function<T, ImageIcon> builder)
   {
     this.cache = new HashMap<>();
     this.builder = builder;
+    this.asyncSet = new HashSet<>();
   }
   
   public ImageIcon get(T key)
@@ -37,14 +41,23 @@ public class IconCache<T> implements Function<T, ImageIcon>
       return icon;
     else
     {
-      new Thread() {
-        @Override
-        public void run()
+      synchronized (this)
+      {
+        if (!asyncSet.contains(key))
         {
-          cache.put(key, builder.apply(key));
-          callback.run();
+          asyncSet.add(key);
+          new Thread() {
+            @Override
+            public void run()
+            {
+              cache.put(key, builder.apply(key));
+              callback.run();
+              asyncSet.remove(key);
+            }
+          }.start();
         }
-      }.start();
+      }
+      
       return null;
     }
   }
@@ -63,7 +76,7 @@ public class IconCache<T> implements Function<T, ImageIcon>
   public static IconCache<Rect> ofRect(final BufferedImage image)
   {
     Objects.requireNonNull(image);
-    return new IconCache<>(r ->  r != null ? new ImageIcon(image.getSubimage(r.x, r.y, r.w, r.h)) : null);
+    return new IconCache<>(r -> r != null && r.w > 0 && r.h > 0 ? new ImageIcon(image.getSubimage(r.x, r.y, r.w, r.h)) : null);
   }
   
   public static IconCache<Rectangle> ofRectangle(final BufferedImage image)
