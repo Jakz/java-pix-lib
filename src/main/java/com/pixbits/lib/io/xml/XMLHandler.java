@@ -130,6 +130,11 @@ public abstract class XMLHandler<T> extends DefaultHandler
     };
   }
   
+  protected boolean hasAttr(String key)
+  {
+    return currentAttributes.getValue(key) != null;
+  }
+  
   protected String attrString(String key) throws SAXException
   { 
     String value = currentAttributes.getValue(key);

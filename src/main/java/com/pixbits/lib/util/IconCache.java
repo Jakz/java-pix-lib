@@ -73,6 +73,11 @@ public class IconCache<T> implements Function<T, ImageIcon>
     return new IconCache<>(k -> builder.apply(image, k));
   }
   
+  public static <T> IconCache<T> of(Function<T, ImageIcon> builder)
+  {
+    return new IconCache<>(k -> builder.apply(k));
+  }
+  
   public static IconCache<Rect> ofRect(final BufferedImage image)
   {
     Objects.requireNonNull(image);
