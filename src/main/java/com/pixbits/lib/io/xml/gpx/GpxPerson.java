@@ -1,6 +1,6 @@
 package com.pixbits.lib.io.xml.gpx;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 public class GpxPerson
 {

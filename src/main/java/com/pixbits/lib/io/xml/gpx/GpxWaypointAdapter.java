@@ -1,10 +1,10 @@
 package com.pixbits.lib.io.xml.gpx;
 
 import java.math.BigDecimal;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class GpxWaypointAdapter extends XmlAdapter<GpxWaypointAdapter.JAXBGpxWaypoint,GpxWaypoint>
 {

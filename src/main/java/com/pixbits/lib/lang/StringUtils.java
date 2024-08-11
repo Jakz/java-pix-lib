@@ -5,7 +5,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Locale;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import jakarta.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 public abstract class StringUtils
 {

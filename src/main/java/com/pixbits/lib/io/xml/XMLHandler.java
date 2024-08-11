@@ -10,8 +10,8 @@ import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import javax.xml.bind.DatatypeConverter;
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import jakarta.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

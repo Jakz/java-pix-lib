@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import com.pixbits.lib.lang.Pair;
 import com.pixbits.lib.ui.color.ColorGenerator;

@@ -1,7 +1,7 @@
 package com.pixbits.lib.io.xml.gpx;
 
 import java.time.ZonedDateTime;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlJavaTypeAdapter(GpxWaypointAdapter.class)
 public class GpxWaypoint
