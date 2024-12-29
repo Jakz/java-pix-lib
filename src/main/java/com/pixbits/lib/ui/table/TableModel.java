@@ -52,7 +52,7 @@ public class TableModel<T> extends AbstractTableModel
     this.scrollPane = scrollPane;
     table.setModel(this);
   }
-  
+
   public void addColumn(ColumnSpec<T, ?> spec)
   {
     allColumns.add(spec);

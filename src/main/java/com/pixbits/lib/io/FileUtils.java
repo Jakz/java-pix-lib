@@ -85,6 +85,12 @@ public class FileUtils
       return path;
   }
   
+  public static String pathExtension(String path) {
+    String fileName = path.toString();
+    int index = fileName.lastIndexOf('.');
+    return index != -1 ? fileName.substring(index+1) : "";
+  }
+  
   public static String pathExtension(Path path) {
     String fileName = path.getFileName().toString();
     int index = fileName.lastIndexOf('.');

@@ -4,7 +4,7 @@ import com.pixbits.lib.io.archive.VerifierOptions;
 
 public class DigestOptions
 {
-  public static int DEFAULT_BUFFER_SIZE = 1024*32;
+  public static int DEFAULT_BUFFER_SIZE = 1024*1024;
 
   final int bufferSize;
   final boolean multiThreaded;
@@ -29,5 +29,10 @@ public class DigestOptions
   public DigestOptions(boolean crc, boolean md5, boolean sha1, boolean multiThreaded)
   {
     this(DEFAULT_BUFFER_SIZE, crc, md5, sha1, multiThreaded);
+  }
+  
+  public static DigestOptions forSHA1()
+  {
+    return new DigestOptions(DEFAULT_BUFFER_SIZE, false, false, true, true);
   }
 }
