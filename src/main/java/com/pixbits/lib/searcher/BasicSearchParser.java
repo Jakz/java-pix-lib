@@ -59,7 +59,7 @@ public class BasicSearchParser<T> extends SearchParser<T>
         }
         else
           token = tk;
-        
+                
         Predicate<T> cpredicate = buildSinglePredicate(predicates, token);
         
         if (cpredicate != null)
