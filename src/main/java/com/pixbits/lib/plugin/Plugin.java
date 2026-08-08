@@ -56,9 +56,15 @@ public abstract class Plugin implements JsonnableContext<Plugin>
     enabled = context.deserialize(element.getAsJsonObject().get("isEnabled"), Boolean.class);
     
     getFields().stream()
-      .forEach(StreamException.rethrowConsumer(f -> 
-        f.set(this, context.deserialize(element.getAsJsonObject().get(f.getName()), f.getType()))) 
-      );    
+      .forEach(StreamException.rethrowConsumer(f -> {
+        var value = context.deserialize(element.getAsJsonObject().get(f.getName()), f.getType());
+
+        /* if value is null or not existing but type can't be null just ignore it */
+        if (value == null && f.getType().isPrimitive())
+          return;
+
+        f.set(this, value);
+      }));
   }
   
   private List<Field> getFields()

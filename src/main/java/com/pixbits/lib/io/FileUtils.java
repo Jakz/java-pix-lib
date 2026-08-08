@@ -2,6 +2,7 @@ package com.pixbits.lib.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.DirectoryStream;
@@ -29,21 +30,43 @@ public class FileUtils
   public static long calculateCRCFast(Path filename) throws IOException
   {
     final int SIZE = 16 * 1024;
-    try (FileChannel channel = (FileChannel)Files.newByteChannel(filename))
+
+    /* use file channel only when file size allows it ( < 4gb ) */
+    if (Files.size(filename) < (long)Integer.MAX_VALUE)
     {
-      CRC32 crc = new CRC32();
-      int length = (int) channel.size();
-      MappedByteBuffer mb = channel.map(FileChannel.MapMode.READ_ONLY, 0, length);
-      byte[] bytes = new byte[SIZE];
-      int nGet;
-      
-      while (mb.hasRemaining())
+      try (FileChannel channel = (FileChannel)Files.newByteChannel(filename))
       {
-         nGet = Math.min(mb.remaining(), SIZE);
-         mb.get(bytes, 0, nGet);
-         crc.update(bytes, 0, nGet);
+        CRC32 crc = new CRC32();
+        long length = channel.size();
+        MappedByteBuffer mb = channel.map(FileChannel.MapMode.READ_ONLY, 0, length);
+        byte[] bytes = new byte[SIZE];
+        int nGet;
+
+        while (mb.hasRemaining())
+        {
+           nGet = Math.min(mb.remaining(), SIZE);
+           mb.get(bytes, 0, nGet);
+           crc.update(bytes, 0, nGet);
+        }
+
+        return crc.getValue();
       }
-      
+    }
+    else
+    {
+      /* use a fixed size buffer of 64 mb */
+      final int BUFFER_SIZE = 64 * 1024 * 1024;
+      byte[] buffer = new byte[BUFFER_SIZE];
+
+      CRC32 crc = new CRC32();
+
+      try (InputStream in = Files.newInputStream(filename))
+      {
+        int r;
+        while ((r = in.read(buffer)) != -1)
+          crc.update(buffer, 0, r);
+      }
+
       return crc.getValue();
     }
   }

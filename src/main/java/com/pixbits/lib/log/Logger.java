@@ -23,12 +23,12 @@ public abstract class Logger
   
   public final void setLevel(Log level) { this.logLevel = level; }
   
-  private final void log(Log type, LogAttribute attr, String message, Object... args)
+  public final void log(Log type, LogAttribute attr, String message, Object... args)
   {   
     log(type, String.format(message, args), attr);
   }
 
-  private final void log(Log type, String message, LogAttribute attr)
+  public final void log(Log type, String message, LogAttribute attr)
   {
     doLog(type, message, attr);
   }
